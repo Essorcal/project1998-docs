@@ -1,0 +1,211 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>No-Clip Companion · Project1998</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+  :root {
+    --ground: #F4F6F1; --surface: #FCFDFB; --ink: #1F2A26; --ink-soft: #55645D;
+    --ink-faint: #8A978F; --rule: #DDE4DD; --rule-soft: #E8EDE7;
+    --accent: #2E7D62; --accent-ink: #1E5A46; --focus: #2E7D62;
+    --note-bg: #EDF3EE; --warn-bg: #F6EFDD; --warn-ink: #7A5C14;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --ground: #141B18; --surface: #1B2420; --ink: #D8E2DA; --ink-soft: #93A49A;
+      --ink-faint: #66766D; --rule: #2A3630; --rule-soft: #222D28;
+      --accent: #6FBF9F; --accent-ink: #8FD4B8; --focus: #6FBF9F;
+      --note-bg: #1C2723; --warn-bg: #332B18; --warn-ink: #D0A957;
+    }
+  }
+  :root[data-theme="dark"] {
+    --ground: #141B18; --surface: #1B2420; --ink: #D8E2DA; --ink-soft: #93A49A;
+    --ink-faint: #66766D; --rule: #2A3630; --rule-soft: #222D28;
+    --accent: #6FBF9F; --accent-ink: #8FD4B8; --focus: #6FBF9F;
+    --note-bg: #1C2723; --warn-bg: #332B18; --warn-ink: #D0A957;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--ground); color: var(--ink);
+    font-family: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+    font-size: 15px; line-height: 1.55;
+  }
+  a { color: var(--accent-ink); text-underline-offset: 2px; }
+  a:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+  code, kbd {
+    font-family: "IBM Plex Mono", ui-monospace, monospace;
+    font-size: 0.92em; color: var(--accent-ink);
+  }
+  .sitenav {
+    max-width: 900px; margin: 0 auto; padding: 14px 24px 0;
+    display: flex; gap: 18px; align-items: baseline; font-size: 14px; flex-wrap: wrap;
+  }
+  .sitenav a { color: var(--ink-soft); text-decoration: none; }
+  .sitenav a:hover { color: var(--accent-ink); text-decoration: underline; }
+  .sitenav .brand {
+    font-family: "Gowun Batang", Georgia, serif; font-weight: 700;
+    color: var(--ink); margin-right: auto; font-size: 16px;
+  }
+  .sitenav a[aria-current="page"] { color: var(--accent-ink); font-weight: 600; }
+  .wrap { max-width: 900px; margin: 0 auto; padding: 0 24px 96px; }
+  header.hero { padding: 40px 0 8px; }
+  .kicker {
+    font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 12px;
+    letter-spacing: 0.14em; text-transform: uppercase; color: var(--accent); margin: 0 0 10px;
+  }
+  h1 {
+    font-family: "Gowun Batang", Georgia, serif; font-weight: 700;
+    font-size: clamp(30px, 5vw, 42px); line-height: 1.15; margin: 0 0 10px; text-wrap: balance;
+  }
+  .lede { max-width: 66ch; color: var(--ink-soft); margin: 0; }
+  h2 {
+    font-family: "Gowun Batang", Georgia, serif; font-size: 24px;
+    margin: 42px 0 10px; border-bottom: 2px solid var(--ink); padding-bottom: 6px;
+  }
+  p, li { color: var(--ink-soft); }
+  p b, li b, p strong, li strong { color: var(--ink); }
+  ul, ol { margin: 8px 0; padding-left: 22px; }
+  li { margin: 5px 0; }
+  pre {
+    background: var(--surface); border: 1px solid var(--rule); border-radius: 6px;
+    padding: 12px 14px; overflow-x: auto;
+    font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 13px; color: var(--ink);
+  }
+  .callout {
+    background: var(--note-bg); border: 1px solid var(--rule-soft); border-radius: 8px;
+    padding: 12px 16px; margin: 14px 0; font-size: 14px; color: var(--ink-soft);
+  }
+  .callout.warn { background: var(--warn-bg); color: var(--warn-ink); border-color: transparent; }
+  .callout strong { color: inherit; }
+  .steps { counter-reset: step; list-style: none; padding-left: 0; }
+  .steps > li {
+    counter-increment: step;
+    background: var(--surface); border: 1px solid var(--rule-soft); border-radius: 8px;
+    padding: 12px 16px 12px 52px; margin: 8px 0; position: relative;
+  }
+  .steps > li::before {
+    content: counter(step);
+    position: absolute; left: 14px; top: 12px;
+    width: 24px; height: 24px; border-radius: 50%;
+    background: var(--accent); color: var(--ground);
+    display: flex; align-items: center; justify-content: center;
+    font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 12px; font-weight: 600;
+  }
+  .tablewrap { overflow-x: auto; }
+  table { border-collapse: collapse; width: 100%; margin: 10px 0; font-size: 14px; }
+  th, td { text-align: left; padding: 8px 12px; border-bottom: 1px solid var(--rule-soft); vertical-align: top; }
+  th {
+    font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 11.5px;
+    letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-faint); font-weight: 500;
+  }
+  td:first-child { color: var(--ink); font-weight: 600; }
+  footer { margin-top: 56px; padding-top: 14px; border-top: 1px solid var(--rule); font-size: 12.5px; color: var(--ink-faint); }
+</style>
+</head>
+<body>
+<nav class="sitenav">
+  <a class="brand" href="./">Project1998</a>
+  <a href="commands.html">Commands</a>
+  <a href="quest-registry.html">Quest Registry</a>
+  <a href="map-editor.html">Map Editor</a>
+  <a href="noclip.html" aria-current="page">No-Clip</a>
+  <a href="patch-notes.html">Patch Notes</a>
+</nav>
+<div class="wrap">
+  <header class="hero">
+    <p class="kicker">Project1998 · tester setup</p>
+    <h1>The No-Clip Companion</h1>
+    <p class="lede">Walking through walls takes <b>two halves</b>: the server's <code>@clip</code> command,
+    and a small companion program on your PC. The server half opens water, cliffs, mobs and players — but
+    the 5.33 client checks <em>building walls</em> on its own, locally, before it even asks the server. The
+    companion opens that last door. It changes nothing on disk and only acts while its window is open —
+    close it and your game is instantly back to normal.</p>
+  </header>
+
+  <h2>What you need first</h2>
+  <ul>
+    <li><b>The same NexusTK client you were given for this server.</b> The companion is built for that
+    exact 5.33 build — a different download will not work and may crash the game.</li>
+    <li><b>Python 3</b> — from <a href="https://www.python.org/downloads/">python.org/downloads</a>. On
+    the <em>first</em> install screen, tick <b>"Add Python to PATH"</b>. (If you skipped that, re-run the
+    installer and choose Modify.)</li>
+    <li><b>Your character on the tester list.</b> Ask the server admin to add your character name. Without
+    it, <code>@clip</code> answers <code>Unknown command.</code> — the tooling is invisible to
+    non-testers by design.</li>
+    <li><b>The <code>noclip-companion</code> folder</b>, handed out by the admin (it also lives in the
+    game repo). Four files: <code>Start-NoClip.bat</code>, <code>Install-Once.bat</code>,
+    <code>frida_noclip_533.py</code>, <code>README.txt</code>. Keep them together.</li>
+  </ul>
+
+  <h2>One-time install</h2>
+  <ol class="steps">
+    <li>Double-click <b><code>Install-Once.bat</code></b>. It installs the one component the companion
+    needs — <b>Frida</b>, the instrumentation toolkit the script uses to attach to the game.</li>
+    <li>Wait for it to say <b>Done</b>, then close it. You never need to run it again.</li>
+  </ol>
+  <div class="callout warn"><strong>Antivirus heads-up.</strong> The companion attaches to the game the
+  way a debugger does, which some antivirus software flags. If Windows Defender or your AV blocks or
+  deletes it, add an exception for the folder. It modifies no files — everything it does lives in memory
+  and ends when its window closes.</div>
+
+  <h2>Every session</h2>
+  <ol class="steps">
+    <li>Start NexusTK and log in like normal.</li>
+    <li>Double-click <b><code>Start-NoClip.bat</code></b>. A small black window opens and says it
+    <b>attached to NexusTK.exe</b>. Leave that window open while you play.</li>
+    <li>In game, type <b><code>@clip</code></b>. Walls open up. Type it again to turn them back off — the
+    companion watches for the server's <code>No-clip :ON/OFF</code> status line and flips itself to match,
+    so one command toggles both halves together.</li>
+    <li>Done testing? Close the black window. Normal collision is restored instantly.</li>
+  </ol>
+  <div class="callout">Order doesn't matter: you can start <code>Start-NoClip.bat</code> before or after
+  logging in — it waits for the game and attaches on its own, and if you restart the game it re-attaches
+  automatically. From a terminal, <code>python frida_noclip_533.py</code> is the same thing.</div>
+
+  <h2>How it works (the short version)</h2>
+  <p>Before the 5.33 client sends a walk, it runs its own collision check against the map's object walls
+  and refuses the step locally — the server never even sees the attempt, which is why <code>@clip</code>
+  alone can open terrain but not buildings. Reverse-engineering found the client's single collision
+  primitive, and the companion hooks it live: while <code>@clip</code> is ON, the check reports
+  "walkable"; while OFF, the hook stands down entirely (so there's no rubber-banding). It's a live,
+  in-memory override, not a patch — nothing is written to the game's files, ever.</p>
+  <ul>
+    <li><b>What it opens:</b> building walls, fences, thin object walls — the client-side blockers.</li>
+    <li><b>Already handled by the server half:</b> water, cliffs, mobs, other players.</li>
+    <li><b>Known limit:</b> standing mobs/NPCs use a separate client check and can still block a step
+    client-side in rare spots — a known follow-up.</li>
+  </ul>
+
+  <h2>Is this cheating? Can a normal player use it?</h2>
+  <p>No. No-clip only actually works when the <b>server</b> lets you through, and that is switched by the
+  staff-only <code>@clip</code> command per session. On its own, the companion does nothing that lets a
+  normal player pass real walls — the server still stops them. It's a testing convenience, not an
+  exploit.</p>
+
+  <h2>Troubleshooting</h2>
+  <div class="tablewrap"><table>
+    <tr><th>Symptom</th><th>Fix</th></tr>
+    <tr><td><code>@clip</code> says "Unknown command"</td>
+        <td>Your character isn't on the tester list yet. Ask the admin to add it, then relog.</td></tr>
+    <tr><td><code>@clip</code> toggles (you see ON/OFF) but walls still block</td>
+        <td>The companion window isn't running, or it didn't attach. Start
+        <code>Start-NoClip.bat</code> and check it says "attached to NexusTK.exe".</td></tr>
+    <tr><td>"Python was NOT found"</td>
+        <td>Install Python 3 with "Add Python to PATH" ticked, then run
+        <code>Install-Once.bat</code> again.</td></tr>
+    <tr><td>Antivirus blocks or deletes it</td>
+        <td>Add an exception for the folder — see the heads-up above.</td></tr>
+    <tr><td>The game crashes on toggle, or nothing happens at all</td>
+        <td>You're probably on a different client build than the one the companion was made for. Use the
+        client you were given for this server.</td></tr>
+  </table></div>
+
+  <footer>The companion lives in <code>noclip-companion/</code> in the
+  <a href="https://github.com/project1998/Project1998">game repository</a>. Server half:
+  <code>@clip</code> on <a href="commands.html">The @Command Scroll</a>.</footer>
+</div>
+</body>
+</html>
