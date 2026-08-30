@@ -1,0 +1,359 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Map Editor · Project1998</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+  :root {
+    --ground: #F4F6F1; --surface: #FCFDFB; --ink: #1F2A26; --ink-soft: #55645D;
+    --ink-faint: #8A978F; --rule: #DDE4DD; --rule-soft: #E8EDE7;
+    --accent: #2E7D62; --accent-ink: #1E5A46; --focus: #2E7D62;
+    --note-bg: #EDF3EE; --warn-bg: #F6EFDD; --warn-ink: #7A5C14;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --ground: #141B18; --surface: #1B2420; --ink: #D8E2DA; --ink-soft: #93A49A;
+      --ink-faint: #66766D; --rule: #2A3630; --rule-soft: #222D28;
+      --accent: #6FBF9F; --accent-ink: #8FD4B8; --focus: #6FBF9F;
+      --note-bg: #1C2723; --warn-bg: #332B18; --warn-ink: #D0A957;
+    }
+  }
+  :root[data-theme="dark"] {
+    --ground: #141B18; --surface: #1B2420; --ink: #D8E2DA; --ink-soft: #93A49A;
+    --ink-faint: #66766D; --rule: #2A3630; --rule-soft: #222D28;
+    --accent: #6FBF9F; --accent-ink: #8FD4B8; --focus: #6FBF9F;
+    --note-bg: #1C2723; --warn-bg: #332B18; --warn-ink: #D0A957;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--ground); color: var(--ink);
+    font-family: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+    font-size: 15px; line-height: 1.55;
+  }
+  a { color: var(--accent-ink); text-underline-offset: 2px; }
+  a:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+  code, kbd {
+    font-family: "IBM Plex Mono", ui-monospace, monospace;
+    font-size: 0.92em; color: var(--accent-ink);
+  }
+  .sitenav {
+    max-width: 940px; margin: 0 auto; padding: 14px 24px 0;
+    display: flex; gap: 18px; align-items: baseline; font-size: 14px; flex-wrap: wrap;
+  }
+  .sitenav a { color: var(--ink-soft); text-decoration: none; }
+  .sitenav a:hover { color: var(--accent-ink); text-decoration: underline; }
+  .sitenav .brand {
+    font-family: "Gowun Batang", Georgia, serif; font-weight: 700;
+    color: var(--ink); margin-right: auto; font-size: 16px;
+  }
+  .sitenav a[aria-current="page"] { color: var(--accent-ink); font-weight: 600; }
+  .wrap { max-width: 940px; margin: 0 auto; padding: 0 24px 96px; }
+  header.hero { padding: 40px 0 8px; }
+  .kicker {
+    font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 12px;
+    letter-spacing: 0.14em; text-transform: uppercase; color: var(--accent); margin: 0 0 10px;
+  }
+  h1 {
+    font-family: "Gowun Batang", Georgia, serif; font-weight: 700;
+    font-size: clamp(30px, 5vw, 42px); line-height: 1.15; margin: 0 0 10px; text-wrap: balance;
+  }
+  .lede { max-width: 66ch; color: var(--ink-soft); margin: 0; }
+  h2 {
+    font-family: "Gowun Batang", Georgia, serif; font-size: 24px;
+    margin: 42px 0 10px; border-bottom: 2px solid var(--ink); padding-bottom: 6px;
+  }
+  h3 { font-size: 16px; margin: 24px 0 6px; }
+  p, li { color: var(--ink-soft); }
+  p b, li b, p strong, li strong { color: var(--ink); }
+  ul, ol { margin: 8px 0; padding-left: 22px; }
+  li { margin: 4px 0; }
+  img.shot {
+    max-width: 100%; height: auto; display: block;
+    border: 1px solid var(--rule); border-radius: 8px; margin: 14px 0;
+  }
+  figure { margin: 14px 0; }
+  figcaption { font-size: 12.5px; color: var(--ink-faint); margin-top: 6px; }
+  .tablewrap { overflow-x: auto; }
+  table { border-collapse: collapse; width: 100%; margin: 10px 0; font-size: 14px; }
+  th, td { text-align: left; padding: 7px 12px; border-bottom: 1px solid var(--rule-soft); vertical-align: top; }
+  th {
+    font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 11.5px;
+    letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-faint); font-weight: 500;
+  }
+  td:first-child { white-space: nowrap; color: var(--ink); font-weight: 600; }
+  pre {
+    background: var(--surface); border: 1px solid var(--rule); border-radius: 6px;
+    padding: 12px 14px; overflow-x: auto;
+    font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 13px; color: var(--ink);
+  }
+  .callout {
+    background: var(--note-bg); border: 1px solid var(--rule-soft); border-radius: 8px;
+    padding: 12px 16px; margin: 14px 0; font-size: 14px; color: var(--ink-soft);
+  }
+  .callout.warn { background: var(--warn-bg); color: var(--warn-ink); border-color: transparent; }
+  .callout strong { color: inherit; }
+  footer { margin-top: 56px; padding-top: 14px; border-top: 1px solid var(--rule); font-size: 12.5px; color: var(--ink-faint); }
+</style>
+</head>
+<body>
+<nav class="sitenav">
+  <a class="brand" href="./">Project1998</a>
+  <a href="commands.html">Commands</a>
+  <a href="quest-registry.html">Quest Registry</a>
+  <a href="map-editor.html" aria-current="page">Map Editor</a>
+  <a href="patch-notes.html">Patch Notes</a>
+</nav>
+<div class="wrap">
+  <header class="hero">
+    <p class="kicker">Project1998 · builder's tool</p>
+    <h1>NexusTK Map Editor</h1>
+    <p class="lede">A visual editor for the world's maps. It renders with the real 5.33 client tile art —
+    verified pixel-identical to the running game — and edits the 4.x <code>.map</code> files the server
+    actually serves. It knows the content on the map (warps, spawns, NPCs, overrides as marker layers),
+    can render exactly what players see, places new spawns/warps/NPCs and whole new maps, and turns edits
+    into reviewable CSV rows — while <b>never writing a game file itself</b>: everything lands in its own
+    <code>saved\</code> folder for you to publish deliberately.</p>
+  </header>
+
+  <img class="shot" src="img/ui-main.png" alt="The editor showing Kugnae with the palette and tools visible">
+
+  <h2>Installation</h2>
+  <h3>The easy way (no tools required)</h3>
+  <ol>
+    <li>Grab the <b>NexusTK-Map-Editor</b> folder (the exe, a <code>wwwroot</code> folder, and a few
+    runtime DLLs — keep the folder together).</li>
+    <li>Put that folder anywhere <b>inside your Project1998 checkout</b> (for example
+    <code>Project1998\dist\NexusTK-Map-Editor\</code>). The editor finds the maps by looking for a
+    <code>game-data\maps</code> folder in the directories above it.</li>
+    <li>Double-click <code>NexusTK-Map-Editor.exe</code>.</li>
+  </ol>
+  <p>The editor opens as a <b>single application window</b> (a WebView2 shell — no console, no browser
+  tab). It decodes the tileset for about a second on the way up, and closing the window shuts everything
+  down. Window size and position are remembered.</p>
+  <p>Prefer your own browser? Run with <code>--browser</code>: the editor opens as a tab instead, and the
+  server <b>exits itself</b> about 15 seconds after the last editor tab closes.
+  (<code>--no-browser</code> starts the bare server for tooling; add <code>--heartbeat</code> if you want
+  that to self-clean too.) Startup output goes to <code>%TEMP%\nexustk-map-editor.log</code>.</p>
+
+  <h3>Tile.dat — the artwork</h3>
+  <p>The editor needs the 5.33 client's <code>Tile.dat</code>. It looks, in order:</p>
+  <div class="tablewrap"><table>
+    <tr><th>Where</th><th>Notes</th></tr>
+    <tr><td><code>P1998_CLIENT5</code></td><td>environment variable pointing at the 5.33 client folder</td></tr>
+    <tr><td>next to the .exe</td><td>drop a copy of <code>Tile.dat</code> beside the program</td></tr>
+    <tr><td><code>%LOCALAPPDATA%\Project1998\game\533\</code></td><td>the standard Project1998 client install</td></tr>
+  </table></div>
+  <p>If either the maps or <code>Tile.dat</code> can't be found, a message box says exactly what's missing
+  and where it looked (the log has the same).</p>
+
+  <h3>From source</h3>
+  <pre>dotnet run --project MapEditor</pre>
+  <p>To build the standalone exe yourself:</p>
+  <pre>dotnet publish MapEditor/MapEditor.csproj -c Release -r win-x64 --self-contained -p:PublishSingleFile=true -p:AssemblyName=NexusTK-Map-Editor -o dist/NexusTK-Map-Editor</pre>
+
+  <h2>A quick tour</h2>
+  <ul>
+    <li><b>Top bar</b> — the <code>.map</code> / <code>.cmp</code> format switch (hover for which client
+    each belongs to), zoom controls, Undo, Import, Export, <b>Corrections</b> (export
+    <code>MapCells.csv</code> rows), <b>Discard draft</b>, and Save.</li>
+    <li><b>Left rail</b> — the tools (hover any icon): select, marquee, stamp, brush, flood fill,
+    rectangle, eyedropper, eraser, passability toggle, then the test character and the three placement
+    tools — spawns (paw), warp pairs (diamond-arrow), and NPCs (person).</li>
+    <li><b>Right panel</b> — the tile palette, the layer toggles (including <b>Player view</b>), the
+    <b>Checks</b> lint, and the map list with <b>+ new</b>. Drag the panel's left edge to widen it.</li>
+    <li><b>Canvas overlays</b> — the clickable minimap floats bottom-right (✕ hides it), and the active
+    placement tool's box sits bottom-left.</li>
+    <li><b>Bottom bar</b> — current map (and its <code>· draft</code> state), the cell under your cursor
+    (ground word, pass flag, object id, plus any markers on it), tool hints, unsaved-change count, and
+    zoom.</li>
+  </ul>
+
+  <h2>Finding tiles</h2>
+  <p>The palette has three modes:</p>
+  <ul>
+    <li><b>All</b> — the entire tileset, with a page browser and an <code>id…</code> box that jumps to a
+    tile number (decimal, or <code>0xC0CC</code>-style hex for sheet-2 words).</li>
+    <li><b>On map</b> — only the tiles and objects actually placed on the current map. For most editing
+    this is the mode you want: a big city uses a few hundred tiles, not 28,000.</li>
+    <li><b>★ favorites</b> — your personal palette. Right-click any swatch to star or unstar it;
+    favorites persist between sessions.</li>
+  </ul>
+  <p><b>Shift+click</b> a second swatch to select a rectangular block of tiles — the brush then stamps the
+  whole block, and the rectangle tool tiles it as a repeating pattern. <b>Hover a swatch</b> to see it
+  magnified — objects preview as their full sprite. The <b>eyedropper</b> works the other way: click any
+  cell and the palette jumps to that tile, brush ready.</p>
+  <div class="callout">On the Ground tab, <b>Sheet 1 · walkable</b> and <b>Sheet 2 · blocking</b> are the
+  game's two ground-tile sheets. This is a real 4.x format rule, not an editor invention: a cell's sheet
+  choice <em>is</em> its collision. Paint a wall tile and you've painted its collision too.</div>
+
+  <h2>Navigating</h2>
+  <p>Zoom from <b>10% to 500%</b>: the top-bar − / + buttons, typing a percentage, <kbd>Ctrl</kbd> +
+  mouse wheel, or the <kbd>+</kbd> / <kbd>-</kbd> keys. Pan with <b>space + drag</b>, middle-mouse drag,
+  the mouse wheel (<kbd>Shift</kbd> for horizontal), or the arrow keys. The <b>minimap</b> floats
+  bottom-right with the current view marked — click or drag on it to jump; it carries the marker layers'
+  dots, so a city's warps and spawns are visible at a glance.</p>
+  <figure>
+    <img class="shot" src="img/ui-overview.png" alt="Whole-city overview at 10% zoom">
+    <figcaption>A whole city at 10% zoom — marker glyphs become solid cell tints below 100%.</figcaption>
+  </figure>
+
+  <h2>Editing</h2>
+  <div class="tablewrap"><table>
+    <tr><th>Tool</th><th>What it does</th></tr>
+    <tr><td>Select</td><td>inspect a cell — the bottom bar shows its ground word, pass flag, object</td></tr>
+    <tr><td>Marquee</td><td>drag a box; the region is <b>copied on release</b></td></tr>
+    <tr><td>Stamp</td><td>click to paste the copied region, as many times as you like — all layers</td></tr>
+    <tr><td>Brush</td><td>paint the selected tile (click or drag); Ground/Objects/Pass tabs pick the layer</td></tr>
+    <tr><td>Fill</td><td>flood-fill the contiguous region under the cursor on the active layer</td></tr>
+    <tr><td>Rectangle</td><td>drag a box, fills it with the selected tile</td></tr>
+    <tr><td>Eyedropper</td><td>pick the tile under the cursor into the palette</td></tr>
+    <tr><td>Eraser</td><td>ground → void, object → none, pass → walkable</td></tr>
+    <tr><td>No-entry</td><td>toggle a cell's passability (this flips its ground sheet — see above)</td></tr>
+  </table></div>
+  <p><kbd>Ctrl+Z</kbd> undoes stroke by stroke. The <b>Passability overlay</b> (Layers panel) tints every
+  blocking cell red.</p>
+
+  <h2>Saving — drafts, never the live maps</h2>
+  <p>Nothing the editor generates goes into <code>game-data</code>. Everything lives with the tool under
+  <code>dist\NexusTK-Map-Editor\saved\</code>:</p>
+  <ul>
+    <li><code>saved\maps\TK&lt;id&gt;.map</code> — draft saves (<b>Save / Ctrl+S</b>), including new maps</li>
+    <li><code>saved\csvs\</code> — exported rows: Corrections (<code>mapcells-TK&lt;id&gt;.csv</code>),
+    spawns (<code>spawns-TK&lt;id&gt;.csv</code>), warps (<code>warps-pending.csv</code>), NPCs
+    (<code>npcs-pending.csv</code>)</li>
+    <li><code>saved\new-maps.csv</code> — index rows for maps created in the editor</li>
+  </ul>
+  <p>Save <b>never overwrites the shipped map</b>. Loading a map prefers its draft, so your work is there
+  next session; the status bar shows <code>· draft</code>, and <b>Discard draft</b> deletes the draft and
+  reloads the shipped map. Getting an edit into the actual game is deliberate and manual — either copy
+  <code>saved\maps\TK&lt;id&gt;.map</code> over <code>game-data\maps\TK&lt;id&gt;.map</code> yourself
+  (then <code>@reload</code> on the server), or for small fixes use <b>Corrections</b> and append the rows
+  to <code>game-data\MapCells.csv</code>.</p>
+
+  <div class="callout warn"><strong>Direct mode — the deliberate bypass.</strong> The <b>Direct</b> toggle
+  in the top bar bypasses the saved folder — behind a confirmation box, and off on every start. While it's
+  on (the button turns red), Save overwrites the shipped map (a new map's <code>map_index.csv</code> row is
+  appended too), and the Corrections/spawn/warp/NPC exports append their rows straight into the live CSVs.
+  The server still needs <code>@reload</code>, and git is the only undo — that trade is the point of the
+  confirmation.</div>
+
+  <h2>The test character</h2>
+  <p>The walk tool drops a test character. Move with the <b>arrow keys</b> or the on-screen pad; blocked
+  cells refuse the step, and walking behind trees, roofs and walls shows the same translucent ghost the
+  real client draws. It always walks the <b>base</b> pass flags — the ones the server actually enforces —
+  so it strolls through the default-open city gates even when the raw file draws them blocked. Remove it
+  by clicking it, pressing <kbd>Esc</kbd>, or the ✕ on the pad.</p>
+  <figure>
+    <img class="shot" src="img/ui-walkmode.png" alt="Test character ghosting behind the Buya north gate">
+    <figcaption>The test character ghosts behind the Buya north gate, exactly as the client draws it.</figcaption>
+  </figure>
+
+  <h2>World markers</h2>
+  <p>Read-only overlay layers (Layers panel) show the cells that server content points at, read fresh from
+  the live <code>game-data</code> CSVs on every map load:</p>
+  <ul>
+    <li><b>Warps</b> — cyan diamonds from <code>Warps.csv</code>: filled = a warp <em>out</em> lives here,
+    hollow = some other map's warp <em>lands</em> here. Violet diamonds are the world-map screen's cells.</li>
+    <li><b>Spawns</b> — orange dots for fixed points (<code>Spawns.csv</code>), dashed orange boxes for
+    area-spawn regions, labeled with the mob and count.</li>
+    <li><b>NPCs</b> — green squares (<code>NPCs.csv</code>).</li>
+    <li><b>Player view</b> — re-renders the map as the server's <b>base</b>: the shipped file plus doors
+    that default open, <code>Doors.csv</code> runs, ForceOpen tiles, and <code>MapCells.csv</code>
+    overrides. That's what players actually see; the editor otherwise draws the raw file.</li>
+    <li><b>Overrides</b> — hollow pink squares for <code>MapCells.csv</code> authored overrides. Check
+    here before "fixing" a cell that may already be fixed.</li>
+  </ul>
+  <figure>
+    <img class="shot" src="img/ui-markers.png" alt="Warp diamonds, spawn dots and override squares over Arctic Village">
+    <figcaption>Warp diamonds, spawn dots and override squares over Arctic Village.</figcaption>
+  </figure>
+  <figure>
+    <img class="shot" src="img/ui-playerview.png" alt="Player view opens Kugnae's south gate">
+    <figcaption>Player view opens Kugnae's south gate — the shipped file draws it closed.</figcaption>
+  </figure>
+  <p><b>Warps are usable, not just visible</b>: with the select tool, clicking a warp diamond follows it —
+  and the test character warps for real, including your <em>pending</em> placed warps, so you can walk
+  into a brand-new map through its unpublished door before a single row is appended.</p>
+
+  <h2>Checks</h2>
+  <p>The <b>run</b> button in the Checks section scans the loaded map for suspicious cells: warp
+  <b>arrivals</b> and <b>spawn points</b> on blocked ground, and walkable edges into void. Click a finding
+  to jump to it. It judges the base (a cell an override already unblocks is not a finding), and blocked
+  warp <em>sources</em> are deliberately not flagged — a doorway warp on a blocked cell is the game's
+  normal idiom.</p>
+
+  <h2>Exporting corrections</h2>
+  <p>The server applies <code>game-data/MapCells.csv</code> rows as authored overrides on top of the
+  shipped maps — "the shipped map is wrong here". The <b>Corrections</b> button diffs the editor's buffer
+  against the shipped map and writes one CSV row per changed cell to
+  <code>saved\csvs\mapcells-TK&lt;id&gt;.csv</code>, unchanged columns left blank so they inherit. A
+  three-cell fix becomes three reviewable lines in git instead of a rewritten binary map.</p>
+
+  <h2>Placing spawns, NPCs and warps</h2>
+  <ul>
+    <li><b>Spawns (paw)</b> — pick a mob in the spawn box (search by name or id), click cells; yellow dots
+    mark pending points (click to remove; blocked cells refused). <b>Export rows</b> writes
+    <code>Spawns.csv</code> rows numbered past the file's max.</li>
+    <li><b>NPCs (person)</b> — placed as <b>copies of an existing NPC</b>: the template supplies look,
+    type and behavior; keep its identifier to reuse its dialog/shop scripts (a second Bank clerk works
+    out of the box), or type a new one to script later. Blocked cells are allowed on purpose.</li>
+    <li><b>Warps (diamond-arrow)</b> — a pair in two clicks: source, then destination (you can switch maps
+    between them; <kbd>Esc</kbd> cancels). The warp box lists pending pairs and marks pairs with no
+    pending return with ⚠ — a one-way door strands players unless <code>Warps.csv</code> already covers
+    the way back. Place the return leg yourself; almost no real pair is an exact mirror.</li>
+  </ul>
+  <p>Placements are per-map, survive restarts, and export to <code>saved\csvs\</code> — append the rows to
+  the live CSVs by hand, then <code>@reload</code>.</p>
+
+  <h2>Creating a new map</h2>
+  <p><b>+ new</b> (Maps panel) creates a brand-new map: an unused id (validated against both
+  <code>map_index.csv</code> and the full RTK <code>Maps.csv</code>; the suggested id from 59000 up is
+  free in both), a name, and dimensions (5–255 per axis). You get an all-void canvas — fence the playable
+  area with blocking tiles the way the shipped maps do. Publishing is the usual manual step:</p>
+  <ol>
+    <li>append its row from <code>saved\new-maps.csv</code> to <code>game-data\map_index.csv</code></li>
+    <li>copy <code>saved\maps\TK&lt;id&gt;.map</code> into <code>game-data\maps\</code></li>
+    <li><code>@reload</code> — the server's map registry <em>is</em> <code>map_index.csv</code>, so that's
+    all it takes</li>
+  </ol>
+  <p>Then wire it into the world with the warp tool — a pair in, a pair back out.</p>
+
+  <h2>Import &amp; export</h2>
+  <ul>
+    <li><b><code>.map</code></b> — the 4.x client format: headerless, 4 bytes per cell. The format the
+    server serves and the editor edits natively.</li>
+    <li><b><code>.cmp</code></b> — the 5.33 client format: <code>CMAP</code> header + zlib, 6 bytes per
+    cell.</li>
+  </ul>
+  <p><b>Import</b> accepts either. A <code>.cmp</code> carries its own dimensions; a headerless
+  <code>.map</code> will ask for them (the editor suggests the likely pair from the file size).</p>
+
+  <h2>Sharing a spot</h2>
+  <p>The address bar carries state you can link to:</p>
+  <pre>http://127.0.0.1:5959/?map=330&amp;at=72,15&amp;zoom=200</pre>
+  <p><code>map</code> (id), <code>at</code> (x,y to center on), <code>zoom</code> (percent),
+  <code>walk</code> (x,y to drop the test character), and <code>view=player</code> (start in Player view)
+  all work.</p>
+
+  <h2>Troubleshooting</h2>
+  <ul>
+    <li><b>No window appears</b> — check <code>%TEMP%\nexustk-map-editor.log</code>. If it mentions
+    WebView2, the editor already fell back to your browser; the (rarely missing) WebView2 runtime ships
+    with Windows 11 and with Edge on Windows 10.</li>
+    <li><b>A different port</b> — if 5959 is taken the editor picks the next free port; the log shows the
+    address. Pin one with <code>--port 5970</code>; <code>--no-browser</code> skips the auto-opened tab.</li>
+    <li><b>"Could not find the game data"</b> — the exe isn't inside a Project1998 checkout; move it there
+    or set <code>P1998_REPO</code>.</li>
+    <li><b>"Tile.dat … not found"</b> — install the 5.33 client, or copy its <code>Tile.dat</code> next to
+    the exe, or set <code>P1998_CLIENT5</code>.</li>
+  </ul>
+
+  <footer>Source lives in <code>MapEditor/</code> in the
+  <a href="https://github.com/project1998/Project1998">game repository</a>; this page tracks its README.
+  Created by Essorcal.</footer>
+</div>
+</body>
+</html>

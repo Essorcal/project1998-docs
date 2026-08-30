@@ -32,13 +32,13 @@
   }
   a { color: var(--accent-ink); text-underline-offset: 2px; }
   a:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
-  code {
+  code, kbd {
     font-family: "IBM Plex Mono", ui-monospace, monospace;
     font-size: 0.92em; color: var(--accent-ink);
   }
   .sitenav {
     max-width: 900px; margin: 0 auto; padding: 14px 24px 0;
-    display: flex; gap: 18px; align-items: baseline; font-size: 14px;
+    display: flex; gap: 18px; align-items: baseline; font-size: 14px; flex-wrap: wrap;
   }
   .sitenav a { color: var(--ink-soft); text-decoration: none; }
   .sitenav a:hover { color: var(--accent-ink); text-decoration: underline; }
@@ -66,11 +66,12 @@
     font-family: "Gowun Batang", Georgia, serif; font-size: 22px; margin: 0 0 2px;
   }
   .meta { font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 12px; color: var(--ink-faint); margin: 0 0 14px; }
-  h3.sec { font-size: 15px; font-weight: 600; margin: 18px 0 6px; }
+  h3.sec { font-size: 15px; font-weight: 600; margin: 18px 0 6px; color: var(--ink); }
   h3.sec::after { content: " •"; color: var(--accent); }
   article ul { margin: 0; padding-left: 20px; }
   article li { margin: 5px 0; color: var(--ink-soft); }
   article li b, article li strong { color: var(--ink); }
+  .known { font-size: 13.5px; color: var(--ink-faint); font-style: italic; margin: 6px 0 0; }
   footer { margin-top: 56px; padding-top: 14px; border-top: 1px solid var(--rule); font-size: 12.5px; color: var(--ink-faint); }
 </style>
 </head>
@@ -79,6 +80,7 @@
   <a class="brand" href="./">Project1998</a>
   <a href="commands.html">Commands</a>
   <a href="quest-registry.html">Quest Registry</a>
+  <a href="map-editor.html">Map Editor</a>
   <a href="patch-notes.html" aria-current="page">Patch Notes</a>
 </nav>
 <div class="wrap">
@@ -91,8 +93,7 @@
 
   <article>
     <h2>Tooling &amp; fixes wave</h2>
-    <p class="meta">2026-08-28 · PRs #6–#14 merged to master</p>
-
+    <p class="meta">2026-08-28 · Essorcal</p>
     <h3 class="sec">GM &amp; tester commands</h3>
     <ul>
       <li>A whole testing kit for walking the world: <code>@clip</code> no-clip (walls, mobs and players;
@@ -112,14 +113,12 @@
       <code>@commands</code> gives the compact index. The whole roster lives on
       <a href="commands.html">The @Command Scroll</a>.</li>
     </ul>
-
     <h3 class="sec">Content, quests &amp; world</h3>
     <ul>
       <li>The leviathan talisman can no longer be lost: using it doesn't eat it anymore (non-consumables
       survive <code>u</code> in general), and it refuses to be dropped, sold or traded anywhere but the
       pen — the bank still takes it.</li>
     </ul>
-
     <h3 class="sec">Client &amp; UI fixes</h3>
     <ul>
       <li>The examine tooltip follows the mouse now (the anchor was being read as a row index; it's a
@@ -127,19 +126,168 @@
       <li>5.33 terrain: retracted four false "look-alike" object substitutions — the affected tiles draw
       their real art again.</li>
     </ul>
-
     <h3 class="sec">Dev &amp; map tools</h3>
     <ul>
-      <li>Visual Map Editor — one-window app with the real 5.33 tile art: draft saves that never touch the
-      shipped maps, floating minimap, marker layers for spawns/warps/NPCs with CSV row export, player-view
-      toggle, walkable warps, new-map creation, and an opt-in direct mode that writes straight into
-      game-data.</li>
+      <li><a href="map-editor.html">Visual Map Editor</a> — one-window app with the real 5.33 tile art:
+      draft saves that never touch the shipped maps, floating minimap, marker layers for spawns/warps/NPCs
+      with CSV row export, player-view toggle, walkable warps, new-map creation, and an opt-in direct mode
+      that writes straight into game-data.</li>
       <li>re: the map renderer decoded EPF frames and SObj records wrong — fixed, so rendered maps match
       the client.</li>
     </ul>
   </article>
 
-  <footer>Older notes live in the Discord #patch-notes channel. Entries here start 2026-08-28.</footer>
+  <article>
+    <h2>Forever Tree, mob AI &amp; recovered maps</h2>
+    <p class="meta">2026-08-26 · snugglezone</p>
+    <h3 class="sec">Content, quests &amp; world</h3>
+    <ul>
+      <li>Bon-Hwa + Forever Tree area — wired the immortal at the Forever Tree: weapon enchant ("My
+      Weapon," enchants a class weapon to your mark's tier for 200M exp), Shadow Stats past 130
+      (100M/point on the per-mark/class cap table), and the Il/Ee/Sam-san spike + Sam-san blood tiers
+      added to the bonded-item set.</li>
+      <li>Ravens now cast Peck (but the blind effect isn't working).</li>
+      <li>Alignment quests — the shrine/summit NPCs (join/un-align catechism) via
+      <code>AlignmentQuest.cs</code> + NPC wiring.</li>
+      <li>Leviathan quest — should be working for real!</li>
+      <li>Added maps recovered from RTK — map batch 5800–5996: Dark Forest + instance rooms
+      (Nagnang/Benitnath cluster).</li>
+    </ul>
+    <h3 class="sec">Combat, spells &amp; mob AI</h3>
+    <ul>
+      <li>Mob AI overhaul — aggressive mobs now notice players across the full drawn viewport (+1 tile)
+      instead of a short square, chase with a full-screen leash (16), and fall into RTK's random "nothing
+      worked" flail instead of a sideways shuffle when no forward step is open.</li>
+      <li>Mob stepping also refuses warp tiles.</li>
+      <li>Rage/Cunning fixed?</li>
+    </ul>
+    <h3 class="sec">Login &amp; accounts</h3>
+    <ul>
+      <li>Character creation returns to the main menu.</li>
+      <li>5.x password change works.</li>
+    </ul>
+  </article>
+
+  <article>
+    <h2>Armor quests &amp; alliances</h2>
+    <p class="meta">2026-08-23 · snugglezone</p>
+    <ul>
+      <li>Blessed by the stars + Armor quests added — some of the Sun variants aren't finished due to
+      dependencies.</li>
+      <li>Lesser alliances should be working.</li>
+      <li>Every tree was dropping apples — reduced to only Buya and Kugnae; needs verification for
+      restriction in the cities.</li>
+    </ul>
+  </article>
+
+  <article>
+    <h2>Proximity broadcasts &amp; fast-move</h2>
+    <p class="meta">2026-08-20 · snugglezone</p>
+    <ul>
+      <li>Proximity-limited broadcasts — combat, sound, and spell FX no longer go map-wide; sound uses
+      RTK's tight SAMEAREA box (±9/±8, edge-shifted), damage bars and animations use the wider AREA box
+      (±19/±17).</li>
+      <li>Fast-move persistence (the RE fix) — the client's runtime flag is driven verbatim from the 0x08
+      stats packet's body[46]; we were sending 0, silently forcing fast-move OFF on every stats refresh.
+      Now driven from the saved preference, so it sticks when toggled and survives relog.</li>
+    </ul>
+  </article>
+
+  <article>
+    <h2>Buya Library Caverns &amp; the Ice Beast</h2>
+    <p class="meta">2026-08-19 · snugglezone</p>
+    <ul>
+      <li><b>New: Buya Library Caverns</b> — all 5 tiers open via the Buya Library entrance.</li>
+      <li><b>New: Ice Beast quest</b> — the full Frost sabre chain is in: Blood, the Nameless Hermit,
+      Myung-Suck, the lava crossing, and the beast itself.</li>
+      <li>Blood — no longer a shop; now offers Forget Secret (unlearn any spell/skill).</li>
+      <li>Combat — mobs now play a visible attack animation on every swing, not just the sound.</li>
+      <li>Movement — fast-move fixed; the walking stutter (worst mounted / in fresh areas) is gone.
+      Toggle in options (F10).</li>
+      <li>New <code>@karma &lt;value|tier&gt;</code> command: set karma exactly or snap to a named tier
+      (cat, dog, angel, …).</li>
+    </ul>
+    <p class="known">Known issue at the time: cavern mob stats/spawns were misconfigured — fix followed.</p>
+  </article>
+
+  <article>
+    <h2>Multiplayer visibility &amp; PvP</h2>
+    <p class="meta">2026-08-18 · snugglezone</p>
+    <h3 class="sec">Multiplayer visibility &amp; PvP</h3>
+    <ul>
+      <li>See players you walk up to — other players now stream in/out of view exactly like mobs
+      (viewport-gated + tracked), fixing "can't see users I walk up to until I gate in next to them."</li>
+      <li>PvP melee — swinging at a player on a PvP map now deals real damage, sharing one live-validated
+      damage formula between mob and player hits (target AC, positional rear-×2, Harden Body, deduction
+      all applied).</li>
+      <li>Arena ghosts — a player killed on a PvP map becomes a hidden, no-clip ghost: invisible to the
+      living (no corpse-camping), but visible to and blocking other ghosts.</li>
+      <li>Player collision — two players can no longer share a tile or no-clip through each other.</li>
+    </ul>
+    <h3 class="sec">Cave ambush traps</h3>
+    <ul>
+      <li>Hidden ambush tiles in the mythic caves now burst mobs when stepped on and relocate a
+      replacement trap (under a per-map mob cap), porting RTK's mob_spawn/rabbitTrap/tigerTrap. Warrior
+      Watchful Eye reveals them; Rogue Spot Traps reveals the combat-trap family. Fall caves leave a
+      cosmetic "shiver" echo.</li>
+    </ul>
+    <h3 class="sec">Chat &amp; social</h3>
+    <ul>
+      <li>Group/clan chat — whisper to <code>!!</code> for party chat and <code>!</code> for clan chat.</li>
+      <li>Proximity speech — NPC bubbles, mob talk, and cast shouts now carry only to nearby players
+      (say ±9/8, shout ±16) instead of map-wide.</li>
+      <li>Hand item / hand gold (<code>h</code>/<code>H</code> + gold gesture) now fold into the trade
+      window, with a quest-turn-in hook for NPCs.</li>
+      <li>Group "Join a group" status stays in sync on form/join/leave/disband.</li>
+    </ul>
+    <h3 class="sec">Items &amp; spells</h3>
+    <ul>
+      <li>Mage weapon penalty — mages read a weapon's small-damage range at ~¼ value (live-measured),
+      plus measured classFactor staircases for warrior/rogue/mage.</li>
+      <li>Confuse spell — a chance-based aggro reset that can set two adjacent mobs fighting each other;
+      Amnesia gains a take-hold chance.</li>
+      <li>Rearrange panes (<kbd>Shift+C</kbd>) — swap bag slots and spellbook slots in place.</li>
+    </ul>
+  </article>
+
+  <article>
+    <h2>Options, battle cries &amp; Nagnang</h2>
+    <p class="meta">2026-08-17 · snugglezone</p>
+    <h3 class="sec">Options menu</h3>
+    <ul>
+      <li>Magic Effect, Weather Change, and Wisdom now actually do something — and all four synced options
+      (those three plus Fast Move) now show the correct state, persist across closing/reopening the menu,
+      and survive relog.</li>
+      <li>Magic Effect off now suppresses spell graphics and sounds for you.</li>
+      <li>Wisdom streams periodic gameplay hints into your chat channel (~every 15 min) when on.</li>
+      <li>Opening the Options menu (F10) no longer dismounts your horse.</li>
+    </ul>
+    <h3 class="sec">Combat</h3>
+    <ul>
+      <li>Power-strike battle cries (Berserk's K'YA~!, Whirlwind's Sa-AAA~~!, Assault, Desperate Attack,
+      Lethal Strike, etc.) now shout overhead instead of dumping into the chat box, and play the swing
+      animation rather than the spell-cast pose.</li>
+      <li>Whirlwind and Berserk can now strike other players in PvP areas.</li>
+      <li>Casting mechanics reworked; melee re-measured; item wards now actually apply.</li>
+    </ul>
+    <h3 class="sec">World &amp; content</h3>
+    <ul>
+      <li>Nagnang added to the world map with its warp corridors opened.</li>
+      <li>New quests: the Dog Linguist and Old Dog dog-spell questlines; trainer secrets are now locked to
+      their home city.</li>
+      <li>Spell rebalance: no-cast maps, buff slots, and post-cast costs.</li>
+      <li>Spawn system overhauled — per-creature respawn times and batched spawn groups.</li>
+      <li>Drinks now play a sip pose.</li>
+    </ul>
+    <h3 class="sec">Social &amp; misc</h3>
+    <ul>
+      <li>Group join/leave notices now go to the status pane instead of the chat box.</li>
+      <li>Character facing now persists across relog.</li>
+      <li>New GM and Tester command: <code>@rez</code>.</li>
+    </ul>
+  </article>
+
+  <footer>Notes are mirrored from the Discord #patch-notes channel, starting 2026-08-17.</footer>
 </div>
 </body>
 </html>
