@@ -1,0 +1,507 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Quest Registry · Project1998</title>
+</head>
+<body>
+<style>
+  .sitenav {
+    max-width: 940px; margin: 0 auto; padding: 14px 24px 0;
+    display: flex; gap: 18px; align-items: baseline; font-size: 14px;
+    font-family: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+  }
+  .sitenav a { color: var(--ink-soft); text-decoration: none; }
+  .sitenav a:hover { color: var(--accent-ink); text-decoration: underline; }
+  .sitenav a:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+  .sitenav .brand {
+    font-family: "Gowun Batang", Georgia, serif; font-weight: 700;
+    color: var(--ink); margin-right: auto; font-size: 16px;
+  }
+  .sitenav a[aria-current="page"] { color: var(--accent-ink); font-weight: 600; }
+</style>
+<nav class="sitenav"><a class="brand" href="./">Project1998</a><a href="commands.html">Commands</a><a href="quest-registry.html" aria-current="page">Quest Registry</a><a href="patch-notes.html">Patch Notes</a></nav>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+  :root {
+    --ground: #F4F6F1;
+    --surface: #FCFDFB;
+    --ink: #1F2A26;
+    --ink-soft: #55645D;
+    --ink-faint: #8A978F;
+    --rule: #DDE4DD;
+    --rule-soft: #E8EDE7;
+    --accent: #2E7D62;
+    --accent-ink: #1E5A46;
+    --k-stage: #2E7D62;   --k-stage-bg: #E6F1EB;
+    --k-flag: #5A6B8C;    --k-flag-bg: #EBEFF6;
+    --k-counter: #A8402E; --k-counter-bg: #F7EAE6;
+    --k-snap: #7A5FA0;    --k-snap-bg: #EFEAF6;
+    --k-timer: #96701C;   --k-timer-bg: #F6EFDD;
+    --k-etc: #6B7871;     --k-etc-bg: #EEF1ED;
+    --note-bg: #EDF3EE;
+    --warn-bg: #F6EFDD;
+    --warn-ink: #7A5C14;
+    --focus: #2E7D62;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --ground: #141B18;
+      --surface: #1B2420;
+      --ink: #D8E2DA;
+      --ink-soft: #93A49A;
+      --ink-faint: #66766D;
+      --rule: #2A3630;
+      --rule-soft: #222D28;
+      --accent: #6FBF9F;
+      --accent-ink: #8FD4B8;
+      --k-stage: #6FBF9F;   --k-stage-bg: #1C2F27;
+      --k-flag: #91A5CC;    --k-flag-bg: #202839;
+      --k-counter: #D98871; --k-counter-bg: #35201B;
+      --k-snap: #A78FD0;    --k-snap-bg: #2A2338;
+      --k-timer: #D0A957;   --k-timer-bg: #332B18;
+      --k-etc: #8C9A92;     --k-etc-bg: #222B26;
+      --note-bg: #1C2723;
+      --warn-bg: #332B18;
+      --warn-ink: #D0A957;
+      --focus: #6FBF9F;
+    }
+  }
+  :root[data-theme="dark"] {
+    --ground: #141B18;
+    --surface: #1B2420;
+    --ink: #D8E2DA;
+    --ink-soft: #93A49A;
+    --ink-faint: #66766D;
+    --rule: #2A3630;
+    --rule-soft: #222D28;
+    --accent: #6FBF9F;
+    --accent-ink: #8FD4B8;
+    --k-stage: #6FBF9F;   --k-stage-bg: #1C2F27;
+    --k-flag: #91A5CC;    --k-flag-bg: #202839;
+    --k-counter: #D98871; --k-counter-bg: #35201B;
+    --k-snap: #A78FD0;    --k-snap-bg: #2A2338;
+    --k-timer: #D0A957;   --k-timer-bg: #332B18;
+    --k-etc: #8C9A92;     --k-etc-bg: #222B26;
+    --note-bg: #1C2723;
+    --warn-bg: #332B18;
+    --warn-ink: #D0A957;
+    --focus: #6FBF9F;
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--ground);
+    color: var(--ink);
+    font-family: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+    font-size: 15px;
+    line-height: 1.5;
+  }
+  .wrap { max-width: 940px; margin: 0 auto; padding: 0 24px 96px; }
+  code, .mono {
+    font-family: "IBM Plex Mono", ui-monospace, monospace;
+    font-size: 0.92em;
+  }
+  p code { color: var(--accent-ink); }
+
+  header.hero { padding: 44px 0 8px; }
+  .kicker {
+    font-family: "IBM Plex Mono", ui-monospace, monospace;
+    font-size: 12px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin: 0 0 10px;
+  }
+  h1 {
+    font-family: "Gowun Batang", Georgia, serif;
+    font-weight: 700;
+    font-size: clamp(30px, 5vw, 42px);
+    line-height: 1.15;
+    margin: 0 0 10px;
+    text-wrap: balance;
+  }
+  .lede { max-width: 64ch; color: var(--ink-soft); margin: 0 0 6px; }
+
+  /* ---- the four stores ---- */
+  .stores { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; margin: 26px 0 8px; }
+  .store {
+    background: var(--surface); border: 1px solid var(--rule); border-radius: 6px;
+    padding: 12px 14px;
+  }
+  .store .mono { display: block; color: var(--accent-ink); font-weight: 600; font-size: 13px; margin-bottom: 4px; }
+  .store p { margin: 0; font-size: 13.5px; color: var(--ink-soft); }
+
+  .callout {
+    background: var(--warn-bg); border-radius: 6px; padding: 12px 16px; margin: 14px 0 0;
+    color: var(--warn-ink); font-size: 14px;
+  }
+  .callout strong { color: inherit; }
+
+  /* ---- commands + recipe ---- */
+  .cmdpanel { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 26px 0 0; }
+  @media (max-width: 720px) { .cmdpanel { grid-template-columns: 1fr; } }
+  .cmdcard { background: var(--surface); border: 1px solid var(--rule); border-radius: 6px; padding: 14px 16px; }
+  .cmdcard h3 { margin: 0 0 8px; font-size: 15px; font-family: "IBM Plex Mono", ui-monospace, monospace; color: var(--accent-ink); }
+  .cmdcard ul { margin: 0; padding-left: 18px; font-size: 13.5px; color: var(--ink-soft); }
+  .cmdcard li { margin: 3px 0; }
+  .cmdcard li code { color: var(--ink); }
+  .recipe { grid-column: 1 / -1; background: var(--note-bg); border: 1px solid var(--rule); border-radius: 6px; padding: 14px 16px; }
+  .recipe h3 { margin: 0 0 6px; font-size: 14px; }
+  .recipe pre {
+    margin: 8px 0; padding: 10px 12px; background: var(--surface); border: 1px solid var(--rule-soft);
+    border-radius: 5px; overflow-x: auto; font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 13px;
+  }
+  .recipe p { margin: 6px 0 0; font-size: 13.5px; color: var(--ink-soft); }
+
+  /* ---- sticky toolbar ---- */
+  .toolbar {
+    position: sticky; top: 0; z-index: 5;
+    background: var(--ground);
+    border-bottom: 1px solid var(--rule);
+    padding: 12px 0;
+    margin-top: 34px;
+    display: flex; flex-wrap: wrap; gap: 10px; align-items: center;
+  }
+  .toolbar input[type="search"] {
+    flex: 1 1 220px;
+    font: 14px "IBM Plex Sans", system-ui, sans-serif;
+    padding: 7px 12px;
+    border: 1px solid var(--rule);
+    border-radius: 6px;
+    background: var(--surface);
+    color: var(--ink);
+  }
+  .toolbar input[type="search"]:focus-visible { outline: 2px solid var(--focus); outline-offset: 1px; }
+  .toolbar .count { font-size: 12.5px; color: var(--ink-faint); white-space: nowrap; }
+  .legendkinds { display: flex; flex-wrap: wrap; gap: 6px; }
+
+  /* ---- sections & rows ---- */
+  h2 {
+    font-family: "Gowun Batang", Georgia, serif;
+    font-size: 24px;
+    margin: 40px 0 4px;
+  }
+  h2 + .secnote { margin: 0 0 14px; color: var(--ink-soft); font-size: 14px; max-width: 70ch; }
+  h3.group {
+    font-size: 13px; letter-spacing: 0.1em; text-transform: uppercase;
+    color: var(--ink-faint); margin: 26px 0 8px;
+    font-family: "IBM Plex Mono", ui-monospace, monospace; font-weight: 500;
+  }
+  .rows { display: flex; flex-direction: column; gap: 6px; }
+  .row {
+    background: var(--surface); border: 1px solid var(--rule-soft); border-radius: 6px;
+    padding: 10px 14px;
+    display: grid;
+    grid-template-columns: minmax(190px, 260px) 1fr;
+    gap: 4px 18px;
+    align-items: baseline;
+  }
+  @media (max-width: 640px) { .row { grid-template-columns: 1fr; } }
+  .row .keycell { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; min-width: 0; }
+  .row .key {
+    font-family: "IBM Plex Mono", ui-monospace, monospace;
+    font-size: 13px; font-weight: 600; color: var(--ink);
+    overflow-wrap: anywhere;
+  }
+  .chip {
+    font-family: "IBM Plex Mono", ui-monospace, monospace;
+    font-size: 10.5px; letter-spacing: 0.06em; text-transform: uppercase;
+    padding: 1.5px 7px; border-radius: 999px; white-space: nowrap;
+  }
+  .chip.stage   { color: var(--k-stage);   background: var(--k-stage-bg); }
+  .chip.flag    { color: var(--k-flag);    background: var(--k-flag-bg); }
+  .chip.counter { color: var(--k-counter); background: var(--k-counter-bg); }
+  .chip.snapshot{ color: var(--k-snap);    background: var(--k-snap-bg); }
+  .chip.timer   { color: var(--k-timer);   background: var(--k-timer-bg); }
+  .chip.string  { color: var(--k-etc);     background: var(--k-etc-bg); }
+  .chip.misc    { color: var(--k-etc);     background: var(--k-etc-bg); }
+  .row .desc { font-size: 13.5px; color: var(--ink-soft); }
+  .row .desc b { color: var(--ink); font-weight: 600; }
+  .row .desc code { color: var(--accent-ink); font-size: 0.95em; }
+  .row .dead { color: var(--warn-ink); font-weight: 600; }
+
+  /* legends rows */
+  .row.legend { grid-template-columns: minmax(220px, 300px) 1fr; }
+  @media (max-width: 640px) { .row.legend { grid-template-columns: 1fr; } }
+  .ltext { display: block; font-family: "Gowun Batang", Georgia, serif; font-style: italic; font-size: 13.5px; color: var(--ink); margin-top: 2px; }
+  .lmeta { display: block; font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 11px; color: var(--ink-faint); margin-top: 2px; }
+  .lfield { display: block; margin-top: 2px; }
+  .lfield .tag {
+    display: inline-block; min-width: 62px;
+    font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 10.5px;
+    letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink-faint);
+  }
+
+  /* footnotes */
+  .foot {
+    background: var(--surface); border: 1px solid var(--rule); border-radius: 6px;
+    padding: 6px 18px; margin-top: 14px;
+  }
+  .foot ol { margin: 10px 0; padding-left: 20px; }
+  .foot li { margin: 8px 0; font-size: 13.5px; color: var(--ink-soft); }
+  .foot li b { color: var(--ink); }
+  .foot li code { color: var(--accent-ink); }
+
+  .colophon { margin-top: 44px; font-size: 12.5px; color: var(--ink-faint); border-top: 1px solid var(--rule); padding-top: 14px; }
+  .hidden { display: none; }
+</style>
+
+<div class="wrap">
+  <header class="hero">
+    <p class="kicker">Project1998 &middot; Tester Reference</p>
+    <h1>The Quest Registry</h1>
+    <p class="lede">Every persistent quest key a character can carry and every legend mark with the
+    internal key it answers to &mdash; the companion sheet to <code>@quest</code> and <code>@legend</code>.
+    Compiled from the server code and <code>npc_dialog.lua</code>; when this sheet and the code disagree,
+    the code wins.</p>
+  </header>
+
+  <div class="stores">
+    <div class="store"><span class="mono">Character.Quests</span>
+      <p>string &rarr; int. Stage machines, flags, counters, kill snapshots and unix timers &mdash; one flat map. &ldquo;Stage&rdquo;, &ldquo;reg&rdquo; and &ldquo;counter&rdquo; in code are all this store.</p></div>
+    <div class="store"><span class="mono">Character.QuestStrings</span>
+      <p>string &rarr; string. The rare string-valued selections: the active minor quest, the mentor's name.</p></div>
+    <div class="store"><span class="mono">Character.Legends</span>
+      <p>Profile-window marks. The client only sees the text; the hidden <em>Name</em> key is what quests gate on, and adding is replace-by-key.</p></div>
+    <div class="store"><span class="mono">Character.Kills / KillTrack</span>
+      <p>Lifetime kills per mob (quests read a delta against a snapshot) and the 8-slot track the mythic alliances count.</p></div>
+  </div>
+
+  <div class="callout"><strong>Most chains gate on the legend, not the stage.</strong> Clearing only the
+  stage usually re-tests nothing &mdash; the door or NPC checks the mark. A full reset is: clear the
+  legend(s), zero the stage key(s), remove any leftover quest item.</div>
+
+  <div class="cmdpanel">
+    <div class="cmdcard">
+      <h3>@quest</h3>
+      <ul>
+        <li>bare &mdash; dump every key you carry, both maps</li>
+        <li><code>@quest &lt;key&gt;</code> &mdash; read one</li>
+        <li><code>@quest &lt;key&gt; &lt;n&gt;</code> &mdash; set it (<code>0</code> removes the entry)</li>
+        <li>a non-numeric value writes the string registry</li>
+      </ul>
+    </div>
+    <div class="cmdcard">
+      <h3>@legend</h3>
+      <ul>
+        <li>bare &mdash; list marks as <code>key: "text" (icon, color)</code></li>
+        <li><code>@legend &lt;key&gt; 0</code> &mdash; remove one</li>
+        <li><code>@legend &lt;key&gt; &lt;icon&gt; &lt;color&gt; &lt;text...&gt;</code> &mdash; (re)create, replace-by-key</li>
+        <li>color 128 is the usual white; 0 renders invisible</li>
+      </ul>
+    </div>
+    <div class="recipe">
+      <h3>Recipe: re-run the Leviathan quest</h3>
+      <pre>@legend leviathan_freed 0
+@quest leviathan 0</pre>
+      <p>Dae-Whan treats you as new and hands out a fresh talisman (remove a leftover one first &mdash; it
+      can't be dropped, so bank it or ask a GM). To jump straight to the <em>finished</em> state:
+      <code>@quest leviathan 3</code> plus
+      <code>@legend leviathan_freed 7 128 Freed Leviathan (Yuri 1, Winter)</code>.
+      Purpose-built shortcuts still exist: <code>@dog</code>, <code>@sage</code>, <code>@carnage</code>, <code>@killtrack</code>.</p>
+    </div>
+  </div>
+
+  <div class="toolbar">
+    <input id="q" type="search" placeholder="Filter keys, text, features&hellip;" aria-label="Filter the registry">
+    <span class="count" id="count"></span>
+  </div>
+
+  <section id="quests">
+    <h2>Quest keys</h2>
+    <p class="secnote"><span class="chip stage">stage</span> machine (0 = untouched) &middot;
+    <span class="chip flag">flag</span> 0/1 &middot; <span class="chip counter">counter</span> accumulates &middot;
+    <span class="chip snapshot">snapshot</span> kill count captured at accept-time (completion checks the
+    delta) &middot; <span class="chip timer">timer</span> unix seconds.</p>
+    <div id="questrows"></div>
+  </section>
+
+  <section id="legends">
+    <h2>Legend marks</h2>
+    <p class="secnote"><code>@legend &lt;key&gt; &lt;icon&gt; &lt;color&gt; &lt;text...&gt;</code> recreates any of
+    these. &ldquo;Never removed&rdquo; means no code path removes it &mdash; <code>@legend &lt;key&gt; 0</code> always can.</p>
+    <div class="rows" id="legendrows"></div>
+  </section>
+
+  <section>
+    <h2>Footnotes</h2>
+    <div class="foot">
+      <ol>
+        <li><b>Double-duty strings.</b> <code>dog_linguist</code>, <code>mentored</code> and
+        <code>minor_quests_completed</code> are each both a registry key and a legend name. Different
+        stores, so no collision &mdash; but a reset must hit both
+        (<code>@quest dog_linguist 0</code> <em>and</em> <code>@legend dog_linguist 0</code>).</li>
+        <li><b>Read but never written</b> (safe to ignore; listed so nobody hunts for a granter):
+        <code>visited_yon_and_weaved</code>, the three <code>craft_*</code> skill counters, the
+        <code>greater_alliance_*</code> and smelting/gemcutting-specialisation legends.</li>
+        <li><b>Not character quest state, despite the look:</b> <code>Era.*</code> names are server-wide
+        era flags from <code>EraFeatures.csv</code>; <code>chin_baek_ho_ryung</code> /
+        <code>chung_ryongs_rage_ac</code> are timed-effect status keys; <code>fox_charm</code> is an item.
+        The lifetime-total kill counter is <code>Character.Kills[" total"]</code> (leading space, so no mob
+        key can collide).</li>
+        <li><b>The armor-chain legends are code-defined</b> (<code>ArmorQuest.cs</code>), not CSV columns
+        &mdash; <code>ArmorQuests.csv</code> holds only the Path/Tier/Level/Karma gates.</li>
+      </ol>
+    </div>
+  </section>
+
+  <p class="colophon">Source of truth: <span class="mono">docs/common/Quest-Registry.md</span> in the
+  repository, compiled 2026-08-28. Both <span class="mono">@quest</span> and
+  <span class="mono">@legend</span> are Tester-tier. The full command roster lives on
+  <a href="commands.html" style="color: var(--accent-ink); text-underline-offset: 2px;">The @Command Scroll</a>.</p>
+</div>
+
+<script>
+const QUEST_GROUPS = [
+  { g: "Story chains", rows: [
+    ["leviathan","stage","1 asked (talisman in hand) · 2 captive freed · 3 said “dae-whan” to the Hermit (shop open forever). Stage ≥1 opens the Border patrol's pelt bribe; the Hermit door and the second-free block gate on the <b>legend</b> <code>leviathan_freed</code>, not the stage.","Leviathan"],
+    ["tutorial_quest","stage","0–14: 1 buy armor · 2 sell meat · 3 rose+chestnuts · 4 fishing · 5 exploration · 6 ogre cider · 7 Chu Rua · 8 group hunt · 9 spelunking · 10 riding · 11 missing brother · 12 better weapon · 13 student cap · 14 done.","Peasant tutor chain"],
+    ["tutorial_quest1_gave_gold","flag","1 = that stage's handout given; reset on stage clear. Siblings: <code>tutorial_quest2_gave_meat</code>, <code>tutorial_quest8_gave_sword</code> (once-only).","tutorial handout guards"],
+    ["learned_to_fish","flag","1 = Bate/Wim taught fishing (stage 4).","tutorial"],
+    ["talked_to_tutor","flag","1 = librarian greeted (stage 5); consumed back to 0 on turn-in. Same pattern: <code>helped_haguru</code> (stage 11, three mountain wolves).","tutorial"],
+    ["visited_yon_and_weaved","flag","read at stage 13 but <span class='dead'>nothing ever writes it</span> — the wool→Yon→cloth chain is unported.","dead branch"],
+    ["tiger_essence_nudged_level","misc","the level at which the “your tiger armor looks outdated” nudge last fired.","Tiger Essence"],
+    ["novice_quest","stage","0 saber given → 1 five rabbits → 2 garb + five squirrels → 3 learn Soothe → 4 done (era-gated). Helpers: <code>novice_quest1_rabbit_snapshot</code>, <code>novice_quest2_squirrel_snapshot</code>, <code>novice_quest2_gave_garb</code>, <code>novice_quest3_asked_soothe</code>.","Tutor first steps"],
+    ["newbie_area_quest","stage","0–10 across maps 4712–4718; stages also unlock four warps (<code>WarpQuestLocks.csv</code>). Helpers: <code>newbie_rabbit_snapshot</code>, <code>newbie_squirrel_snapshot</code>, <code>newbie_mignok_told</code>, <code>newbie_coords_learned</code> (the 50-exp tile on map 4714).","Newbie area"],
+    ["tiger_armor","stage","holds the level of the rung you are ON: 0·10·20·30·40·50·60·70 = done; “i lost my tiger mail” resets to 0.","Claw / Tiger mail"],
+    ["tiger_essence_met_claw","flag","1 = Claw has engaged you (also set by the level-up push); releases the tutor's repeated briefing.","Tiger Essence"],
+  ]},
+  { g: "Armor chains (Star / Moon / Sun)", rows: [
+    ["star_armor","stage","index of the current step; reset to 0 on completion — the <b>legend</b> is the durable record. Same shape: <code>moon_armor</code>, <code>sun_armor</code>. 12 chains: 4 paths × 3 tiers.","armor chains"],
+    ["aq_{tier}_{step}_!","flag","1 = step opened, snapshots taken; cleared on chain completion.","armor chains"],
+    ["aq_{tier}_{step}_@","snapshot","total kills at step open — enforces “kill nothing else” steps.","armor chains"],
+    ["aq_{tier}_{step}_{mob}","snapshot","per-mob kills at step open.","armor chains"],
+    ["mentored","counter","completed mentorships (Poet Moon needs ≥3). <b>Also a legend name.</b>","Mentorship"],
+    ["carnage_wins","counter","Carnage victories; only <code>@carnage</code> writes it (Warrior Sun needs ≥2).","Warrior Sun"],
+    ["sun_armor_totem","counter","0–4 through the Chung ryong→Baekho→Ju Jak→Hyun moo worship order (Poet Sun needs ≥4; cleared on pay).","Poet Sun"],
+    ["craft_tailoring","counter","manufacturing skill points, Adept = 3910 (metalworking 2040, woodworking 2250). <span class='dead'>Nothing writes them</span> — Poet Sun step 5 is a documented hard stop. Siblings: <code>craft_metalworking</code>, <code>craft_woodworking</code>.","Poet Sun"],
+  ]},
+  { g: "Repeatables & services", rows: [
+    ["minor_quest_tier","misc","1 Minor · 2 Major · 3 Epic; cleared on finish. The active target's key lives in the <b>string</b> registry.","Minor quests"],
+    ["minor_quest_timer","timer","cooldown end (abandon or complete).","Minor quests"],
+    ["minor_quests_completed","counter","lifetime completions. <b>Also a legend name.</b>","Minor quests"],
+    ["minor_quest_kill_count_{mob}","snapshot","per-target snapshot at accept.","Minor quests"],
+    ["lesser_alliance_{animal}","flag","1 = accepted; reset to 0 on completion (the legend of the same name replaces it). 12 animals: rat, horse, dragon, dog, rabbit, rooster, snake, pig, sheep, ox, tiger, monkey.","Mythic alliances"],
+    ["totem_worship_daily_timer","timer","next worship allowed (21 h). Siblings: <code>totem_worship_karma_force</code> (pity counter, forced grant at 5), <code>totem_total_worships</code> (lifetime, no consumer yet).","Totem worship"],
+    ["sute_quest_dye","flag","1 = powder applied, unspent; spent by the cave mouth (maps 441–447).","Sute's cave"],
+    ["sute_quest_timer","timer","1 h re-coating block; zeroed on turn-in.","Sute's cave"],
+    ["home","misc","0 nation taverns · 10 Sanhae · 11 Hausson; set by the two mayors, force-cleared on nation change.","Return / yellow scroll"],
+    ["sage_rung","counter","which Sage rung is PAID for (survives book rebuilds); <code>@sage</code> writes it.","Sage ladder"],
+    ["sage_timer","timer","the 90-day upgrade wait; <code>@sage</code> zeroes it.","Sage ladder"],
+  ]},
+  { g: "Dog Linguist & dog spells", rows: [
+    ["dog_linguist","stage","1 Mutt → 2 Jindo → 3 Hunting → 4 Spotted = done. <b>Also the legend key</b> — <code>@dog</code> manages both plus <code>dog_flag</code>.","Dog Linguist"],
+    ["dog_flag","flag","1 = chain finished; gates saying “secret” to your class's dog.","Dog Linguist"],
+    ["dog_linguist_echo_{step}","counter","barks heard at this step (3 needed before echoing advances).","Dog Linguist"],
+    ["dog_task_{spell}","flag","1 = that dog set you this spell's task (“never asked = never done”); <code>cleanse</code> zeroes them. Keys: greater_blessing, spirit_fury, spot_traps, serpents_fury, fissure, lava_surge, survive, fascinate.","dog spells"],
+    ["dog_kill_{mob}","snapshot","kills at task-assignment.","dog spells"],
+    ["poet_restore","flag","1 = hunting Storm; reset 0 on completion (legend <code>avenged_treachery_against_the_dogs</code> is the record). Helpers: <code>dog_kill_tiger_storm</code>, <code>dog_kill_any</code> (killing anything else re-arms the hunt).","Old Dog"],
+  ]},
+  { g: "One-off oddities", rows: [
+    ["chu_rua_rabbit_greeted","flag","greet the rabbit; then <code>chu_rua_tiger_gone</code> (lure the tiger with “Forest”) makes the ginseng tile on map 1116 work.","Chu Rua"],
+    ["myung_suck_threshold","misc","the talking rock: a rolled 3–5 threshold, plus <code>myung_suck_tries</code> and <code>myung_suck_spoken</code>.","Myung-Suck"],
+    ["paid_gold_for_frost_sabre","flag","paid Blood 100 gold, owes an ice heart; reset when the sabre is forged.","Ice Beast"],
+    ["damage_shotgun","counter","per-swing damage tally for the weapon proc (persisted incidentally).","weapon proc"],
+    ["baekhos_cunning","counter","the spell's climb tier.","spell verb"],
+  ]},
+  { g: "String registry (Character.QuestStrings)", rows: [
+    ["minor_quest","string","the active target's key from <code>MinorQuests.csv</code> (squirrel, rabbit, deer, …); empty = none.","Minor quests"],
+    ["mentor","string","on the protégé: the mentor's character name; empty = free.","Mentorship"],
+  ]},
+];
+
+const LEGENDS = [
+  ["(no key)","Born in {date}",0,128,"character creation","profile filler","nothing — keyless by design"],
+  ["leviathan_freed","Freed Leviathan ({date})",7,128,"Dae-Whan at stage 2","opens the Hermit's hut door; blocks freeing a second captive; suppresses re-asking","never"],
+  ["leviathan_sworn_enemy","Sworn enemy of the Leviathans ({date})",7,4,"refusing Dae-Whan, or killing any leviathan while on the quest","blocks all Dae-Whan dialog; makes the talisman inert","pay him 1,000,000 coins"],
+  ["blessed_by_the_stars","Was blessed by the stars ({date})",3,128,"drop a white amber in the Mythic Nexus centre (map 41), level ≥60","prerequisite for every Star chain","never"],
+  ["mastered_the_stars","Mastered the stars ({date})",5,128,"finishing any Star chain","prereq for Moon and Sun; guildmaster refuses “star” again","never"],
+  ["understood_the_moon","Understood the moon ({date})",5,128,"finishing any Moon chain","prereq for Sun","never"],
+  ["survived_the_sun","Survived the sun ({date})",5,128,"finishing any Sun chain","also short-circuits Moon as “already done”","never"],
+  ["slew_mighty_sute","Slew the mighty Sute ({date})",5,16,"hand Eldritch sutes_key","stops the turn-in re-firing (a repeat run keeps the key)","never"],
+  ["minor_quest_info","On a quest to slay the {target}",5,128,"accepting a minor quest","informational","complete or abandon"],
+  ["minor_quests_completed","Completed {n} minor quests",5,128,"each completion (rewritten in place)","tally display","never"],
+  ["mentored","Mentored {n} new player(s)",3,1,"mentorship culmination","cosmetic — the gate is the registry counter","never"],
+  ["mentored_by","Mentored by {name} ({date})",3,1,"culmination, on the protégé","one per life — disqualifies ever being mentored again","never"],
+  ["being_mentored_by","Being mentored by {name}",3,1,"protégé accepts","in-progress marker","replaced by mentored_by"],
+  ["lesser_alliance_{animal} ×12","Lesser alliance with the {Animal} ({date})",5,128,"completing that alliance","that mythic casts Rebirth on you forever; your enemy's mythic Stormstrikes + banishes you","never"],
+  ["greater_alliance_{animal} ×12","—",null,null,"nothing grants these yet","the enemy-ally check already honours them","—"],
+  ["engaged","Engaged to {name} ({date})",6,1,"proposal accepted (both parties)","blocks a second proposal; 3-day timer","marriage, or breaking it off"],
+  ["married","Married to {name} ({date})",6,1,"the ceremony (both parties)","blocks proposals and remarriage","divorce (also takes the love item)"],
+  ["{align}_{class}_since ×12","{Kwi-Sin|Ming-Ken|Ohaeng} {Class} since ({date})","path id 1–4",128,"alignment swap (shrines, summit, @align)","devotion record","the next swap strips all twelve first"],
+  ["dog_linguist","Dog linguist ({date})",3,128,"the Spotted dog (or @dog 1)","unlocks “secret”/“cleanse” at every dog; prereq for the Old Dog","@dog 0"],
+  ["avenged_treachery_against_the_dogs","Avenged treachery against the dogs ({date})",5,128,"Old Dog turn-in","done-marker; Restore re-taught free if forgotten","never"],
+  ["aided_chu_rua","Aided Chu Rua ({date})",5,128,"hand the turtle young ginseng","completes tutorial stage 7; stops re-offering","never"],
+  ["defeated_ice_beast","Defeated the Ice beast ({date})",5,128,"Blood forges the Frost sabre","completes tutorial stage 12","never"],
+  ["specialized_in_weaving","Specialized in Weaving",7,128,"Laptev/Yon, level ≥25, 500 gold","the specialisation — only one may be held","abandon (two confirmations)"],
+  ["recently_specialized_weaver","Recently specialized weaver",64,128,"paired with the above","cosmetic companion","abandon"],
+  ["specialized_in_smelting / _gemcutting","—",null,null,"no granter ported yet","the weaver already refuses to double-specialise over them","abandon path exists"],
+];
+
+function el(tag, cls, html) {
+  const e = document.createElement(tag);
+  if (cls) e.className = cls;
+  if (html !== undefined) e.innerHTML = html;
+  return e;
+}
+
+const questHost = document.getElementById("questrows");
+for (const grp of QUEST_GROUPS) {
+  const h = el("h3", "group", grp.g);
+  const rows = el("div", "rows");
+  for (const [key, kind, desc, feat] of grp.rows) {
+    const r = el("div", "row");
+    const kc = el("div", "keycell");
+    kc.append(el("span", "key", key), el("span", "chip " + kind, kind));
+    r.append(kc, el("div", "desc", desc + (feat ? " <span style='color:var(--ink-faint)'>&mdash; " + feat + "</span>" : "")));
+    rows.append(r);
+  }
+  questHost.append(h, rows);
+}
+
+const legHost = document.getElementById("legendrows");
+for (const [key, text, icon, color, by, gates, gone] of LEGENDS) {
+  const r = el("div", "row legend");
+  const kc = el("div", "keycell");
+  const left = el("div");
+  left.append(el("span", "key", key));
+  if (text !== "—") left.append(el("span", "ltext", "“" + text + "”"));
+  if (icon !== null) left.append(el("span", "lmeta", "icon " + icon + " · color " + color));
+  kc.append(left);
+  const d = el("div", "desc");
+  d.append(el("span", "lfield", "<span class='tag'>granted</span> " + by));
+  d.append(el("span", "lfield", "<span class='tag'>gates</span> " + gates));
+  d.append(el("span", "lfield", "<span class='tag'>removed</span> " + gone));
+  r.append(kc, d);
+  legHost.append(r);
+}
+
+// filter
+const q = document.getElementById("q");
+const count = document.getElementById("count");
+const allRows = [...document.querySelectorAll(".row")];
+function applyFilter() {
+  const needle = q.value.trim().toLowerCase();
+  let shown = 0;
+  for (const r of allRows) {
+    const hit = !needle || r.textContent.toLowerCase().includes(needle);
+    r.classList.toggle("hidden", !hit);
+    if (hit) shown++;
+  }
+  for (const h of document.querySelectorAll("h3.group")) {
+    const rows = h.nextElementSibling;
+    const any = rows && [...rows.children].some(c => !c.classList.contains("hidden"));
+    h.classList.toggle("hidden", !any);
+    if (rows) rows.classList.toggle("hidden", !any);
+  }
+  count.textContent = needle ? shown + " of " + allRows.length + " entries" : allRows.length + " entries";
+}
+q.addEventListener("input", applyFilter);
+applyFilter();
+</script>
+</body>
+</html>

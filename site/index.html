@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Project1998 Docs</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+  :root {
+    --ground: #F4F6F1; --surface: #FCFDFB; --ink: #1F2A26; --ink-soft: #55645D;
+    --ink-faint: #8A978F; --rule: #DDE4DD; --rule-soft: #E8EDE7;
+    --accent: #2E7D62; --accent-ink: #1E5A46; --focus: #2E7D62;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --ground: #141B18; --surface: #1B2420; --ink: #D8E2DA; --ink-soft: #93A49A;
+      --ink-faint: #66766D; --rule: #2A3630; --rule-soft: #222D28;
+      --accent: #6FBF9F; --accent-ink: #8FD4B8; --focus: #6FBF9F;
+    }
+  }
+  :root[data-theme="dark"] {
+    --ground: #141B18; --surface: #1B2420; --ink: #D8E2DA; --ink-soft: #93A49A;
+    --ink-faint: #66766D; --rule: #2A3630; --rule-soft: #222D28;
+    --accent: #6FBF9F; --accent-ink: #8FD4B8; --focus: #6FBF9F;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--ground); color: var(--ink);
+    font-family: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+    font-size: 15px; line-height: 1.5;
+  }
+  a:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+  .wrap { max-width: 900px; margin: 0 auto; padding: 0 24px 96px; }
+  header.hero { padding: 64px 0 28px; }
+  .kicker {
+    font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 12px;
+    letter-spacing: 0.14em; text-transform: uppercase; color: var(--accent); margin: 0 0 10px;
+  }
+  h1 {
+    font-family: "Gowun Batang", Georgia, serif; font-weight: 700;
+    font-size: clamp(34px, 6vw, 50px); line-height: 1.12; margin: 0 0 12px; text-wrap: balance;
+  }
+  .lede { max-width: 60ch; color: var(--ink-soft); margin: 0; }
+  .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 14px; margin-top: 34px; }
+  a.card {
+    display: block; background: var(--surface); border: 1px solid var(--rule); border-radius: 8px;
+    padding: 20px 22px; text-decoration: none; color: inherit;
+  }
+  a.card:hover { border-color: var(--accent); }
+  a.card h2 {
+    font-family: "Gowun Batang", Georgia, serif; font-size: 20px; font-weight: 700;
+    margin: 0 0 6px; color: var(--ink);
+  }
+  a.card p { margin: 0; font-size: 13.5px; color: var(--ink-soft); }
+  a.card .go { display: inline-block; margin-top: 12px; font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 12px; color: var(--accent-ink); }
+  footer { margin-top: 64px; padding-top: 14px; border-top: 1px solid var(--rule); font-size: 12.5px; color: var(--ink-faint); }
+  footer a { color: var(--accent-ink); }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="hero">
+    <p class="kicker">Project1998 · NexusTK revival</p>
+    <h1>Project1998 Docs</h1>
+    <p class="lede">Reference material for players, testers, and GMs — generated against the live server
+    code and updated alongside it. When a sheet and the code disagree, the code wins.</p>
+  </header>
+
+  <div class="cards">
+    <a class="card" href="commands.html">
+      <h2>The @Command Scroll</h2>
+      <p>Every chat command the server answers — searchable, filterable by access tier, with argument
+      shapes and descriptions straight from the command table.</p>
+      <span class="go">commands.html →</span>
+    </a>
+    <a class="card" href="quest-registry.html">
+      <h2>The Quest Registry</h2>
+      <p>Every persistent quest key a character can carry and every legend mark with its internal key —
+      the companion sheet to <code>@quest</code> and <code>@legend</code>.</p>
+      <span class="go">quest-registry.html →</span>
+    </a>
+    <a class="card" href="patch-notes.html">
+      <h2>Patch Notes</h2>
+      <p>What changed on the server, newest first — features, fixes, and tooling as they merge.</p>
+      <span class="go">patch-notes.html →</span>
+    </a>
+  </div>
+
+  <footer>Maintained alongside <a href="https://github.com/project1998/Project1998">project1998/Project1998</a>.
+  Site updates deploy automatically on push.</footer>
+</div>
+</body>
+</html>

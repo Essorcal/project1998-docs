@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Patch Notes · Project1998</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+  :root {
+    --ground: #F4F6F1; --surface: #FCFDFB; --ink: #1F2A26; --ink-soft: #55645D;
+    --ink-faint: #8A978F; --rule: #DDE4DD; --rule-soft: #E8EDE7;
+    --accent: #2E7D62; --accent-ink: #1E5A46; --focus: #2E7D62;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --ground: #141B18; --surface: #1B2420; --ink: #D8E2DA; --ink-soft: #93A49A;
+      --ink-faint: #66766D; --rule: #2A3630; --rule-soft: #222D28;
+      --accent: #6FBF9F; --accent-ink: #8FD4B8; --focus: #6FBF9F;
+    }
+  }
+  :root[data-theme="dark"] {
+    --ground: #141B18; --surface: #1B2420; --ink: #D8E2DA; --ink-soft: #93A49A;
+    --ink-faint: #66766D; --rule: #2A3630; --rule-soft: #222D28;
+    --accent: #6FBF9F; --accent-ink: #8FD4B8; --focus: #6FBF9F;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--ground); color: var(--ink);
+    font-family: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+    font-size: 15px; line-height: 1.55;
+  }
+  a { color: var(--accent-ink); text-underline-offset: 2px; }
+  a:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+  code {
+    font-family: "IBM Plex Mono", ui-monospace, monospace;
+    font-size: 0.92em; color: var(--accent-ink);
+  }
+  .sitenav {
+    max-width: 900px; margin: 0 auto; padding: 14px 24px 0;
+    display: flex; gap: 18px; align-items: baseline; font-size: 14px;
+  }
+  .sitenav a { color: var(--ink-soft); text-decoration: none; }
+  .sitenav a:hover { color: var(--accent-ink); text-decoration: underline; }
+  .sitenav .brand {
+    font-family: "Gowun Batang", Georgia, serif; font-weight: 700;
+    color: var(--ink); margin-right: auto; font-size: 16px;
+  }
+  .sitenav a[aria-current="page"] { color: var(--accent-ink); font-weight: 600; }
+  .wrap { max-width: 900px; margin: 0 auto; padding: 0 24px 96px; }
+  header.hero { padding: 40px 0 8px; }
+  .kicker {
+    font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 12px;
+    letter-spacing: 0.14em; text-transform: uppercase; color: var(--accent); margin: 0 0 10px;
+  }
+  h1 {
+    font-family: "Gowun Batang", Georgia, serif; font-weight: 700;
+    font-size: clamp(30px, 5vw, 42px); line-height: 1.15; margin: 0 0 10px; text-wrap: balance;
+  }
+  .lede { max-width: 62ch; color: var(--ink-soft); margin: 0; }
+  article {
+    background: var(--surface); border: 1px solid var(--rule); border-radius: 8px;
+    padding: 22px 26px; margin-top: 28px;
+  }
+  article > h2 {
+    font-family: "Gowun Batang", Georgia, serif; font-size: 22px; margin: 0 0 2px;
+  }
+  .meta { font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 12px; color: var(--ink-faint); margin: 0 0 14px; }
+  h3.sec { font-size: 15px; font-weight: 600; margin: 18px 0 6px; }
+  h3.sec::after { content: " •"; color: var(--accent); }
+  article ul { margin: 0; padding-left: 20px; }
+  article li { margin: 5px 0; color: var(--ink-soft); }
+  article li b, article li strong { color: var(--ink); }
+  footer { margin-top: 56px; padding-top: 14px; border-top: 1px solid var(--rule); font-size: 12.5px; color: var(--ink-faint); }
+</style>
+</head>
+<body>
+<nav class="sitenav">
+  <a class="brand" href="./">Project1998</a>
+  <a href="commands.html">Commands</a>
+  <a href="quest-registry.html">Quest Registry</a>
+  <a href="patch-notes.html" aria-current="page">Patch Notes</a>
+</nav>
+<div class="wrap">
+  <header class="hero">
+    <p class="kicker">Project1998 · what changed</p>
+    <h1>Patch Notes</h1>
+    <p class="lede">Newest first. Code changes deploy with a 3-minute in-game warning;
+    content-only changes hot-reload with no restart.</p>
+  </header>
+
+  <article>
+    <h2>Tooling &amp; fixes wave</h2>
+    <p class="meta">2026-08-28 · PRs #6–#14 merged to master</p>
+
+    <h3 class="sec">GM &amp; tester commands</h3>
+    <ul>
+      <li>A whole testing kit for walking the world: <code>@clip</code> no-clip (walls, mobs and players;
+      per-session, always off at login; warps still work) — plus the client-side companion 5.33 testers run
+      alongside it.</li>
+      <li><code>@anywarp</code> — pass <b>any</b> gated doorway: level/mark/path gates, quest-locked warps,
+      mythic zodiac caves, event caves, arena doors, path-hall class doors, even the quest-item tiles
+      (Sute's seal, the lava row — nothing gets spent). Every gate still runs and echoes the denial it
+      waived, so you can verify a gate while walking through it.</li>
+      <li><code>@showwarps</code> — a blue pinwheel marker on every warp and scripted doorway of the map,
+      visible only to you, following you across maps, with a printed list of destinations (quest-locked
+      ones flagged). <code>@showwarps look &lt;frame&gt;</code> re-skins the markers live.</li>
+      <li><code>@quest</code> / <code>@legend</code> — read and write the raw quest registry and legend
+      marks directly (most chains gate on the legend, not the stage). Companion sheet:
+      <a href="quest-registry.html">The Quest Registry</a>.</li>
+      <li><code>@help</code> finally paginates instead of scrolling off the pane, and
+      <code>@commands</code> gives the compact index. The whole roster lives on
+      <a href="commands.html">The @Command Scroll</a>.</li>
+    </ul>
+
+    <h3 class="sec">Content, quests &amp; world</h3>
+    <ul>
+      <li>The leviathan talisman can no longer be lost: using it doesn't eat it anymore (non-consumables
+      survive <code>u</code> in general), and it refuses to be dropped, sold or traded anywhere but the
+      pen — the bank still takes it.</li>
+    </ul>
+
+    <h3 class="sec">Client &amp; UI fixes</h3>
+    <ul>
+      <li>The examine tooltip follows the mouse now (the anchor was being read as a row index; it's a
+      Y pixel).</li>
+      <li>5.33 terrain: retracted four false "look-alike" object substitutions — the affected tiles draw
+      their real art again.</li>
+    </ul>
+
+    <h3 class="sec">Dev &amp; map tools</h3>
+    <ul>
+      <li>Visual Map Editor — one-window app with the real 5.33 tile art: draft saves that never touch the
+      shipped maps, floating minimap, marker layers for spawns/warps/NPCs with CSV row export, player-view
+      toggle, walkable warps, new-map creation, and an opt-in direct mode that writes straight into
+      game-data.</li>
+      <li>re: the map renderer decoded EPF frames and SObj records wrong — fixed, so rendered maps match
+      the client.</li>
+    </ul>
+  </article>
+
+  <footer>Older notes live in the Discord #patch-notes channel. Entries here start 2026-08-28.</footer>
+</div>
+</body>
+</html>
