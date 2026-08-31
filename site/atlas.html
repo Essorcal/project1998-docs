@@ -30,14 +30,14 @@
   a { color: var(--accent-ink); text-underline-offset: 2px; }
   a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
   code { font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 0.92em; color: var(--accent-ink); }
-  .sitenav { max-width: 1100px; margin: 0 auto; padding: 14px 24px 0;
+  .sitenav { max-width: min(1680px, 96vw); margin: 0 auto; padding: 14px 24px 0;
     display: flex; gap: 16px; align-items: baseline; font-size: 14px; flex-wrap: wrap; }
   .sitenav a { color: var(--ink-soft); text-decoration: none; }
   .sitenav a:hover { color: var(--accent-ink); text-decoration: underline; }
   .sitenav .brand { font-family: "Gowun Batang", Georgia, serif; font-weight: 700;
     color: var(--ink); margin-right: auto; font-size: 16px; }
   .sitenav a[aria-current="page"] { color: var(--accent-ink); font-weight: 600; }
-  .wrap { max-width: 1100px; margin: 0 auto; padding: 0 24px 96px; }
+  .wrap { max-width: min(1680px, 96vw); margin: 0 auto; padding: 0 24px 96px; }
   header.hero { padding: 34px 0 6px; }
   .kicker { font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 12px;
     letter-spacing: 0.14em; text-transform: uppercase; color: var(--accent); margin: 0 0 8px; }
@@ -54,13 +54,24 @@
     border: 1px solid var(--rule); border-radius: 6px; background: var(--surface); color: var(--ink); }
   .toolbar .count { font-size: 12.5px; color: var(--ink-faint); margin-left: auto;
     font-variant-numeric: tabular-nums; white-space: nowrap; }
+  /* Sticky header vs horizontal fallback: position:sticky computes against the nearest scroll
+     container, so a th inside an overflow-x wrapper pins INSIDE the table (pushed down over row 1)
+     and never reaches the viewport. Wide screens drop the overflow wrapper so the header truly
+     sticks under the toolbar; narrow screens keep the horizontal scroll and a static header. */
   .tablewrap { overflow-x: auto; margin-top: 6px; }
   table { border-collapse: collapse; width: 100%; font-size: 13.5px; }
   th, td { text-align: left; padding: 6px 10px; border-bottom: 1px solid var(--rule-soft); vertical-align: top; }
   th { font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 11px;
     letter-spacing: 0.07em; text-transform: uppercase; color: var(--ink-faint); font-weight: 500;
-    position: sticky; top: 55px; background: var(--ground); cursor: pointer; white-space: nowrap; }
+    position: sticky; top: var(--thead-top, 55px); background: var(--ground); cursor: pointer; white-space: nowrap; }
   th.sorted-asc::after { content: " ▲"; } th.sorted-desc::after { content: " ▼"; }
+  /* Sticky header vs horizontal fallback: position:sticky computes against the nearest scroll
+     container, so a th inside an overflow-x wrapper pins INSIDE the table (pushed down over row 1)
+     and never reaches the viewport. Wide screens drop the overflow wrapper so the header truly
+     sticks under the toolbar; narrow screens keep the horizontal scroll and a static header.
+     (These come after the base th rule — same specificity, so order decides.) */
+  @media (min-width: 1560px) { .tablewrap { overflow-x: visible; } }
+  @media (max-width: 1559.98px) { th { position: static; } }
   td.n { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
   td .k { font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 11px; color: var(--ink-faint); display: block; }
   td .nm { font-weight: 600; color: var(--ink); }
@@ -117,7 +128,7 @@
   <a href="atlas.html">Atlas</a>
   <a href="map-editor.html">Map Editor</a>
   <a href="noclip.html">No-Clip</a>
-  <a href="patch-notes.html">Notes</a>
+  <a href="patch-notes.html">Patch Notes</a>
 </nav>
 <div class="wrap">
   <header class="hero">

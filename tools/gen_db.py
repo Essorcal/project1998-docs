@@ -45,7 +45,7 @@ NAV = """<nav class="sitenav">
   <a href="atlas.html">Atlas</a>
   <a href="map-editor.html">Map Editor</a>
   <a href="noclip.html">No-Clip</a>
-  <a href="patch-notes.html">Notes</a>
+  <a href="patch-notes.html">Patch Notes</a>
 </nav>"""
 
 def nav(current):
@@ -77,14 +77,14 @@ CHROME_CSS = """
   a { color: var(--accent-ink); text-underline-offset: 2px; }
   a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
   code { font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 0.92em; color: var(--accent-ink); }
-  .sitenav { max-width: 1100px; margin: 0 auto; padding: 14px 24px 0;
+  .sitenav { max-width: min(1680px, 96vw); margin: 0 auto; padding: 14px 24px 0;
     display: flex; gap: 16px; align-items: baseline; font-size: 14px; flex-wrap: wrap; }
   .sitenav a { color: var(--ink-soft); text-decoration: none; }
   .sitenav a:hover { color: var(--accent-ink); text-decoration: underline; }
   .sitenav .brand { font-family: "Gowun Batang", Georgia, serif; font-weight: 700;
     color: var(--ink); margin-right: auto; font-size: 16px; }
   .sitenav a[aria-current="page"] { color: var(--accent-ink); font-weight: 600; }
-  .wrap { max-width: 1100px; margin: 0 auto; padding: 0 24px 96px; }
+  .wrap { max-width: min(1680px, 96vw); margin: 0 auto; padding: 0 24px 96px; }
   header.hero { padding: 34px 0 6px; }
   .kicker { font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 12px;
     letter-spacing: 0.14em; text-transform: uppercase; color: var(--accent); margin: 0 0 8px; }
@@ -101,13 +101,24 @@ CHROME_CSS = """
     border: 1px solid var(--rule); border-radius: 6px; background: var(--surface); color: var(--ink); }
   .toolbar .count { font-size: 12.5px; color: var(--ink-faint); margin-left: auto;
     font-variant-numeric: tabular-nums; white-space: nowrap; }
+  /* Sticky header vs horizontal fallback: position:sticky computes against the nearest scroll
+     container, so a th inside an overflow-x wrapper pins INSIDE the table (pushed down over row 1)
+     and never reaches the viewport. Wide screens drop the overflow wrapper so the header truly
+     sticks under the toolbar; narrow screens keep the horizontal scroll and a static header. */
   .tablewrap { overflow-x: auto; margin-top: 6px; }
   table { border-collapse: collapse; width: 100%; font-size: 13.5px; }
   th, td { text-align: left; padding: 6px 10px; border-bottom: 1px solid var(--rule-soft); vertical-align: top; }
   th { font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 11px;
     letter-spacing: 0.07em; text-transform: uppercase; color: var(--ink-faint); font-weight: 500;
-    position: sticky; top: 55px; background: var(--ground); cursor: pointer; white-space: nowrap; }
+    position: sticky; top: var(--thead-top, 55px); background: var(--ground); cursor: pointer; white-space: nowrap; }
   th.sorted-asc::after { content: " ▲"; } th.sorted-desc::after { content: " ▼"; }
+  /* Sticky header vs horizontal fallback: position:sticky computes against the nearest scroll
+     container, so a th inside an overflow-x wrapper pins INSIDE the table (pushed down over row 1)
+     and never reaches the viewport. Wide screens drop the overflow wrapper so the header truly
+     sticks under the toolbar; narrow screens keep the horizontal scroll and a static header.
+     (These come after the base th rule — same specificity, so order decides.) */
+  @media (min-width: 1560px) { .tablewrap { overflow-x: visible; } }
+  @media (max-width: 1559.98px) { th { position: static; } }
   td.n { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
   td .k { font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 11px; color: var(--ink-faint); display: block; }
   td .nm { font-weight: 600; color: var(--ink); }
@@ -256,6 +267,21 @@ MARK_SPELL_LEVEL = 99   # Content.MarkSpellLevel — mark rows carry SplLevel 0,
 
 def clean_name(s):
     return (s or "").replace("\\", "")   # Content.Clean strips the export's backslash escapes
+
+def fx_gifs():
+    """csv-id -> data-URI animated gif, lifted from the committed site/effects.html (which is built
+    locally from the 4.95 client). Parsing the committed page keeps CI able to embed the animations
+    without client assets; absent file just means no inline animations."""
+    p = os.path.join(SITE, "effects.html")
+    if not os.path.exists(p):
+        print("warning: site/effects.html not found; spells page gets no fx animations", file=sys.stderr)
+        return {}
+    h = io.open(p, encoding="utf-8").read()
+    found = re.findall(r'<span class="wire">csv (\d+)</span><span class="meta">[^<]*</span>'
+                       r'</header><div class="stage"><img src="(data:image/gif;base64,[^"]+)"', h)
+    if not found:
+        print("warning: no fx cards parsed from site/effects.html; its markup may have changed", file=sys.stderr)
+    return {int(n): g for n, g in found}
 
 def fmt_ms(ms):
     ms = num(ms, 0)
@@ -491,9 +517,19 @@ def build_spells():
         })
     out.sort(key=lambda s: (s["cl"], s["lv"], s["n"].lower()))
 
+    gifs = fx_gifs()
+    fxg = {s["fx"]: gifs[s["fx"]] for s in out if isinstance(s["fx"], int) and s["fx"] in gifs}
+
     classes = sorted({s["c"] for s in out})
     opts = "".join(f'<option value="{html.escape(c)}">{html.escape(c)}</option>' for c in classes)
     page = HEAD.format(title="Spells", css=CHROME_CSS) + nav("spells") + f"""
+<style>
+  #tbl td:nth-child(1) {{ min-width: 240px; }}
+  #tbl td:nth-child(8) {{ min-width: 140px; }}
+  #tbl td:nth-child(12) {{ min-width: 300px; }}
+  td.fx {{ text-align: center; }}
+  .fxg {{ display: block; margin: 0 auto 2px; image-rendering: pixelated; max-width: 72px; height: auto; }}
+</style>
 <div class="wrap">
   <header class="hero">
     <p class="kicker">Project1998 · database</p>
@@ -518,11 +554,20 @@ def build_spells():
     <th data-s="fx">FX</th><th>Learn / source</th></tr></thead>
     <tbody id="rows"></tbody>
   </table></div>
-""" + jsdata("DATA", out) + """
+""" + jsdata("DATA", out) + jsdata("FXG", fxg) + """
 <script>
 const tbody = document.getElementById('rows'), q = document.getElementById('q'),
-      cls = document.getElementById('cls'), count = document.getElementById('count');
+      cls = document.getElementById('cls'), count = document.getElementById('count'),
+      toolbar = document.querySelector('.toolbar'), twrap = document.querySelector('.tablewrap');
 let sortKey = null, sortDir = 1;
+function headTop(){ document.documentElement.style.setProperty('--thead-top', toolbar.offsetHeight + 'px'); }
+headTop(); addEventListener('resize', headTop);
+function snapTop(){ const y = twrap.offsetTop - toolbar.offsetHeight; if (scrollY > y) scrollTo(0, y); }
+function fxCell(s){
+  if (typeof s.fx !== 'number' || s.fx <= 0) return s.fx;
+  const g = FXG[s.fx];
+  return `<a href="effects.html#csv${s.fx}">${g ? `<img class="fxg" loading="lazy" src="${g}" alt="">` : ''}${s.fx}</a>`;
+}
 function esc(s){ return String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
 function blob(s){
   return (s.n + ' ' + s.k + ' ' + s.cat + ' ' + s.note + ' ' + s.eff + ' ' + s.det + ' ' +
@@ -546,11 +591,12 @@ function render(){
     <td class="n">${s.lv || ''}</td><td>${esc(s.rk)}</td>
     <td>${esc(s.al)}</td><td class="n">${s.mana}</td><td>${esc(s.cat)}</td>
     <td>${esc(s.eff)}</td><td class="n">${esc(s.dur)}</td><td class="n">${esc(s.aet)}</td>
-    <td class="n"${(typeof s.snd === 'number' && s.snd >= 0) ? ` title="sound ${s.snd}"` : ''}>${(typeof s.fx === 'number' && s.fx > 0) ? `<a href="effects.html#csv${s.fx}">${s.fx}</a>` : s.fx}</td>
+    <td class="fx"${(typeof s.snd === 'number' && s.snd >= 0) ? ` title="sound ${s.snd}"` : ''}>${fxCell(s)}</td>
     <td class="sub">${s.learn.map(l => `<span${l.s ? ` title="${esc(l.s)}"` : ''}>${esc(l.t)}</span>`).join('<br>')}</td></tr>`).join('');
   count.textContent = rows.length + ' of ' + DATA.length;
 }
-q.addEventListener('input', render); cls.addEventListener('change', render);
+q.addEventListener('input', () => { render(); snapTop(); });
+cls.addEventListener('change', () => { render(); snapTop(); });
 document.querySelectorAll('th[data-s]').forEach(th => th.addEventListener('click', () => {
   const k = th.dataset.s;
   sortDir = (sortKey === k) ? -sortDir : 1; sortKey = k;
