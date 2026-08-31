@@ -163,11 +163,16 @@ def path_name(pid):
     return paths.get(pid, f"path {pid}")
 
 ALIGN = {-1: "", 0: "", 1: "Kwisin", 2: "Mingken", 3: "Ohaeng"}
-maps_by_id = {num(r["id"]): r["name"] for r in rows("map_index.csv")}
+maps_by_id = {num(r["id"]): r["name"].replace("\\", "") for r in rows("map_index.csv")}
 
-TYPE_NAMES = {2: "Use (target)", 3: "Weapon", 4: "Armor", 5: "Shield", 6: "Helm", 7: "Ring (L)",
-              8: "Ring (R)", 9: "Hand (L)", 10: "Hand (R)", 11: "Face acc", 12: "Head", 13: "Mantle",
-              14: "Necklace", 15: "Boots", 16: "Coat", 18: "Use / etc", 22: "Quest", 24: "Mount"}
+# ITM_* type ids, from the ItemDef doc in Server/Content.cs (0=eat, 1=use, 2=smoke, 3=weap ... 18=etc)
+# plus the later-client types observed in the registry (20 trap kit, 21 amber bags, 22 event/treasure
+# maps, 23 arrow bundles, 24 mounts, 25 faces, 27 5.33 skin weapons, 28/29 hair potions and hair).
+TYPE_NAMES = {0: "Food", 1: "Usable", 2: "Drink / pipe", 3: "Weapon", 4: "Armor", 5: "Shield",
+              6: "Helm", 7: "Ring (L)", 8: "Ring (R)", 9: "Hand (L)", 10: "Hand (R)", 11: "Face acc",
+              12: "Head", 13: "Mantle", 14: "Necklace", 15: "Boots", 16: "Coat", 18: "Etc",
+              20: "Trap kit", 21: "Amber bag", 22: "Event map", 23: "Arrow bundle", 24: "Mount",
+              25: "Face", 26: "Collection box", 27: "Skin weapon", 28: "Hair potion", 29: "Hair / beard"}
 
 def sheet(kind):
     """Load a sprite-sheet coordinate map if the local render step produced one."""
@@ -262,7 +267,7 @@ DOG_LEVEL = {"greater_blessing": 70, "spot_traps": 70, "fissure": 70, "survive":
 SAGE_LEVEL = 90
 
 BASE_CLASS = {1: "Warrior", 2: "Rogue", 3: "Mage", 4: "Poet"}
-RANK = {1: "Il san", 2: "Ee san", 3: "Sam san"}
+RANK = {1: "Il san", 2: "Ee san", 3: "Sam san", 4: "Sa san", 5: "Oh san"}
 MARK_SPELL_LEVEL = 99   # Content.MarkSpellLevel — mark rows carry SplLevel 0, floored at load
 
 def clean_name(s):
@@ -611,82 +616,457 @@ render();
     return len(out)
 
 # ---------------------------------------------------------------- items
+# Server-code mirrors, parsed out of Server/Content.cs at generation time with baked fallbacks
+# (same contract as the spell sets above: the page tracks the code, a refactor only costs a warning).
+
+def _strip_cs(s):
+    """C# comments carry numbers (dates, prices) — strip them before mining integer literals."""
+    s = re.sub(r"/\*.*?\*/", " ", s, flags=re.S)
+    return re.sub(r"//[^\n]*", " ", s)
+
+def _parse_int_const(name, fallback):
+    m = re.search(name + r"\s*=\s*(\d+)\s*;", _CONTENT)
+    if not m:
+        print(f"warning: could not parse {name} from Content.cs; using {fallback}", file=sys.stderr)
+        return fallback
+    return int(m.group(1))
+
+# Content.ResolveIconColors: the 4.95 Item.epf colour runs, and the client's frame count. For these base
+# icons (and only these) `icon + ItmIconColor` is a real separate sprite; the fold refuses frames past the
+# 4.95 art and frames some other row already claims as its own base icon.
+_m = re.search(r"IconColorRuns\s*=\s*\{([^}]*)\}", _CONTENT)
+ICON_RUNS = set(int(x) for x in re.findall(r"\d+", _m.group(1))) if _m else set()
+if not ICON_RUNS:
+    print("warning: could not parse IconColorRuns; using baked copy", file=sys.stderr)
+    ICON_RUNS = {89, 99, 120, 149, 159, 180, 265, 450}
+ICON_COUNT = _parse_int_const("ItemIconCount", 1310)   # 4.95 Item.tbl "NumItems 1310"
+MAX_MARK = _parse_int_const("MaxMark", 3)              # Sam san is the last rank that exists as content
+GM_IDS = range(60000, 63002)                           # the dev/GM registry block (shot_gun, spawn tools, donor scrolls)
+
+# Content.ItemDef.BondedItemIds — owner-bound gear. A hard-coded set (bonding is a property of the GRANT
+# in RTK, not a column), so mine the initializer plus its 49001-49024 smith-forge loop.
+def _parse_bonded():
+    m = re.search(r"BuildBondedItemIds\(\)(.*?)return s;", _CONTENT, re.S)
+    if not m:
+        return set()
+    body = _strip_cs(m.group(1))
+    ids = set(int(x) for x in re.findall(r"\b\d{3,6}\b", body))
+    loop = re.search(r"for \(int id = (\d+); id <= (\d+); id\+\+\)", body)
+    if loop:
+        ids.update(range(int(loop.group(1)), int(loop.group(2)) + 1))
+    return ids
+
+BONDED = _parse_bonded()
+if not BONDED:
+    print("warning: could not parse BondedItemIds; using baked copy", file=sys.stderr)
+    BONDED = ({1004, 26028, 26030, 29011, 47002, 48018} | set(range(26034, 26039))
+              | set(range(26048, 26056)) | {b + o for b in (30000, 31000, 34000, 35000) for o in (8, 9, 10)}
+              | {b + o for b in (32000, 33000, 36000, 37000) for o in (7, 8, 9)}
+              | set(range(40901, 40909)) | set(range(41008, 41012)) | set(range(41508, 41512))
+              | set(range(49001, 49025)) | set(range(49026, 49030)) | set(range(49032, 49036))
+              | set(range(49038, 49043)) | set(range(49045, 49049)) | set(range(51002, 51027)))
+
+# Server/ArmorQuest.cs chains: (path, tier) -> the male + female armor keys the guildmaster forges.
+_AQ = _read(os.path.join("Server", "ArmorQuest.cs"))
+ARMOR_CHAIN = {}
+for _p, _t, _km, _kf in re.findall(r'new ArmorChain\((\d+),\s*"(\w+)",\s*"(\w+)",\s*"(\w+)"\)', _AQ):
+    ARMOR_CHAIN[_km] = (int(_p), _t)
+    ARMOR_CHAIN[_kf] = (int(_p), _t)
+if not ARMOR_CHAIN:
+    print("warning: could not parse ArmorQuest chains; using baked copy", file=sys.stderr)
+    for _p, _mat in ((1, ("scale_mail", "mail_dress")), (2, ("waistcoat", "blouse")),
+                     (3, ("garb", "dress")), (4, ("robes", "gown"))):
+        for _t in ("star", "moon", "sun"):
+            for _suf in _mat:
+                ARMOR_CHAIN[f"{_t}_{_suf}"] = (_p, _t)
+
+def docs_rows_opt(name):
+    """DictReader over a committed data file in THIS repo (tools/data/) — optional, like rows_opt."""
+    p = os.path.join(os.path.dirname(os.path.abspath(__file__)), "data", name)
+    if not os.path.exists(p):
+        print(f"warning: tools/data/{name} not found; generating without it", file=sys.stderr)
+        return []
+    with io.open(p, encoding="utf-8-sig") as f:
+        return list(csv.DictReader(f))
+
+# NexusAtlas name matching (tools/local/scrape_atlas.py keeps a copy of these — edit both).
+# Known one-word typos, on EITHER side (registry has "Sun war dreses" and "Pwdrd yellow amber";
+# the Atlas has "serpant fan" and "dark simitar") — applied word-wise to both before comparing.
+_NAME_FIX = {"serpant": "serpent", "simitar": "scimitar", "conjuror": "conjurer",
+             "pwdrd": "powdered", "dreses": "dress", "roast": "roasted"}
+
+def _atlas_norm(s):
+    s = (s or "").lower().replace("’", "'").replace("\\'", "'").replace("\\", "")
+    s = re.sub(r"'s\b", "s", s)                       # Mage's ward == Mages ward
+    s = re.sub(r"[^a-z0-9]+", " ", s).strip()
+    return " ".join(_NAME_FIX.get(w, w) for w in s.split())
+
+def _atlas_folds(s):
+    """Successively looser spellings of one display name; compared level-for-level, strictest first."""
+    l1 = _atlas_norm(s)
+    l3 = " ".join(w[:-1] if w.endswith("s") and len(w) > 3 else w for w in l1.split())  # Antlers == Antler
+    return [l1, l1.replace(" ", ""), l3, l3.replace(" ", "")]                           # darkstaff == dark staff
+
 def build_items():
     icons = sheet("item-icons")
-    # Reverse the drop table: item key -> [mob names]
-    dropped = {}
+    atlas_icons = sheet("item-icons-atlas")            # gif fallbacks, keyed by ITEM KEY (scrape_atlas.py --gifs)
     mobnames = {r["Identifier"]: r["Description"] for r in rows("mobs.csv")}
+    spellnames = {r["SplIdentifier"]: clean_name(r["SplDescription"]) for r in rows("Spells.csv") if r.get("SplIdentifier")}
+    def sname(k):
+        return spellnames.get(k, k.replace("_", " "))
+
+    # The committed NexusAtlas snapshot (tools/data/atlas_items.csv). The live Atlas reflects MODERN
+    # NexusTK: absence => likely an RTK/private-server addition; presence does NOT prove 4.95-era.
+    atlas = {}
+    for a in docs_rows_opt("atlas_items.csv"):
+        for i, f in enumerate(_atlas_folds(a["name"])):
+            atlas.setdefault((i, f), a)
+    def atlas_match(display):
+        for i, f in enumerate(_atlas_folds(display)):
+            a = atlas.get((i, f))
+            if a:
+                return a
+        return None
+
+    # Reverse drop table with the details the server rolls: item key -> ["Mob ×n (25%) ★", ...].
+    dropped = {}
     for r in rows("MobDrops.csv"):
-        for lootcol in ("Loot", "RareLoot"):
+        seen_row = set()
+        for lootcol, rare in (("Loot", False), ("RareLoot", True)):
             for part in (r.get(lootcol) or "").split("|"):
                 bits = part.split(":")
-                if bits[0]:
-                    dropped.setdefault(bits[0], set()).add(mobnames.get(r["MobKey"], r["MobKey"]))
+                if not bits[0] or bits[0] in seen_row:
+                    continue                            # first entry wins within one mob's table
+                seen_row.add(bits[0])
+                amt = num(bits[1]) if len(bits) > 1 else 1
+                ch = (bits[2] if len(bits) > 2 else "").strip()
+                mob = mobnames.get(r["MobKey"], r["MobKey"])
+                dropped.setdefault(bits[0], []).append(
+                    mob + (f" ×{amt}" if amt > 1 else "") + (f" ({ch}%)" if ch else "") + (" ★" if rare else ""))
+    for k in dropped:
+        dropped[k].sort(key=str.lower)
 
-    out = []
-    for r in rows("Items.csv"):
-        key, name = r["ItmIdentifier"], r["ItmDescription"]
-        if not key:
+    # Shop NPCs: identifier -> display name + placements (NPCs.csv), skipping disabled rows.
+    npc = {}
+    for r in rows("NPCs.csv"):
+        if r.get("Enabled") == "0":
             continue
-        t = num(r["ItmType"])
+        d = npc.setdefault(r["NpcIdentifier"], {"name": clean_name(r["NpcDescription"]) or r["NpcIdentifier"], "maps": []})
+        m = maps_by_id.get(num(r["NpcMapId"]), f"map {r['NpcMapId']}")
+        if m not in d["maps"]:
+            d["maps"].append(m)
+    def npc_label(k):
+        d = npc.get(k)
+        if not d:
+            return k
+        lbl = d["name"]
+        if d["maps"]:
+            lbl += f" ({d['maps'][0]}" + (f" +{len(d['maps']) - 1}" if len(d["maps"]) > 1 else "") + ")"
+        return lbl
+    def uniq(seq):
+        seen, out2 = set(), []
+        for x in seq:
+            if x not in seen:
+                seen.add(x)
+                out2.append(x)
+        return out2
+
+    # What shops sell / buy. Shops.For consults the curated catalogues FIRST and falls back to the
+    # auto-extracted flat stock per NPC — an NPC with a catalogue does NOT also sell its ShopStock row.
+    cat_npcs = {r["NpcKey"] for r in rows_opt("ShopCatalogues.csv")}
+    sold_by, bought_by = {}, {}
+    for r in rows_opt("ShopCatalogues.csv"):
+        for k in (r.get("ItemKeys") or "").split("|"):
+            if k:
+                sold_by.setdefault(k, []).append(r["NpcKey"])
+    for r in rows_opt("ShopStock.csv"):
+        if r["NpcIdentifier"] in cat_npcs:
+            continue
+        for k in (r.get("ItemKeys") or "").split("|"):
+            if k:
+                sold_by.setdefault(k, []).append(r["NpcIdentifier"])
+    for r in rows_opt("ShopBuysFrom.csv"):
+        for k in (r.get("ItemKeys") or "").split("|"):
+            if k and k != "-":                          # '-' is the buys-NOTHING marker, not an item
+                bought_by.setdefault(k, []).append(r["NpcIdentifier"])
+
+    # On-use behaviour: ItemParams row + its item_verbs.lua verb.
+    params = {r["key"]: r for r in rows_opt("ItemParams.csv")}
+    def effect_text(p):
+        v, amt = (p.get("verb") or "").strip(), num(p.get("amount"))
+        if v == "heal":
+            return "restores all HP on use" if (p.get("full") or "").strip() else f"heals {amt:,} HP on use"
+        if v == "fatal":
+            return "kills the eater outright (RTK's poison-apple joke)"
+        if v == "drink":
+            return f"restores {amt:,} mana" + (f" — costs {num(p['hpcost']):,} HP" if num(p.get("hpcost")) else "")
+        if v == "ward":
+            wn = (p.get("wardname") or "").strip() or (p.get("statuskey") or "").strip().replace("_", " ")
+            return f"ward: {wn} {fmt_ms(num(p.get('duration')))}".rstrip()
+        if v == "hardenbody":
+            return f"ward: Harden Body {fmt_ms(num(p.get('duration')))} — success chance scales with your AC"
+        if v == "cure":
+            return "cures ailments (no player ailment model yet — consumes only)"
+        if v == "warphome":
+            return "warps you to a tavern in your nation"
+        return f"on-use verb: {v}"
+
+    procs = {}
+    for r in rows_opt("WeaponProcs.csv"):
+        if r.get("item") and r.get("spell"):
+            procs.setdefault(r["item"], []).append((sname(r["spell"]), (r.get("chancePct") or "?").strip(),
+                                                    (r.get("note") or "").strip()))
+
+    ingred = {}                                         # item key -> {spell display name: amount}
+    for r in rows_opt("SpellLearnCosts.csv"):
+        for i in (1, 2, 3, 4):
+            k = (r.get(f"item{i}") or "").strip()
+            if k:
+                d = ingred.setdefault(k, {})
+                d[sname(r["key"])] = max(d.get(sname(r["key"]), 0), num(r.get(f"amt{i}")))
+
+    harvest, toolfor = {}, {}
+    for r in rows_opt("HarvestNodes.csv"):
+        node = mobnames.get(r["NodeMob"], r["NodeMob"].replace("_", " "))
+        skill = (r.get("Skill") or "").strip()
+        for col in ("Yield", "Bonus"):
+            for part in (r.get(col) or "").split("|"):
+                k = part.split(":")[0]
+                if k:
+                    harvest.setdefault(k, []).append(node + (f" ({skill})" if skill else ""))
+        for tl in (r.get("Tools") or "").split("|"):
+            if tl:
+                toolfor.setdefault(tl, []).append(skill or node)
+    forage = {}
+    for r in rows_opt("ForageAreas.csv"):
+        if r.get("ItemKey"):
+            forage.setdefault(r["ItemKey"], []).append(maps_by_id.get(num(r["Map"]), f"map {r['Map']}"))
+
+    aq_gates = {(num(r["Path"]), r["Tier"]): (num(r["Level"]), r["Karma"])
+                for r in rows_opt("ArmorQuests.csv") if r.get("Tier")}
+
+    raw_rows = rows("Items.csv")
+    claimed = {num(r["ItmIcon"]) for r in raw_rows}      # every row claims its base icon (ResolveIconColors)
+    seen_keys = {}
+    out = []
+    for r in raw_rows:
+        key = r["ItmIdentifier"]
+        if not key or key.startswith("="):               # '=====CLOAKS=====' rows are section dividers, not items
+            continue
+        name = clean_name(r["ItmDescription"]) or key
+        iid, t, mk = num(r["ItmId"]), num(r["ItmType"]), num(r["ItmMark"])
+        equip, consum = 3 <= t <= 16, t in (0, 1, 2)
+        nodrop = num(r["ItmDroppable"]) != 0             # the column is inverted: set = you CANNOT drop it
+        dur_raw = num(r["ItmDurability"])
+        dur = 0 if dur_raw > 65535 else dur_raw          # 1,000,000 overflows the server's ushort = never wears
+
         dmg = ""
         if num(r["ItmMaximumSDamage"]):
             dmg = f"{r['ItmMinimumSDamage']}–{r['ItmMaximumSDamage']}"
             if num(r["ItmMaximumLDamage"]):
                 dmg += f" / {r['ItmMinimumLDamage']}–{r['ItmMaximumLDamage']}"
+
+        # The frame the server actually tells the client to draw (Content.ResolveIconColors).
+        ic, icol = num(r["ItmIcon"]), num(r["ItmIconColor"])
+        if icol and ic in ICON_RUNS and ic + icol < ICON_COUNT and ic + icol not in claimed:
+            ic += icol
+
+        a = atlas_match(name) if atlas else None
+        at = (1 if a else 0) if atlas else -1
+        ax = 1 if (a and a.get("extinct") == "1") else 0
+        na = 1 if num(r["ItmIcon"]) >= ICON_COUNT else 0  # no 4.95 art: invisible in the era client
+
+        pills = []
+        if iid in GM_IDS: pills.append("GM")
+        dup_of = seen_keys.get(key)
+        if dup_of is None:
+            seen_keys[key] = iid
+        else:
+            pills.append("duplicate")
+        if nodrop: pills.append("no drop")
+        if num(r["ItmExchangeable"]): pills.append("no trade")
+        if num(r["ItmDepositable"]): pills.append("no deposit")
+        if num(r["ItmBoD"]): pills.append("break on death")
+        if iid in BONDED: pills.append("bonded")
+        if equip and not num(r["ItmRepairable"]) and dur > 0: pills.append("unrepairable")
+        if t == 3 and 10000 <= num(r["ItmLook"]) <= 29999: pills.append("2-handed")
+        sex = num(r["ItmSex"], 2)
+        if sex == 0: pills.append("male")
+        elif sex == 1: pills.append("female")
+        if num(r["ItmThrown"]) and not nodrop: pills.append("throwable")   # NoDrop blocks throwing too
+        if equip and mk > MAX_MARK: pills.append("unwearable")
+        if at == 0: pills.append("not on atlas")
+        if na: pills.append("no 4.95 art")
+
+        sub = []
+        p = params.get(key)
+        if p:
+            notes = (p.get("notes") or "").strip()
+            sub.append({"t": effect_text(p),
+                        "s": "game-data/ItemParams.csv + item_verbs.lua" + (f" — {notes}" if notes else "")})
+        elif consum and (num(r["ItmVita"]) > 0 or num(r["ItmMana"]) > 0):
+            bits = [f"{num(r['ItmVita']):,} vita"] if num(r["ItmVita"]) > 0 else []
+            bits += [f"{num(r['ItmMana']):,} mana"] if num(r["ItmMana"]) > 0 else []
+            sub.append({"t": "restores " + " + ".join(bits) + " on use",
+                        "s": "Session.Items.cs consumable fallback — Vita/Mana on a consumable are the restore amounts"})
+        if consum and (r.get("ItmText") or "").strip() and dur > 0:
+            sub.append({"t": f"{dur} {r['ItmText'].strip()}",
+                        "s": "charged consumable — the charge count lives in ItmDurability (ITM_SMOKE)"})
+        for pn, ch, note in procs.get(key, []):
+            sub.append({"t": f"procs {pn} {ch}% per swing (even on a miss)",
+                        "s": "game-data/WeaponProcs.csv" + (f" — {note}" if note else "")})
+        sb = uniq(sold_by.get(key, []))
+        if sb:
+            sub.append({"t": "sold by " + ", ".join(npc_label(x) for x in sb[:4])
+                             + (f" +{len(sb) - 4} more" if len(sb) > 4 else ""),
+                        "s": "game-data/ShopCatalogues.csv (curated) / ShopStock.csv (fallback) + NPCs.csv"})
+        bb = uniq(bought_by.get(key, []))
+        if bb:
+            sub.append({"t": "bought by " + ", ".join(npc_label(x) for x in bb[:4])
+                             + (f" +{len(bb) - 4} more" if len(bb) > 4 else ""),
+                        "s": "game-data/ShopBuysFrom.csv — the shops that pay the sell price"})
+        if key in ingred:
+            pairs = sorted(ingred[key].items(), key=lambda kv: kv[0].lower())
+            sub.append({"t": "spell learning ingredient: " + ", ".join(f"{s_} ×{a_}" for s_, a_ in pairs[:3])
+                             + (f" +{len(pairs) - 3} more" if len(pairs) > 3 else ""),
+                        "s": "game-data/SpellLearnCosts.csv"})
+        if key in harvest:
+            sub.append({"t": "gathered from " + ", ".join(uniq(harvest[key])), "s": "game-data/HarvestNodes.csv"})
+        if key in forage:
+            sub.append({"t": "foraged on " + ", ".join(uniq(forage[key])), "s": "game-data/ForageAreas.csv"})
+        if key in toolfor:
+            sub.append({"t": "harvest tool for " + ", ".join(uniq(toolfor[key])),
+                        "s": "game-data/HarvestNodes.csv Tools column"})
+        if key in ARMOR_CHAIN:
+            pth, tier = ARMOR_CHAIN[key]
+            lvq, karma = aq_gates.get((pth, tier), ({"star": 66, "moon": 76, "sun": 86}[tier], ""))
+            sub.append({"t": f"{tier.capitalize()} armor quest — {BASE_CLASS.get(pth, pth)} guildmaster · "
+                             f"lv {lvq}+" + (f" · {karma} karma" if karma else ""),
+                        "s": "Server/ArmorQuest.cs + game-data/ArmorQuests.csv"})
+        bt = clean_name((r.get("ItmBuyText") or "").strip())
+        if bt:
+            sub.append({"t": f"“{bt}”", "s": "ItmBuyText — the game's own shop blurb for this item"})
+        stack = max(num(r["ItmStackAmount"]), num(r["ItmMaximumAmount"]))
+        if stack > 1:
+            sub.append({"t": f"stacks to {stack:,}"
+                             + (" · at most one stack in the bag" if num(r["ItmMaximumAmount"]) > 0 else ""),
+                        "s": "ItmStackAmount / ItmMaximumAmount (per-slot StackCap, bag-wide CarryCap)"})
+        facts = []
+        if num(r["ItmMightRequired"]): facts.append(f"needs {num(r['ItmMightRequired'])} Might")
+        if equip and dur_raw > 65535: facts.append("never wears")
+        elif equip and dur > 0: facts.append(f"durability {dur:,}")
+        if num(r["ItmProtection"]): facts.append(f"protection {num(r['ItmProtection']):+d}")
+        if num(r["ItmHealing"]): facts.append(f"healing {num(r['ItmHealing']):+d}")
+        if num(r["ItmWisdom"]): facts.append(f"wisdom {num(r['ItmWisdom']):+d}")
+        if facts:
+            sub.append({"t": " · ".join(facts),
+                        "s": "ItmMightRequired / ItmDurability (1,000,000 overflows to never-wears) / ItmProtection / ItmHealing / ItmWisdom"})
+        if dup_of is not None:
+            sub.append({"t": f"duplicate registry key — #{dup_of} wins at load",
+                        "s": "Content.cs IndexFirst: the first row with a key owns it"})
+        if equip and mk > MAX_MARK:
+            sub.append({"t": f"{RANK.get(mk, f'mark {mk}')} gear — MaxMark is {MAX_MARK}, no character can reach the rank",
+                        "s": "Server/Content.cs MaxMark"})
+        if ax:
+            sub.append({"t": "on the Atlas's extinct pages — gone from the modern game (era-original evidence)",
+                        "s": "NexusAtlas extinct listing (tools/data/atlas_items.csv)"})
+
+        sell = num(r["ItmSellPrice"])
         out.append({
-            "id": num(r["ItmId"]), "k": key, "n": name,
-            "t": TYPE_NAMES.get(t, f"type {t}"),
+            "id": iid, "k": key, "n": name, "t": TYPE_NAMES.get(t, f"type {t}"),
             "c": path_name(num(r["ItmPthId"])) if num(r["ItmPthId"]) else "",
-            "lv": num(r["ItmLevel"]), "mk": num(r["ItmMark"]),
-            "dmg": dmg, "ac": num(r["ItmArmor"]), "hit": num(r["ItmHit"]), "dam": num(r["ItmDam"]),
+            "rk": RANK.get(mk, f"mark {mk}") if mk else "",
+            "lv": num(r["ItmLevel"]), "mk": mk,
+            "dmg": dmg, "dmgN": num(r["ItmMaximumSDamage"]),
+            "ac": num(r["ItmArmor"]), "hit": num(r["ItmHit"]), "dam": num(r["ItmDam"]),
             "vita": num(r["ItmVita"]), "mana": num(r["ItmMana"]),
             "mgt": num(r["ItmMight"]), "wil": num(r["ItmWill"]), "grc": num(r["ItmGrace"]),
-            "buy": num(r["ItmBuyPrice"]), "sell": num(r["ItmSellPrice"]),
-            "ic": num(r["ItmIcon"]),
-            "drops": sorted(dropped.get(key, []))[:6],
+            "buy": num(r["ItmBuyPrice"]),
+            "sell": 0 if nodrop else sell,               # shops pay only when !NoDrop (Session.Dialog.cs)
+            "ic": ic, "na": na, "at": at, "ax": ax,
+            "pills": pills, "sub": sub,
+            "drops": dropped.get(key, []),
         })
     out.sort(key=lambda i: (i["t"], i["lv"], i["n"].lower()))
 
     types = sorted({i["t"] for i in out})
     opts = "".join(f'<option value="{html.escape(t)}">{html.escape(t)}</option>' for t in types)
     has_icons = icons is not None
+    has_atlas = bool(atlas)
+    ncols = 16 + (1 if has_icons else 0)
+    ioff = 1 if has_icons else 0
+    era_opts = ('<select id="era" aria-label="Era filter"><option value="">All items</option>'
+                + ('<option value="atlas">On NexusAtlas</option>'
+                   '<option value="rtk">Not on Atlas (likely RTK-added)</option>' if has_atlas else '')
+                + '<option value="noart">No 4.95 icon art</option></select>')
+    atlas_note = (" Items are cross-referenced against a NexusAtlas snapshot: <em>not on Atlas</em> means "
+                  "no page there lists the name — likely an RTK/private-server addition — while presence "
+                  "proves nothing about the 4.95 era (the live Atlas documents modern NexusTK)."
+                  if has_atlas else "")
     page = HEAD.format(title="Items", css=CHROME_CSS) + nav("items") + f"""
+<style>
+  #tbl td:nth-child({1 + ioff}) {{ min-width: 260px; }}
+  #tbl td:nth-child({5 + ioff}) {{ min-width: 90px; }}
+  #tbl td:nth-child({16 + ioff}) {{ min-width: 220px; }}
+  #tbl td .sub {{ display: block; }}
+  .aspr {{ outline: 1px dotted var(--rule); }}
+</style>
 <div class="wrap">
   <header class="hero">
     <p class="kicker">Project1998 · database</p>
     <h1>Items</h1>
-    <p class="lede">Every item in the registry — stats, requirements, prices and the mobs that drop it,
-    straight from the server's data files.</p>
+    <p class="lede">Every item in the registry with every fact the server enforces — stats, wear gates
+    (class, rank, level, sex, Might), restriction flags, what using it actually does, who sells and buys
+    it, what drops it (with the server's own chances), harvest and quest provenance, and the game's own
+    shop blurbs. Hover a grey line for its source.{atlas_note}</p>
   </header>
   <div class="toolbar">
-    <input id="q" type="search" placeholder="Filter — name, key, dropped-by…" aria-label="Filter items">
+    <input id="q" type="search" placeholder="Filter — name, key, effect, shop, mob, pill…" aria-label="Filter items">
     <select id="typ" aria-label="Type filter"><option value="">All types</option>{opts}</select>
+    {era_opts}
     <span class="count" id="count"></span>
   </div>
-  <div class="tablewrap"><table>
+  <div class="tablewrap"><table id="tbl">
     <thead><tr>{'<th></th>' if has_icons else ''}<th data-s="n">Item</th><th data-s="t">Type</th><th data-s="c">Class</th>
-    <th data-s="lv">Lv</th><th data-s="dmg">Damage</th><th data-s="ac">AC</th><th data-s="dam">Dam</th><th data-s="hit">Hit</th>
-    <th data-s="vita">Vita</th><th data-s="mana">Mana</th><th data-s="buy">Buy</th><th data-s="sell">Sell</th>
-    <th>Dropped by</th></tr></thead>
+    <th data-s="lv">Lv</th><th data-s="dmgN">Damage</th><th data-s="ac">AC</th><th data-s="dam">Dam</th><th data-s="hit">Hit</th>
+    <th data-s="vita">Vita</th><th data-s="mana">Mana</th><th data-s="mgt">Mgt</th><th data-s="wil">Wil</th><th data-s="grc">Grc</th>
+    <th data-s="buy">Buy</th><th data-s="sell">Sell</th><th>Dropped by</th></tr></thead>
     <tbody id="rows"></tbody>
   </table></div>
-""" + jsdata("DATA", out) + jsdata("ICONS", icons or {}) + f"<script>const HAS_ICONS = {str(has_icons).lower()};</script>" + """
+""" + jsdata("DATA", out) + jsdata("ICONS", icons or {}) + jsdata("AICONS", atlas_icons or {}) \
+    + f"<script>const HAS_ICONS = {str(has_icons).lower()}, HAS_AICONS = {str(atlas_icons is not None).lower()}, NCOLS = {ncols};</script>" + """
 <script>
 const tbody = document.getElementById('rows'), q = document.getElementById('q'),
-      typ = document.getElementById('typ'), count = document.getElementById('count');
+      typ = document.getElementById('typ'), era = document.getElementById('era'),
+      count = document.getElementById('count'),
+      toolbar = document.querySelector('.toolbar'), twrap = document.querySelector('.tablewrap');
 let sortKey = null, sortDir = 1, shown = 400;
+function headTop(){ document.documentElement.style.setProperty('--thead-top', toolbar.offsetHeight + 'px'); }
+headTop(); addEventListener('resize', headTop);
+function snapTop(){ const y = twrap.offsetTop - toolbar.offsetHeight; if (scrollY > y) scrollTo(0, y); }
 function esc(s){ return String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
-function icon(ic){
+function icon(i){
   if (!HAS_ICONS) return '';
-  const pos = ICONS[ic];
-  if (!pos) return '<td></td>';
-  return `<td><span class="spr" style="background-image:url(img/item-icons.png);background-position:-${pos[0]}px -${pos[1]}px"></span></td>`;
+  const pos = ICONS[i.ic];
+  if (pos) return `<td><span class="spr" style="background-image:url(img/item-icons.png);background-position:-${pos[0]}px -${pos[1]}px"></span></td>`;
+  const ap = HAS_AICONS ? AICONS[i.k] : null;
+  if (ap) return `<td><span class="spr aspr" title="art from a NexusAtlas snapshot — the client has no frame for this item" style="background-image:url(img/item-icons-atlas.png);background-position:-${ap[0]}px -${ap[1]}px"></span></td>`;
+  return '<td></td>';
+}
+function blob(i){
+  return (i.n + ' ' + i.k + ' ' + i.t + ' ' + i.c + ' ' + i.rk + ' ' + i.pills.join(' ') + ' ' +
+          i.sub.map(s => s.t).join(' ') + ' ' + i.drops.join(' ')).toLowerCase();
+}
+function dropCell(i){
+  if (!i.drops.length) return '';
+  const head = i.drops.slice(0, 6).map(esc).join(', '), more = i.drops.length - 6;
+  return head + (more > 0 ? ` +${more} more` : '');
 }
 function filt(){
-  const needle = q.value.trim().toLowerCase(), t = typ.value;
+  const needle = q.value.trim().toLowerCase(), t = typ.value, e = era ? era.value : '';
   let rows = DATA.filter(i => (!t || i.t === t) &&
-    (!needle || (i.n + ' ' + i.k + ' ' + i.drops.join(' ')).toLowerCase().includes(needle)));
+    (!e || (e === 'atlas' && i.at === 1) || (e === 'rtk' && i.at === 0) || (e === 'noart' && i.na === 1)) &&
+    (!needle || blob(i).includes(needle)));
   if (sortKey) rows = rows.slice().sort((a,b) => {
     const x = a[sortKey], y = b[sortKey];
     return (typeof x === 'number' && typeof y === 'number' ? x - y : String(x).localeCompare(String(y))) * sortDir;
@@ -696,20 +1076,22 @@ function filt(){
 function render(){
   const rows = filt();
   tbody.innerHTML = rows.slice(0, shown).map(i => `<tr>
-    ${icon(i.ic)}
-    <td><span class="nm">${esc(i.n)}</span><span class="k">${esc(i.k)} · #${i.id}</span></td>
-    <td>${esc(i.t)}</td><td>${esc(i.c)}</td><td class="n">${i.lv || ''}</td>
+    ${icon(i)}
+    <td><span class="nm">${esc(i.n)}</span>${i.pills.map(p => ` <span class="pill">${esc(p)}</span>`).join('')}<span class="k">${esc(i.k)} · #${i.id}</span>${i.sub.map(s => `<span class="sub"${s.s ? ` title="${esc(s.s)}"` : ''}>${esc(s.t)}</span>`).join('')}</td>
+    <td>${esc(i.t)}</td><td>${esc(i.c)}${i.rk ? `<span class="k">${esc(i.rk)}</span>` : ''}</td><td class="n">${i.lv || ''}</td>
     <td class="n">${i.dmg}</td><td class="n">${i.ac || ''}</td><td class="n">${i.dam || ''}</td><td class="n">${i.hit || ''}</td>
     <td class="n">${i.vita || ''}</td><td class="n">${i.mana || ''}</td>
+    <td class="n">${i.mgt || ''}</td><td class="n">${i.wil || ''}</td><td class="n">${i.grc || ''}</td>
     <td class="n">${i.buy ? i.buy.toLocaleString() : ''}</td><td class="n">${i.sell ? i.sell.toLocaleString() : ''}</td>
-    <td class="sub">${i.drops.map(esc).join(', ')}</td></tr>`).join('')
-    + (rows.length > shown ? `<tr><td colspan="14"><button id="more" style="font:inherit;padding:6px 14px;cursor:pointer">Show ${rows.length - shown} more…</button></td></tr>` : '');
+    <td class="sub">${dropCell(i)}</td></tr>`).join('')
+    + (rows.length > shown ? `<tr><td colspan="${NCOLS}"><button id="more" style="font:inherit;padding:6px 14px;cursor:pointer">Show ${rows.length - shown} more…</button></td></tr>` : '');
   count.textContent = Math.min(shown, rows.length) + ' shown of ' + rows.length + ' matching (' + DATA.length + ' total)';
   const m = document.getElementById('more');
   if (m) m.addEventListener('click', () => { shown += 800; render(); });
 }
-q.addEventListener('input', () => { shown = 400; render(); });
-typ.addEventListener('change', () => { shown = 400; render(); });
+q.addEventListener('input', () => { shown = 400; render(); snapTop(); });
+typ.addEventListener('change', () => { shown = 400; render(); snapTop(); });
+if (era) era.addEventListener('change', () => { shown = 400; render(); snapTop(); });
 document.querySelectorAll('th[data-s]').forEach(th => th.addEventListener('click', () => {
   const k = th.dataset.s;
   sortDir = (sortKey === k) ? -sortDir : 1; sortKey = k;

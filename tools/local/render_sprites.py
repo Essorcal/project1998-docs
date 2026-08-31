@@ -104,8 +104,26 @@ def build_items():
         return w, h, epf[12 + pix:12 + pix + w * h]
 
     import csv
-    icons = sorted({int(r["ItmIcon"]) for r in csv.DictReader(io.open(os.path.join(GD, "Items.csv"), encoding="utf-8-sig"))
-                    if r.get("ItmIcon", "").isdigit()})
+    rws = [r for r in csv.DictReader(io.open(os.path.join(GD, "Items.csv"), encoding="utf-8-sig"))
+           if r.get("ItmIcon", "").isdigit()]
+    def n(r, k):
+        try:
+            return int(r.get(k) or 0)
+        except ValueError:
+            return 0
+    # Mirror Content.ResolveIconColors: for the 4.95 colour runs, `icon + ItmIconColor` is a real separate
+    # frame (sun/moon/star helms, the seasonal dress sets), unless it runs past the 4.95 art (1310 frames)
+    # or lands on a frame some other row already claims as its own base icon. The page keys the sheet by
+    # this FOLDED id (gen_db.py mirrors the same fold), so render the folded set — rendering base frames
+    # only was the "everything is spring" bug on the docs page.
+    RUNS = {89, 99, 120, 149, 159, 180, 265, 450}
+    claimed = {n(r, "ItmIcon") for r in rws}
+    def client_icon(r):
+        ic, col = n(r, "ItmIcon"), n(r, "ItmIconColor")
+        if col and ic in RUNS and ic + col < 1310 and ic + col not in claimed:
+            return ic + col
+        return ic
+    icons = sorted({client_icon(r) for r in rws})
     CELL, COLS = 24, 64
     rows = (len(icons) + COLS - 1) // COLS
     sheet = Image.new("RGBA", (CELL * COLS, CELL * rows), (0, 0, 0, 0))
@@ -196,5 +214,8 @@ def build_mobs():
     print(f"mob-sprites: {drawn}/{len(pairs)} (look,colour) pairs drawn from {len(pals)} palette blocks, sheet {sheet.size}")
 
 if __name__ == "__main__":
-    build_items()
-    build_mobs()
+    which = sys.argv[3] if len(sys.argv) > 3 else "all"
+    if which in ("items", "all"):
+        build_items()
+    if which in ("mobs", "all"):
+        build_mobs()
