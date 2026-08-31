@@ -79,6 +79,7 @@
   <a href="commands.html">Commands</a>
   <a href="quest-registry.html">Quests</a>
   <a href="spells.html" aria-current="page">Spells</a>
+  <a href="effects.html">Effects</a>
   <a href="items.html">Items</a>
   <a href="mobs.html">Mobs</a>
   <a href="atlas.html">Atlas</a>
@@ -92,7 +93,7 @@
     <h1>Spells &amp; Skills</h1>
     <p class="lede">Every spell and skill the server teaches, with class, level, mana, formulas and learn
     costs merged from the server's own data files. <code>fx</code> is the Effect.tbl animation id
-    (audition in game with <code>@efx &lt;id&gt;</code>).</p>
+    (audition in game with <code>@efx &lt;id&gt;</code>, or click one to watch it on the <a href="effects.html">4.95 Effect Table</a>).</p>
   </header>
   <div class="toolbar">
     <input id="q" type="search" placeholder="Filter — name, key, category…" aria-label="Filter spells">
@@ -123,7 +124,7 @@ function render(){
     <td><span class="nm">${esc(s.n)}</span>${s.skill ? ' <span class="pill">skill</span>' : ''}<span class="k">${esc(s.k)}</span>${s.note ? `<span class="sub">${esc(s.note)}</span>` : ''}</td>
     <td>${esc(s.c)}</td><td class="n">${s.lv || ''}</td><td class="n">${s.mk || ''}</td>
     <td>${esc(s.al)}</td><td class="n">${s.mana}</td><td>${esc(s.cat)}</td>
-    <td>${esc(s.form)}</td><td class="n">${s.fx}</td><td class="sub">${esc(s.cost)}</td></tr>`).join('');
+    <td>${esc(s.form)}</td><td class="n">${(typeof s.fx === 'number' && s.fx > 0) ? `<a href="effects.html#csv${s.fx}">${s.fx}</a>` : s.fx}</td><td class="sub">${esc(s.cost)}</td></tr>`).join('');
   count.textContent = rows.length + ' of ' + DATA.length;
 }
 q.addEventListener('input', render); cls.addEventListener('change', render);
