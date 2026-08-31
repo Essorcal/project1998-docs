@@ -15,6 +15,8 @@ Formats (all verified against the repo's own RE):
              chunkCount * { u16 blockCount, blockCount * 9 bytes } (TKViewer DnaFileHandler).
   MONSTER.EPF u16 count,w,h, u16 pad, u32 tocOff; TOC 16B: top,left,bottom,right (i16), pix,sten (u32).
   *.pal      DLPalette blocks; Item.pal and Monster.pal colours both live at block+38 here.
+  SUPER0-6.PAL (NexusTK.dat) single-block palettes the 5.33 client uses for mob colour bytes >= 32
+             (colour>>5 picks the file, see the ramp-shift note in build_mobs).
 """
 import io, json, os, struct, sys
 from PIL import Image
@@ -149,6 +151,8 @@ def build_mobs():
     ensure("monster.dna", "Mon.dat", "MONSTER.DNA")
     ensure("monster.epf", "Mon.dat", "MONSTER.EPF")
     ensure("monster.pal", "Mon.dat", "MONSTER.PAL")
+    for s in range(7):
+        ensure(f"super{s}.pal", "NexusTK.dat", f"SUPER{s}.PAL")
 
     dna = open(os.path.join(RE, "monster.dna"), "rb").read()
     count, = struct.unpack_from("<I", dna, 0)
@@ -177,10 +181,18 @@ def build_mobs():
         return w, h, epf[12 + pix:12 + pix + w * h]
 
     pals = pal_blocks(os.path.join(RE, "monster.pal"))
+    supers = [pal_blocks(os.path.join(RE, f"super{s}.pal"))[0] for s in range(7)]
 
-    # The rendered palette is the 0x07 COLOUR BYTE, not the DNA's palette field: mobs.csv MobLookColor
-    # (4.95-tuned), overridden per look for the 5.33 client by game-data/Mob5xPalettes.csv — that file's
-    # own header is the authority on this. Render one sprite per distinct (look, colour) pair in use.
+    # The 0x07 colour byte is a RAMP SHIFT, not a palette-block index (RE'd from the 5.33 client:
+    # draw 0x447975, palette manager 0x48ab40, blitter 0x4392a0). The client renders a mob as:
+    #   s = colour >> 5; base = s == 0 ? MONSTER.PAL block[dna.paletteIndex % blockCount]
+    #                               : SUPER{s-1}.PAL          (7 extra blocks in NexusTK.dat)
+    #   pixel k stays put below 0x30 (outline/skin zone), else reads base[(k + 8*colour) & 0xFF]
+    # — the 8-bit add wraps for free, so colour 35 lands on ramp 3 of SUPER0. The colour we shift by is
+    # what the server actually sends a V533 client: mobs.csv MobLookColor remapped PER LOOK through
+    # game-data/Mob5xPalettes.csv (mirrors Content.Palette5x / Session.SendCreatureList — the per-look
+    # keying collapses same-look mobs by design there; if that's wrong it's a game-data bug, not ours).
+    # Render one sprite per distinct (look, colour) pair in use, keyed by the PRE-override pair.
     import csv
     def csvrows(name):
         lines = [l for l in io.open(os.path.join(GD, name), encoding="utf-8-sig") if not l.lstrip().startswith("#")]
@@ -188,6 +200,20 @@ def build_mobs():
     override = {int(r["Look"]): int(r["Palette"]) for r in csvrows("Mob5xPalettes.csv") if r.get("Look", "").isdigit()}
     pairs = sorted({(int(r["MobLook"]), int(r["MobLookColor"] or 0)) for r in csvrows("mobs.csv")
                     if r.get("MobLook", "").isdigit()})
+
+    def mob_rgba(look, colour, w, h, raw):
+        sent = override.get(look, colour)          # the byte a V533 client is actually sent
+        s = sent >> 5
+        base = supers[s - 1] if 1 <= s <= 7 else pals[mobs[look][1] % len(pals)]
+        shift = (sent * 8) & 0xFF
+        im = Image.new("RGBA", (w, h), (0, 0, 0, 0))
+        px = im.load()
+        for i in range(min(len(raw), w * h)):
+            k = raw[i]
+            if k:
+                e = k if k < 0x30 else (k + shift) & 0xFF
+                px[i % w, i // w] = (*base[e], 255)
+        return im
 
     CELL, COLS = 48, 32
     rows = (len(pairs) + COLS - 1) // COLS
@@ -200,8 +226,7 @@ def build_mobs():
         if not res:
             continue
         w, h, raw = res
-        palidx = override.get(look, color)
-        im = raw_to_rgba(w, h, raw, pals[palidx % len(pals)])
+        im = mob_rgba(look, color, w, h, raw)
         if w > CELL or h > CELL:
             im.thumbnail((CELL, CELL), Image.NEAREST)
         x, y = (n % COLS) * CELL, (n // COLS) * CELL
