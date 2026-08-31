@@ -1,0 +1,512 @@
+# Live NexusAtlas monsters section, scraped once by tools/local/scrape_atlas_monsters.py.
+# Reflects MODERN NexusTK (a superset of the 4.95 era): absence => likely RTK-added;
+# presence does NOT prove era-correctness. images are ../photo/monster60/ filenames.
+name,page,exp,type,images
+AckDang,events,10,event,ackdang.gif;ackdang1.gif
+Admiral blaze,blazegrounds,0,humanoid,admiralblaze.gif;admiralblaze1.gif
+Adolescent dragon,dragon,7200000,dragon,drake.gif;drake1.gif
+Agile monkey,monkey,350000,animal,agilemonkey.gif;agilemonkey1.gif
+Aklak,aklakgrounds,0,animal,aklak.gif;aklak1.gif
+Angry ox,ox,2000000,animal,angryox.gif;angryox1.gif
+Atrocious bahadur,events,0,event,atrociousbahadur.gif;atrociousbahadur1.gif
+Baby Turtle,gogoonisland,220000,Animal,babyturtle.gif;babyturtle1.gif
+Bal bloodlust,greyhand,0,humanoid,balbloodlust.gif;balbloodlust1.gif
+Beach monkey,woodlands,40000,animal,beachmonkey.gif;beachmonkey1.gif
+Beady-eyed stalker,rat,5700000,animal,killerrat.gif;killerrat1.gif
+Bear,vale,1000,animal,bear.gif;bear1.gif
+Beastly noyan,events,0,event,beastlynoyan.gif;beastlynoyan1.gif
+Bestial yurtchis,events,50,event,bestialyurtchis.gif;bestialyurtchis1.gif
+Bitty Turtle,gogoonisland,550000,Animal,bittyturtle.gif;bittyturtle1.gif
+Black buck,wilderness,500,animal,darkbuck.gif;darkbuck1.gif
+Black chick,rooster,30000,animal,blackchick.gif;blackchick1.gif
+Black chicken,rooster,2000000,animal,blackchicken.gif;blackchicken1.gif
+Black rabbit,woodlands,5,animal,blackrabbit.gif;blackrabbit1.gif
+Black sheep,sheep,5900000,animal,blacksheep.gif;blacksheep1.gif
+Black sheep,woodlands,5900000,animal,blacksheep.gif;blacksheep1.gif
+Black tiger,tiger,7200000,animal,blacktiger.gif;blacktiger1.gif
+Blood rat,rat,145000,animal,bloodrat.gif;bloodrat1.gif
+Blood snake,snake,580000,animal,bloodsnake.gif;bloodsnake1.gif
+Blood wolf,wilderness,2000,animal,bloodwolf.gif;bloodwolf1.gif
+Bloody yurtchis,events,0,event,bloodyyurtchis.gif;bloodyyurtchis1.gif
+Bloom,earth,0,humanoid,bloom.gif;bloom1.gif
+Blue rooster,buya,0,animal,bluerooster.gif;bluerooster1.gif
+Blue rooster,kugnae,0,animal,bluerooster.gif;bluerooster1.gif
+Boa,islets,4444,animal,boa.gif;boa1.gif
+Boa,wilderness,4444,animal,boa.gif;boa1.gif
+Boar champion,pig,1300000,boss,boarchampion.gif;boarchampion1.gif
+Boar defender,pig,9450000,sentry,boardefender.gif;boardefender1.gif
+Boar guardian,pig,4500000,sentry,boarguardian.gif;boarguardian1.gif
+Boar sentry,pig,580000,sentry,boarsentry.gif;boarsentry1.gif
+Bold boar,pig,7500000,animal,boldboar.gif;boldboar1.gif
+Bold hog,pig,7300000,animal,boldhog.gif;boldhog1.gif
+Bold pig,pig,7100000,animal,boldpig.gif;boldpig1.gif
+Bold piglet,pig,6900000,animal,boldpiglet.gif;boldpiglet1.gif
+Boulder,gogoonisland,2000000,Mineral,boulder.gif
+Brazen,tiger,8650000,animal,brazen.gif;brazen1.gif
+Bright monkey,monkey,430000,animal,brightmonkey.gif;brightmonkey1.gif
+Brown hare,woodlands,5,animal,brownhare.gif;brownhare1.gif
+Brown rabbit,woodlands,5,animal,brownrabbit.gif;brownrabbit1.gif
+Brutal yurtchis,events,50,event,brutalyurtchis.gif;brutalyurtchis1.gif
+Brute,bandit,0,humanoid,brute.gif;brute1.gif
+Brutish kashik,events,0,event,brutishkashik.gif;brutishkashik1.gif
+Bubble,water,0,water,bubble.gif;bubble1.gif
+Burly bahadur,events,0,event,burlybahadur.gif;burlybahadur1.gif
+Cackling nurumnamu,events,0,event,cacklingnurumnamu.gif;cacklingnurumnamu1.gif
+Cackling ponnamu,events,0,event,cacklingponnamu.gif;cacklingponnamu1.gif
+Caltroom,wind,3516856,insect,caltroom.gif;caltroom1.gif
+Cat,buya,90,animal,cat.gif;cat1.gif
+Cat,kugnae,90,animal,cat.gif;cat1.gif
+Cat,tangun,90,animal,cat.gif;cat1.gif
+Charging ox,ox,440000,animal,chargingox.gif;chargingox1.gif
+Claw,earth,0,humanoid,claw.gif;claw1.gif
+Concealed assassin,hunter,778542,humanoid,concealedassassin.gif;concealedassassin1.gif
+Crab duke,water,0,water,crabduke.gif;crabduke1.gif
+Crazed mongrel,dog,320000,animal,crazedmongrel.gif;crazedmongrel1.gif
+Crazy claw,tiger,9900000,animal,crazyclaw.gif;crazyclaw1.gif
+Crow,nagnang,40,animal,crow.gif;crow1.gif
+Crowned serpent,water,0,water,crownedserpent.gif;crownedserpent1.gif
+Crude yurtchis,events,0,event,crudeyurtchis.gif;crudeyurtchis1.gif
+Cutthroat,assassin,1053913,humanoid,cutthroat.gif;cutthroat1.gif
+Dark buck,woodlands,300,animal,darkbuck.gif;darkbuck1.gif
+Dark mantis,forestcrossroads,1600000,insect,darkmantis.gif;darkmantis1.gif
+Dark sheep,sheep,9000000,animal,darksheep.gif;darksheep1.gif
+Dark snake,snake,4500000,animal,darksnake.gif;darksnake1.gif
+Dark squirrel,woodlands,800,animal,darksquirrel.gif;darksquirrel1.gif
+Dark tiger,tiger,900000,animal,darktiger.gif;darktiger1.gif
+Deadly bowman,assassin,0,humanoid,deadlybowman.gif;deadlybowman1.gif
+Deadly imbecile,dread,0,humanoid,deadlyimbecile.gif;deadlyimbecile1.gif
+Death mongrel,dog,480000,animal,deathmongrel.gif;deathmongrel1.gif
+Death wizard,magus,1123965,humanoid,deathwizard.gif;deathwizard1.gif
+Deep woods mantis,forestcrossroads,200000,insect,deepwoodsmantis.gif;deepwoodsmantis1.gif
+Deer,buya,50,animal,deer.gif;deer1.gif
+Deer,islets,50,animal,deer.gif;deer1.gif
+Deer,kugnae,50,animal,deer.gif;deer1.gif
+Deer,nagnang,50,animal,deer.gif;deer1.gif
+Deer,northernpass,50,animal,deer.gif;deer1.gif
+Deer,tangun,50,animal,deer.gif;deer1.gif
+Deer,wilderness,50,animal,deer.gif;deer1.gif
+Deer,woodlands,50,animal,deer.gif;deer1.gif
+Desert wasp,woodlands,650,insect,desertwasp.gif;desertwasp1.gif
+Destructive noyan,events,0,event,destructivenoyan.gif;destructivenoyan1.gif
+Diamond horse,horse,880000,animal,diamondhorse.gif;diamondhorse1.gif
+Diamond monkey,monkey,900000,animal,diamondmonkey.gif;diamondmonkey1.gif
+Dimsan,magus,0,humanoid,dimsan.gif;dimsan1.gif
+Dirt mantis,forestcrossroads,440000,insect,dirtmantis.gif;dirtmantis1.gif
+Divine dog,dog,1000000,boss,divinedog.gif;divinedog1.gif
+Divine dragon,dragon,26000000,boss,dragonsentry.gif;dragonsentry1.gif
+Divine horse,horse,2800000,boss,divinehorse.gif;divinehorse1.gif
+Divine monkey,monkey,620000,boss,divinemonkey.gif;divinemonkey1.gif
+Divine mouse,rat,500000,animal,divinemouse.gif;divinemouse1.gif
+Divine ox,ox,5000000,boss,divineox.gif;divineox1.gif
+Divine pig,pig,10000000,boss,divinepig.gif;divinepig1.gif
+Divine rabbit,rabbit,500000,boss,divinerabbit.gif;divinerabbit1.gif
+Divine rat,rat,2100000,boss,divinerat.gif;divinerat1.gif
+Divine rooster,rooster,1600000,boss,divinerooster.gif;divinerooster1.gif
+Divine sheep,sheep,16000000,boss,divinesheep.gif;divinesheep1.gif
+Divine snake,snake,12000000,boss,divinesnake.gif;divinesnake1.gif
+Divine tiger,tiger,20000000,boss,divinetiger.gif;divinetiger1.gif
+Doe,buya,50,animal,doe.gif;doe1.gif
+Doe,islets,50,animal,doe.gif;doe1.gif
+Doe,kugnae,50,animal,doe.gif;doe1.gif
+Doe,northernpass,50,animal,doe.gif;doe1.gif
+Doe,tangun,50,animal,doe.gif;doe1.gif
+Doe,vale,50,animal,doe.gif;doe1.gif
+Doe,wilderness,50,animal,doe.gif;doe1.gif
+Dog assassin,dog,160000,boss,dogassassin.gif;dogassassin1.gif
+Dog avenger,dog,9000000,boss,spiritdog.gif;spiritdog1.gif
+Dog cutthroat,dog,1100000,boss,dogcutthroat.gif;dogcutthroat1.gif
+Dog defender,dog,4000000,sentry,mastermutt.gif;mastermutt1.gif
+Dog guardian,dog,500000,sentry,dogguardian.gif;dogguardian1.gif
+Dog sentry,dog,90000,sentry,dogsentry.gif;dogsentry1.gif
+Dog trooper,dog,250000,animal,dogtrouper.gif;dogtrouper1.gif
+Dorogam,greyhand,0,humanoid,dorogam.gif;dorogam1.gif
+Dragon avenger,dragon,35000000,boss,dragonavenger.gif;dragonavenger1.gif
+Dragon defender,dragon,8100000,sentry,olddragon.gif;olddragon1.gif
+Dragon guardian,dragon,8500000,sentry,olddragon.gif;olddragon1.gif
+Dragon hatchling,dragon,1450000,dragon,dragonhatchling.gif;dragonhatchling1.gif
+Dragon mage,dragon,4800000,boss,dragonmage.gif;dragonmage1.gif
+Dragon sentry,dragon,2150000,sentry,dragonsentry.gif;dragonsentry1.gif
+Dragon slayer,dragon,26000000,boss,dragonslayer.gif;dragonslayer1.gif
+Drake,dragon,1350000,dragon,drake.gif;drake1.gif
+Dread,dread,0,humanoid,dread.gif;dread1.gif
+Drift Sprite,gogoonisland,100,Plant,driftsprite.gif
+Drone,anchorite,0,humanoid,drone.gif;drone1.gif
+Dune scorpion,woodlands,800000,animal,dunescorpion.gif;dunescorpion1.gif
+Earth rat,rat,3500000,animal,earthrat.gif;earthrat1.gif
+Eleton,anchorite,0,humanoid,eleton.gif;eleton1.gif
+Elite horse,horse,280000,animal,wildhorse.gif;wildhorse1.gif
+Enchanted sorcerer,magus,0,humanoid,enchantedsorcerer.gif;enchantedsorcerer1.gif
+Engrossed grizzly,aklakgrounds,0,animal,engrossedgrizzly.gif;engrossedgrizzly1.gif
+Fast monkey,monkey,600000,animal,fastmonkey.gif;fastmonkey1.gif
+Fat pig,pig,480000,animal,fatpig.gif;fatpig1.gif
+Fatal ninja,shadow,0,humanoid,fatalninja.gif;fatalninja1.gif
+Fear,dread,0,humanoid,fear.gif;fear1.gif
+Feral kashik,events,0,event,feralkashik.gif;feralkashik1.gif
+Fierce dog,dog,15000,animal,fiercedog.gif;fiercedog1.gif
+Fierce noyan,events,0,event,fiercenoyan.gif;fiercenoyan1.gif
+Fierce sheep,sheep,590000,animal,fiercesheep.gif;fiercesheep1.gif
+Fiery chick,rooster,470000,animal,fierychick.gif;fierychick1.gif
+Fighting dog,dog,32000,animal,fightingdog.gif;fightingdog1.gif
+Fire rat,rat,4400000,animal,firerat1.gif;firerat.gif
+Fire snake,snake,710000,animal,firesnake.gif;firesnake1.gif
+Fire snorter,horse,6300000,animal,firesnorter.gif;firesnorter1.gif
+Fists,anchorite,0,humanoid,fists.gif;fists1.gif
+Flame whisp,wind,3379630,undead,flamewhisp.gif;flamewhisp1.gif
+Flametongue colonel,blazegrounds,0,humanoid,flametongueprivate.gif;flametongueprivate1.gif
+Flametongue corporal,blazegrounds,0,humanoid,flametonguecorporal.gif;flametonguecorporal1.gif
+Flametongue master,blazegrounds,0,humanoid,flametonguemaster.gif;flametonguemaster1.gif
+Flametongue sergeant,blazegrounds,0,humanoid,flametonguesergeant-tan.gif;flametonguesergeant-tan1.gif
+Flaming sheep,sheep,7300000,animal,flamingsheep.gif;flamingsheep1.gif
+Flaneer,bandit,0,humanoid,flaneer.gif;flaneer1.gif
+Fluff,rabbit,630000,animal,fluff.gif;fluff1.gif
+Fog,wind,3447560,undead,fog.gif;fog1.gif
+Forest thug,bandit,0,humanoid,forestthug.gif;forestthug1.gif
+Fox,northernpass,320,animal,fox.gif;fox1.gif
+Fox,vale,320,animal,fox.gif;fox1.gif
+Fox,wilderness,320,animal,fox.gif;fox1.gif
+Frenetic grizzly,aklakgrounds,0,animal,freneticgrizzly.gif;freneticgrizzly1.gif
+Frost bear,woodlands,13000,animal,frostbear.gif;frostbear1.gif
+Frost butterfly,woodlands,5,insect,frostbutterfly.gif;frostbutterfly1.gif
+Frothing mutt,dog,1500000,animal,frothingmutt.gif;frothingmutt1.gif
+Furious beol,events,0,event,furiousbeol.gif;furiousbeol1.gif
+Furious saseum,omphalosgrounds,0,animal,furioussaseum.gif;furioussaseum1.gif
+Galled saseum,omphalosgrounds,0,animal,galledsaseum.gif;galledsaseum1.gif
+Gasping okunamu,events,0,event,gaspingokunamu.gif;gaspingokunamu1.gif
+Gasping sonamu,events,0,event,gaspingsonamu.gif;gaspingsonamu1.gif
+Ghaleb,assassin,0,humanoid,ghaleb.gif;ghaleb1.gif
+Ghostly doom,wind,0,insect,ghostlydoom.gif;ghostlydoom1.gif
+Giant bull,ox,1450000,animal,giantbull.gif;giantbull1.gif
+Giant hare,rabbit,6500,animal,gianthare.gif;gianthare1.gif
+Giant rabbit,rabbit,180000,animal,giantrabbit.gif;giantrabbit1.gif
+Giant tiger,tiger,1170000,animal,gianttiger.gif;gianttiger1.gif
+Ginger Root,gogoonisland,80000,Plant,gingerroot.gif
+Giveni rogue,assassin,1043478,humanoid,givenirogue.gif;givenirogue1.gif
+Glowing snake,snake,3250000,animal,radiantsnake.gif;radiantsnake1.gif
+Golden hare,rabbit,2700,animal,goldenrabbit.gif;goldenrabbit1.gif
+Golden hare,wilderness,2700,animal,goldenrabbit.gif;goldenrabbit1.gif
+Golden horse,horse,900000,animal,goldenhorse.gif;goldenhorse1.gif
+Golden rabbit,rabbit,40000,animal,goldenrabbit.gif;goldenrabbit1.gif
+Golden tiger,tiger,810000,animal,goldentiger.gif;goldentiger1.gif
+Gordoon,bandit,0,humanoid,gordoon.gif;gordoon1.gif
+Great horns,ox,6300000,animal,greathorns.gif;greathorns1.gif
+Great roost,rooster,2500000,animal,greatroost.gif;greatroost1.gif
+Great wyrm,dragon,9900000,dragon,greatwyrm.gif;greatwyrm1.gif
+Great zeonli,anchorite,0,humanoid,greatzeonli.gif;greatzeonli1.gif
+Green gator,tangun,5,animal,greengator.gif;greengator1.gif
+Gri-Yal,griyalgrounds,0,animal,gri-yal.gif;gri-yal1.gif
+Grim ogre,grimogres,200000,humanoid,grimogre.gif;grimogre1.gif
+Guardian force,hillmen,0,humanoid,guardianforce.gif;guardianforce1.gif
+Guardian wizard,magus,0,humanoid,guardianwizard.gif;guardianwizard1.gif
+Hare witch,rabbit,45000,boss,harewitch.gif;harewitch1.gif
+Haunted phantasm,events,1240,event,hauntedphantasm.gif
+Haunted shadow,events,940,event,hauntedshadow.gif;hauntedshadow1.gif
+Haunted spook,events,640,event,hauntedspook.gif;hauntedspook1.gif
+Heartless yurtchis,events,0,event,heartlessyurtchis.gif;heartlessyurtchis1.gif
+Hill ogre,grimogres,1600000,humanoid,hillogre.gif;hillogre1.gif
+Hired hand,Asmodi,250,Animal,Hiredhand.gif;hiredhandside.gif
+Hooves,horse,6600000,animal,hooves.gif;hooves1.gif
+Hop,rabbit,405000,animal,bunny.gif
+Horse,buya,640,animal,horse.gif;horse1.gif
+Horse,hausson,640,animal,horse.gif;horse1.gif
+Horse,kugnae,640,animal,horse.gif;horse1.gif
+Horse,wilderness,640,animal,horse.gif;horse1.gif
+Horse avenger,horse,17000000,boss,horseavenger.gif;horseavenger1.gif
+Horse chongun,horse,3200000,boss,horsechongun.gif;horsechongun1.gif
+Horse defender,horse,7400000,sentry,horsedefender.gif;horsedefender1.gif
+Horse do,horse,750000,boss,horseavenger.gif;horseavenger1.gif
+Horse guardian,horse,1200000,sentry,horseguardian.gif;horseguardian1.gif
+Horse guardsman,horse,340000,animal,horseswordsman.gif;horseswordsman1.gif
+Horse sentry,horse,350000,sentry,horsesentry.gif;horsesentry1.gif
+Horse swordsman,horse,760000,animal,horseswordsman.gif;horseswordsman1.gif
+Huge tiger,tiger,9000000,animal,gianttiger.gif;gianttiger1.gif
+Hunter rat,rat,700000,animal,hunterrat.gif;hunterrat1.gif
+Hypnotic yamour,griyalgrounds,0,animal,hypnoticyamour.gif;hypnoticyamour1.gif
+Ilbneon,hillmen,0,humanoid,ibneon.gif;ibneon1.gif
+Iomys,gogoonisland,800,Animal,iomys.gif;iomys1.gif
+Iron macenary,Asmodi,50000,Boss,IronMercenary.gif;IronMercenarys.gif
+Island lobster,hausson,500,water,islandlobster.gif;islandlobster1.gif
+Jaded enchantress,anchorite,0,humanoid,jadedenchantress.gif;jadedenchantress1.gif
+Jara stalker,hunter,0,humanoid,jarastalker.gif;jarastalker1.gif
+JoRangYa,events,10,event,jorangya.gif;jorangya1.gif
+JoRangYi,events,10,event,jorangyi.gif;jorangyi1.gif
+JoRangYo,events,10,event,jorangyo.gif;jorangyo1.gif
+Kamalattee,hillmen,0,humanoid,kamalattee.gif;kamalattee1.gif
+Killer mongrel,dog,1600000,animal,killermongrel.gif;killermongrel1.gif
+Killer rat,rat,190000,animal,killerrat.gif;killerrat1.gif
+King's guardian,bandit,0,sentry,kingsguardian.gif;kingsguardian1.gif
+Knap,tiger,9900000,animal,knap.gif;knap1.gif
+Lake winny,horse,5900000,animal,lakewinny.gif;lakewinny1.gif
+Large bull,ox,205000,animal,largebull.gif;largebull1.gif
+Lava rat,rat,740000,animal,bloodrat.gif;bloodrat1.gif
+Lava snake,snake,3700000,animal,firesnake.gif;firesnake1.gif
+Lethal Archer,assassin,0,humanoid,lethalarcher.gif;lethalarcher1.gif
+Lightning scholar,magus,1112836,humanoid,lightningscholar.gif;lightningscholar1.gif
+Lilac butterfly,woodlands,5,insect,lilacbutterfly.gif
+Lobster,vale,55000,water,lobster.gif;lobster1.gif
+Log,grimogres,800000,humanoid,log.gif;log1.gif
+Mad dog,dog,40000,animal,maddog.gif;maddog1.gif
+Mad hare,rabbit,110000,animal,madhare.gif;madhare1.gif
+Mad king,bandit,0,boss,madking.gif;madking1.gif
+Mad rabbit,rabbit,5500,animal,madrabbit.gif;madrabbit1.gif
+Magnetized grizzly,aklakgrounds,0,animal,magnetizedgrizzly.gif;magnetizedgrizzly1.gif
+Malicious khan,events,0,event,maliciouskhan.gif;maliciouskhan1.gif
+Masked hunter,hunter,770883,humanoid,maskedhunter.gif;maskedhunter1.gif
+Masked illusion,shadow,0,humanoid,maskedillusion.gif;maskedillusion1.gif
+Master bowman,assassin,0,humanoid,masterbowman.gif;masterbowman1.gif
+Mature dragon,dragon,7600000,dragon,dragonhatchling.gif;dragonhatchling1.gif
+Merciless noyan,events,0,event,mercilessnoyan.gif;mercilessnoyan1.gif
+Mesmeric grizzly,aklakgrounds,0,animal,mesmericgrizzly.gif;mesmericgrizzly1.gif
+Meter worm,snake,7000000,animal,meterworm.gif;meterworm1.gif
+Mighty mouse,rat,450000,boss,mightymouse.gif;mightymouse1.gif
+Mighty wyrm,dragon,9000000,dragon,mightywyrm.gif;mightywyrm1.gif
+Mindless killer,dread,0,humanoid,mindlesskiller.gif;mindlesskiller1.gif
+Mini bal,greyhand,0,humanoid,minibal.gif;minibal1.gif
+Mini pik,greyhand,0,humanoid,minipik.gif;minipik1.gif
+Mini Turtle,gogoonisland,440000,Animal,miniturtle.gif;miniturtle1.gif
+Minion,anchorite,0,humanoid,minion.gif;minion1.gif
+Monkey avenger,monkey,3000000,boss,spiritmonkey.gif;spiritmonkey1.gif
+Monkey basher,monkey,800000,boss,monkeyguardian.gif;monkeyguardian1.gif
+Monkey defender,monkey,1170000,sentry,spiritmonkey.gif;spiritmonkey1.gif
+Monkey guardian,monkey,340000,sentry,monkeyguardian.gif;monkeyguardian1.gif
+Monkey mauler,monkey,55000,boss,monkeymauler.gif;monkeymauler1.gif
+Monkey sentry,monkey,24000,sentry,monkeysentry.gif;monkeysentry1.gif
+Monstrous monkey,monkey,370000,animal,monstrousmonkey.gif;monstrousmonkey1.gif
+Morridoom,wind,3482036,insect,morridoom.gif;morridoom1.gif
+Moth,woodlands,5,insect,moth.gif
+Mountain goat,woodlands,80,animal,mountaingoat.gif;mountaingoat1.gif
+Mouse,buya,15,animal,mouse.gif;mouse1.gif
+Muck ogre,grimogres,440000,humanoid,muckogre.gif;muckogre1.gif
+Mud bull,tangun,5800,animal,mudbull.gif;mudbull1.gif
+Mud rat,rat,650000,animal,mudrat.gif;mudrat1.gif
+Murderous kashik,events,0,event,murderouskashik.gif;murderouskashik1.gif
+Mythic boar,pig,1100000,boss,mythicpig.gif;mythicpig1.gif
+Mythic dog,dog,140000,boss,mythicdog.gif;mythicdog1.gif
+Mythic dragon,dragon,4400000,boss,mythicdragon.gif;mythicdragon1.gif
+Mythic hare,rabbit,37000,boss,mythichare.gif;mythichare1.gif
+Mythic horse,horse,570000,boss,mythichorse.gif;mythichorse1.gif
+Mythic monkey,monkey,50000,boss,spiritmonkey.gif;spiritmonkey1.gif
+Mythic mouse,rat,35000,animal,mythicmouse.gif;mythicmouse1.gif
+Mythic ox,ox,825000,boss,mythicox.gif;mythicox1.gif
+Mythic rat,rat,330000,boss,mythicrat.gif;mythicrat1.gif
+Mythic rooster,rooster,120000,boss,mythicrooster.gif;mythicrooster1.gif
+Mythic sheep,sheep,2000000,boss,mythicsheep.gif;mythicsheep1.gif
+Mythic snake,snake,1600000,boss,mythicsnake.gif;mythicsnake1.gif
+Mythic tiger,tiger,3000000,boss,mythictiger.gif;mythictiger1.gif
+Nettled saseum,omphalosgrounds,1600,animal,nettledsaseum.gif;nettledsaseum1.gif
+Not Above,Asmodi,800,animal,Notabove.gif;notaboveside.gif
+Not below,Asmodi,2600,animal,Notbelow.gif;Notbelowside.gif
+Obese pig,pig,2000000,animal,obesepig.gif;obesepig1.gif
+Oblivion,dread,0,humanoid,oblivion.gif;oblivion1.gif
+Ogre explorer,islets,400,humanoid,ogreexplorer.gif;ogreexplorer1.gif
+Old dragon,dragon,10800000,dragon,olddragon.gif;olddragon1.gif
+Old witch,magus,1101818,humanoid,oldwitch.gif;oldwitch1.gif
+Omphalos,omphalosgrounds,0,animal,omphalos.gif;omphalos1.gif
+Oneub,hillmen,0,humanoid,oneub.gif;oneub1.gif
+Overseer Sentry,Asmodi,50000,Boss,OverseerSentry.gif;OverseerSentrys.gif
+Ox avenger,ox,25000000,boss,spiritox.gif;spiritox1.gif
+Ox charger,ox,5600000,boss,oxcharger.gif;oxcharger1.gif
+Ox defender,ox,7800000,sentry,oxdefender.gif;oxdefender1.gif
+Ox gorer,ox,850000,boss,spiritox.gif;spiritox1.gif
+Ox guardian,ox,2700000,sentry,oxguardian.gif;oxguardian1.gif
+Ox sentry,ox,450000,sentry,oxsentry.gif;oxsentry1.gif
+Pale dog,dog,75000,animal,paledog.gif;paledog1.gif
+Pale hunger,ox,6550000,animal,palehunger.gif;palehunger1.gif
+Penda,events,10,event,penda.gif;penda1.gif
+Pendi,events,10,event,pendi.gif;pendi1.gif
+Pendo,events,10,event,pendo.gif;pendo1.gif
+Petal,earth,0,humanoid,petal.gif;petal1.gif
+Pheasant,woodlands,40000,animal,pheasant.gif;pheasant1.gif
+Pig avenger,pig,30000000,boss,pigavenger.gif;pigavenger1.gif
+Pig champion,pig,12000000,boss,pigchampion.gif;pigchampion1.gif
+Pinky,water,0,water,pinky.gif;pinky1.gif
+Plain monkey,monkey,7000,animal,plainmonkey.gif;plainmonkey1.gif
+Plain snake,snake,400000,animal,plainsnake.gif;plainsnake1.gif
+Pocket Turtle,gogoonisland,340000,Animal,pocketturtle.gif;pocketturtle1.gif
+Powerful bahadur,events,0,event,powerfulbahadur.gif;powerfulbahadur1.gif
+Prickle,earth,0,humanoid,prickle.gif;prickle1.gif
+Quick monkey,monkey,250000,animal,quickmonkey.gif;quickmonkey1.gif
+Quiltar,greyhand,0,humanoid,quiltar.gif;quiltar1.gif
+QwiDolYa,events,10,event,qwidolya.gif;qwidolya1.gif
+QwiDolYi,events,0,event,qwidolyi.gif;qwidolyi1.gif
+QwiDolYo,events,10,event,qwidolyo.gif;qwidolyo1.gif
+Rabbit,buya,5,animal,rabbit.gif;rabbit1.gif
+Rabbit,islets,5,animal,rabbit.gif;rabbit1.gif
+Rabbit,kugnae,5,animal,rabbit.gif;rabbit1.gif
+Rabbit,nagnang,5,animal,rabbit.gif;rabbit1.gif
+Rabbit,northernpass,5,animal,rabbit.gif;rabbit1.gif
+Rabbit,tangun,20,animal,rabbit.gif;rabbit1.gif
+Rabbit,vale,5,animal,rabbit.gif;rabbit1.gif
+Rabbit,vortex,5,animal,rabbit.gif;rabbit1.gif
+Rabbit,wilderness,5,animal,rabbit.gif;rabbit1.gif
+Rabbit,woodlands,5,animal,rabbit.gif;rabbit1.gif
+Rabbit avenger,rabbit,2400000,boss,rabbitdefender.gif;rabbitdefender1.gif
+Rabbit defender,rabbit,1100000,sentry,rabbitdefender.gif;rabbitdefender1.gif
+Rabbit guardian,rabbit,250000,sentry,rabbitguardian.gif;rabbitguardian1.gif
+Rabbit sentry,rabbit,16000,sentry,rabbitsentry.gif;rabbitsentry1.gif
+Rabbit witch,rabbit,550000,boss,rabbitwitch.gif;rabbitwitch1.gif
+Radiant chick,rooster,80000,animal,radiantchick.gif;radiantchick1.gif
+Radiant snake,snake,600000,animal,radiantsnake.gif;radiantsnake1.gif
+Raging bull,ox,320000,animal,giantbull.gif;giantbull1.gif
+Raging tiger,tiger,5400000,animal,restlesstiger.gif;restlesstiger1.gif
+Rampaging bull,ox,1700000,animal,rampagingbull.gif;rampagingbull1.gif
+Rat,buya,25,animal,rat.gif;rat1.gif
+Rat,hausson,25,animal,rat.gif;rat1.gif
+Rat,kugnae,25,animal,rat.gif;rat1.gif
+Rat,nagnang,25,animal,rat.gif;rat1.gif
+Rat,tangun,25,animal,rat.gif;rat1.gif
+Rat,vale,25,animal,rat.gif;rat1.gif
+Rat,wilderness,25,animal,rat.gif;rat1.gif
+Rat,woodlands,25,animal,rat.gif;rat1.gif
+Rat avenger,rat,16000000,boss,mightymouse.gif;mightymouse1.gif
+Rat defender,rat,7000000,sentry,ratdefender.gif;ratdefender1.gif
+Rat guardian,rat,1000000,sentry,ratguardian.gif;ratguardian1.gif
+Rat lord,rat,2200000,boss,ratlord.gif;ratlord1.gif
+Rat sentry,rat,200000,sentry,ratsentry.gif;ratsentry1.gif
+Ravage,hunter,0,humanoid,ravage.gif;ravage1.gif
+Red chick,rooster,340000,animal,redchick.gif;redchick1.gif
+Red sheep,sheep,4300000,animal,redsheep.gif;redsheep1.gif
+Restless tiger,tiger,675000,animal,restlesstiger.gif;restlesstiger1.gif
+Restless yamour,griyalgrounds,0,animal,restlessyamour.gif;restlessyamour1.gif
+Rock snake,woodlands,80,water,rocksnake.gif;rocksnake1.gif
+Rooster avenger,rooster,8000000,boss,roosterswordsman.gif;roosterswordsman1.gif
+Rooster barbarian,rooster,1800000,boss,roosterbarbarian.gif;roosterbarbarian1.gif
+Rooster defender,rooster,5400000,sentry,roosterdefender.gif;roosterdefender1.gif
+Rooster guardian,rooster,600000,sentry,roosterguardian.gif;roosterguardian1.gif
+Rooster sentry,rooster,70000,sentry,roostersentry.gif;roostersentry1.gif
+Rooster swordsman,rooster,150000,boss,roosterswordsman.gif;roosterswordsman1.gif
+Rugged bahadur,events,0,event,ruggedbahadur.gif;ruggedbahadur1.gif
+Ruthless yurtchis,events,90,event,ruthlessyurtchis.gif;ruthlessyurtchis1.gif
+Sapphire assassin,dread,0,humanoid,sapphireassassin.gif;sapphireassassin1.gif
+Scar,greyhand,0,humanoid,minipik.gif;minipik1.gif
+Sea lobster,woodlands,37000,animal,sealobster.gif;sealobster1.gif
+Serpentine dragon,dragon,10800000,dragon,serpentinedragon.gif;serpentinedragon1.gif
+Shadow crow,woodlands,50,animal,crow.gif;crow1.gif
+Shadow mantis,forestcrossroads,440000,insect,shadowmantis.gif;shadowmantis1.gif
+Shadow sentry,shadow,0,humanoid,shadowsentry.gif;shadowsentry1.gif
+Sheep,tangun,400,animal,sheep.gif;sheep1.gif
+Sheep,vale,400,animal,sheep.gif;sheep1.gif
+Sheep,wilderness,400,animal,sheep.gif;sheep1.gif
+Sheep,woodlands,400,animal,sheep.gif;sheep1.gif
+Sheep avenger,sheep,35000000,boss,mythicsheep.gif;mythicsheep1.gif
+Sheep defender,sheep,8100000,animal,sheepdefender.gif;sheepdefender1.gif
+Sheep guardian,sheep,7200000,sentry,sheepguardian.gif;sheepguardian1.gif
+Sheep sentry,sheep,1200000,sentry,sheepsentry.gif;sheepsentry1.gif
+Sheep shepherd,sheep,18000000,boss,sheepshepherd.gif;sheepshepherd1.gif
+Sheep veteran,sheep,2600000,boss,sheepveteran.gif;sheepveteran1.gif
+Shrewd mauler,hillmen,0,humanoid,shrewdmauler.gif;shrewdmauler1.gif
+Silent,shadow,0,humanoid,silent.gif;silent1.gif
+Silent watcher,hunter,0,humanoid,silentwatcher.gif;silentwatcher1.gif
+Simdan,magus,0,humanoid,simdan.gif;simdan1.gif
+Simple monkey,monkey,180000,animal,simplemonkey.gif;simplemonkey1.gif
+Simple snake,snake,2350000,animal,simplesnake.gif;simplesnake1.gif
+Skilled horse,horse,220000,animal,skilledhorse.gif;skilledhorse1.gif
+Slasher,assassin,0,humanoid,slasher.gif;slasher1.gif
+Slide,water,0,water,slide.gif;slide1.gif
+Slime ogre,grimogres,440000,humanoid,muckogre.gif;muckogre1.gif
+Slither,water,0,water,slither.gif;slither1.gif
+Slitherly,snake,7400000,animal,slitherly.gif;slitherly1.gif
+Sly monkey,monkey,16000,animal,slymonkey.gif;slymonkey1.gif
+Smoke whisp,wind,3413426,undead,smokewhisp.gif;smokewhisp1.gif
+Snake,hausson,80,animal,snake.gif;snake1.gif
+Snake,islets,80,animal,snake.gif;snake1.gif
+Snake,nagnang,80,animal,snake.gif;snake1.gif
+Snake,vale,80,animal,snake.gif;snake1.gif
+Snake,wilderness,80,animal,snake.gif;snake1.gif
+Snake avenger,snake,35000000,boss,snakeavenger.gif;snakeavenger1.gif
+Snake defender,snake,9450000,sentry,snakedefender.gif;snakedefender1.gif
+Snake guardian,snake,6300000,sentry,snakeguardian.gif;snakeguardian1.gif
+Snake mage,snake,16000000,boss,snakemage.gif;snakemage1.gif
+Snake sentry,snake,800000,sentry,snakesentry.gif;snakesentry1.gif
+Snake shaman,snake,1700000,boss,snakeavenger.gif;snakeavenger1.gif
+Snow bear,woodlands,13000,animal,snowbear.gif;snowbear1.gif
+Southern ogre,grimogres,300000,humanoid,southernogre.gif;southernogre1.gif
+Spasm,snake,8100000,animal,spasm.gif;spasm1.gif
+Spirit dog,dog,8000000,boss,spiritdog.gif;spiritdog1.gif
+Spirit dragon,dragon,35000000,boss,dragonavenger.gif;dragonavenger1.gif
+Spirit horse,horse,15000000,boss,horseavenger.gif;horseavenger1.gif
+Spirit monkey,monkey,2800000,boss,spiritmonkey.gif;spiritmonkey1.gif
+Spirit mouse,rat,2550000,animal,spiritmouse.gif;spiritmouse1.gif
+Spirit ox,ox,22000000,boss,spiritox.gif;spiritox1.gif
+Spirit pig,pig,28000000,boss,pigavenger.gif;pigavenger1.gif
+Spirit rabbit,rabbit,2000000,boss,rabbitdefender.gif;rabbitdefender1.gif
+Spirit rat,rat,14000000,boss,mightymouse.gif;mightymouse1.gif
+Spirit rooster,rooster,7000000,boss,roosterswordsman.gif;roosterswordsman1.gif
+Spirit sheep,sheep,34000000,boss,mythicsheep.gif;mythicsheep1.gif
+Spirit snake,snake,32000000,boss,snakeavenger.gif;snakeavenger1.gif
+Spirit tiger,tiger,35000000,boss,mythictiger.gif;mythictiger1.gif
+Spirited horse,horse,610000,animal,spiritedhorse.gif;spiritedhorse1.gif
+Spotted mutt,dog,1250000,animal,spottedmutt.gif;spottedmutt1.gif
+Sprint butterfly,woodlands,5,insect,sprintbutterfly.gif
+Spry monkey,monkey,20000,animal,sprymonkey.gif;sprymonkey1.gif
+Spunky dog,dog,400000,animal,spunkydog.gif;spunkydog1.gif
+Spunky monkey,monkey,630000,animal,spunkymonkey.gif;spunkymonkey1.gif
+Squeek,water,0,water,squeek.gif;squeek1.gif
+Squirrel,buya,10,animal,squirrel.gif;squirrel1.gif
+Squirrel,islets,10,animal,squirrel.gif;squirrel1.gif
+Squirrel,kugnae,10,animal,squirrel.gif;squirrel1.gif
+Squirrel,nagnang,10,animal,squirrel.gif;squirrel1.gif
+Squirrel,tangun,10,animal,squirrel.gif;squirrel1.gif
+Squirrel,vortex,10,animal,squirrel.gif;squirrel1.gif
+Squirrel,wilderness,10,animal,squirrel.gif;squirrel1.gif
+Squirrel,woodlands,10,animal,squirrel.gif;squirrel1.gif
+Stealth guardian,hunter,0,humanoid,stealthguardian.gif;stealthguardian1.gif
+Sting,forestcrossroads,800000,insect,sting.gif;sting1.gif
+Stone ogre,islets,600,humanoid,stoneogre.gif;stoneogre1.gif
+Storm snake,snake,8500000,animal,stormsnake.gif;stormsnake1.gif
+Storp,anchorite,0,humanoid,storp.gif;storp1.gif
+Stout pig,pig,1700000,animal,stoutpig.gif;stoutpig1.gif
+Stout piglet,pig,1350000,animal,stoutpiglet.gif;stoutpiglet1.gif
+Stout warthog,pig,2700000,animal,stoutwarthog.gif;stoutwarthog1.gif
+Strawberries,gogoonisland,80000,Plant,strawberries.gif
+Stubborn pig,pig,290000,animal,stubbornpig.gif;stubbornpig1.gif
+Stubborn piglet,pig,240000,animal,stubbornpiglet.gif;stubbornpiglet1.gif
+Stubborn warthog,pig,530000,animal,stubbornwarthog.gif;stubbornwarthog1.gif
+Sun feather,rooster,3900000,animal,sunfeather.gif;sunfeather1.gif
+Swift,shadow,0,humanoid,swift.gif;swift1.gif
+Swift mauler,hillmen,0,humanoid,swiftmauler.gif;swiftmauler1.gif
+Takrai,gogoonisland,80000,Plant,takrai.gif
+Tan gator,tangun,5,animal,tangator.gif;tangator1.gif
+Thorn,earth,0,humanoid,thorn.gif;thorn1.gif
+Thump,rabbit,630000,animal,bunny.gif
+Tiger,islets,1200,animal,tiger.gif;tiger1.gif
+Tiger,vale,1200,animal,tiger.gif;tiger1.gif
+Tiger avenger,tiger,35000000,boss,mythictiger.gif;mythictiger1.gif
+Tiger slasher,tiger,22000000,boss,blizzard.gif;blizzard1.gif
+Tiger warrior,tiger,3200000,boss,mythictiger.gif;mythictiger1.gif
+Tiny Turtle,gogoonisland,220000,Animal,tinyturtle.gif;tinyturtle1.gif
+Tough fight,ox,6800000,animal,toughfight.gif;toughfight1.gif
+Trapper,hunter,0,humanoid,trapper.gif;trapper1.gif
+Turbulent saseum,omphalosgrounds,0,animal,turbulentsaseum.gif;turbulentsaseum1.gif
+Ugly monkey,monkey,23000,animal,uglymonkey.gif;uglymonkey1.gif
+Ugly sheep,sheep,840000,animal,uglysheep.gif;uglysheep1.gif
+Unseen,shadow,0,humanoid,unseen.gif;unseen1.gif
+Vanish,shadow,0,humanoid,vanish.gif;vanish1.gif
+Vicious kashik,events,0,event,viciouskashik.gif;viciouskashik1.gif
+Vile rat,rat,100000,animal,vilerat.gif;vilerat1.gif
+Vitalizing yamour,griyalgrounds,0,animal,vitalizingyamour.gif;vitalizingyamour1.gif
+Water elemental,earth,0,humanoid,waterelemental.gif;waterelemental1.gif
+Water snake,woodlands,4444,water,watersnake.gif;watersnake1.gif
+Water wizard,dread,0,humanoid,waterwizard.gif;waterwizard1.gif
+White chicken,rooster,480000,animal,wildchicken.gif;wildchicken1.gif
+White rabbit,buya,5,animal,whiterabbit.gif;whiterabbit1.gif
+White rabbit,kugnae,5,animal,whiterabbit.gif;whiterabbit1.gif
+White rooster,rooster,500000,animal,wildrooster.gif;wildrooster1.gif
+Wibna,hillmen,0,humanoid,wibna.gif;wibna1.gif
+Wild chick,rooster,1800000,animal,wildchick.gif;wildchick1.gif
+Wild chicken,rooster,48000,animal,wildchicken.gif;wildchicken1.gif
+Wild horse,horse,170000,animal,wildhorse.gif;wildhorse1.gif
+Wild rooster,rooster,71000,animal,wildrooster.gif;wildrooster1.gif
+Wild snake,woodlands,4444,animal,wildsnake.gif;wildsnake1.gif
+Wild yamour,griyalgrounds,0,animal,wildyamour.gif;wildyamour1.gif
+Wolf,buya,640,animal,wolf.gif;wolf1.gif
+Wolf,kugnae,640,animal,wolf.gif;wolf1.gif
+Wolf,vale,640,animal,wolf.gif;wolf1.gif
+Wolf,wilderness,640,animal,wolf.gif;wolf1.gif
+Wolf-kin,dog,2000000,animal,wolfkin.gif;wolfkin1.gif
+Wood snake,woodlands,4444,animal,woodsnake.gif;woodsnake1.gif
+Wood wolf,woodlands,2000,animal,lightningwolf.gif;lightningwolf1.gif
+Wooden horse,horse,3800000,animal,woodenhorse.gif;woodenhorse1.gif
+Woods savage,bandit,0,humanoid,woodssavage.gif;woodssavage1.gif
+Yarsin,greyhand,0,humanoid,yarsin.gif;yarsin1.gif
+Young dragon,dragon,1600000,dragon,youngdragon.gif;youngdragon1.gif
+Zibong's mask,wind,0,insect,zibongsmask.gif;zibongsmask1.gif

@@ -724,55 +724,298 @@ render();
     return len(out)
 
 # ---------------------------------------------------------------- mobs
+def _atlas_names(fname):
+    """Normalized name set from a committed tools/data atlas list (None when the file is absent)."""
+    p = os.path.join(os.path.dirname(os.path.abspath(__file__)), "data", fname)
+    if not os.path.exists(p):
+        print(f"warning: {fname} not found; atlas cross-reference degraded", file=sys.stderr)
+        return None
+    with io.open(p, encoding="utf-8") as f:
+        rdr = csv.DictReader(l for l in f if not l.startswith("#"))
+        return {re.sub(r"[^a-z0-9]", "", r["name"].lower()) for r in rdr}
+
+# Bespoke per-mob mechanics that live in code, not CSVs — each with its one source named.
+MOB_NOTES = {
+    "ice_beast": ("docile until lured — unleashed (no chase leash) and one-shots for ~300k; "
+                  "it melts when led onto the lava row", "Server/World.cs Ice Beast questline (map 3040)"),
+    "sute": ("bespoke quest-boss AI: at ≤25% HP it self-heals 200, at most once per 20s on a 1-in-12 roll",
+             "Server/SuteAi.cs"),
+    "spy_hwan": ("its Spawns.csv row is excluded at load — the Spy-subpath storyline he serves is unbuilt",
+                 "Server/Content.cs ExcludedSpawnMobIds"),
+}
+
 def build_mobs():
     sprites = sheet("mob-sprites")
+    itemnames = {r["ItmIdentifier"]: clean_name(r["ItmDescription"]) for r in rows("Items.csv")}
+    def item_name(k):
+        return itemnames.get(k, k.replace("_", " "))
+    def pctx(v):
+        try: return f"{float(v):g}"
+        except ValueError: return v
+
+    # Drops mirror Content.LoadMobDrops/RollDrops: Loot is item:MaxAmount:RatePercent (amount rolled
+    # 1..Max, each line independent; malformed lines skipped); RareLoot is item:RatePercent — TWO fields,
+    # amount always 1, and at most ONE rare drops per kill (first listed line to hit wins).
     drops = {}
-    itemnames = {r["ItmIdentifier"]: r["ItmDescription"] for r in rows("Items.csv")}
     for r in rows("MobDrops.csv"):
         entries = []
-        for lootcol, rare in (("Loot", False), ("RareLoot", True)):
-            for part in (r.get(lootcol) or "").split("|"):
-                bits = part.split(":")
-                if bits[0]:
-                    nm = itemnames.get(bits[0], bits[0].replace("_", " "))
-                    chance = bits[2] if len(bits) > 2 else ""
-                    entries.append(nm + (f" ({chance}%)" if chance else "") + (" ★" if rare else ""))
-        drops[r["MobKey"]] = entries
+        for part in (r.get("Loot") or "").split("|"):
+            bits = part.split(":")
+            if len(bits) != 3 or not bits[0]:
+                continue
+            nm = "gold" if bits[0] == "GOLD" else item_name(bits[0])
+            amt = num(bits[1], 1)
+            entries.append({"t": (f"1–{amt:,} " if amt > 1 else "") + f"{nm} ({pctx(bits[2])}%)", "r": 0})
+        for part in (r.get("RareLoot") or "").split("|"):
+            bits = part.split(":")
+            if len(bits) != 2 or not bits[0]:
+                continue
+            nm = "gold" if bits[0] == "GOLD" else item_name(bits[0])
+            entries.append({"t": f"{nm} ({pctx(bits[1])}%)", "r": 1})
+        if entries:
+            drops[r["MobKey"]] = entries
 
-    spells = {}
+    # Casts: MobSpells.csv rows in FILE ORDER (the server walks them in order, first roll that passes
+    # wins). Per the file's own header: timer rows re-roll every 333ms once off cooldown, so EveryMs is
+    # the real pacing and Chance only shifts WHEN; onhit rows are a true 1-in-N per landed blow.
+    casts = {}
     for r in rows("MobSpells.csv"):
-        if r.get("MobKey") and r.get("Name"):
-            spells.setdefault(r["MobKey"], []).append(r["Name"])
+        if not (r.get("MobKey") and r.get("Name")):
+            continue
+        eff, amount, dur = (r.get("Effect") or "").strip(), num(r.get("Amount")), num(r.get("DurationMs"))
+        per_tick = num(r.get("PerTick"))
+        bits, title = [], ""
+        if eff == "damage":
+            bits.append(f"{amount:,} damage")
+        elif eff == "poison":
+            if per_tick:
+                tmin, tmax = num(r.get("TickMinMs")), num(r.get("TickMaxMs"))
+                bits.append(f"poison {per_tick:,}/tick" + (f" every {fmt_ms(tmin)}–{fmt_ms(tmax)}" if tmax else ""))
+            else:
+                bits.append(f"poison {amount:,}/s")
+            if dur: bits.append(fmt_ms(dur))
+        elif eff == "curse":
+            stat = (r.get("Stat") or "").strip()
+            bits.append(f"{stat} −{amount}" if stat else "curse")
+            if dur: bits.append(fmt_ms(dur))
+        elif eff == "blind":
+            bits.append(("blind " + fmt_ms(dur) if dur else "blind") + " — no effect on players")
+            title = ("Acknowledged gap (Session.MobSpells.cs): no player-blind state exists, so the row "
+                     "lands and occupies the blinds slot (cures work) but does not impair you")
+        elif eff:
+            bits.append(eff)
+        if (r.get("Trigger") or "").strip() == "onhit":
+            bits.append(f"on hit: 1-in-{num(r.get('Chance'), 1)} per landed blow")
+        else:
+            if num(r.get("EveryMs")): bits.append(f"every {fmt_ms(num(r['EveryMs']))}")
+            if num(r.get("Range")) > 1: bits.append(f"range {num(r['Range'])}")
+        casts.setdefault(r["MobKey"], []).append({
+            "n": clean_name(r["Name"]), "d": " · ".join(bits),
+            "say": clean_name((r.get("Say") or "").strip()), "ti": title})
 
-    spawn_maps = {}
-    mob_by_id = {num(r["MobId"]): r["Identifier"] for r in rows("mobs.csv")}
+    # Spawn provenance keyed by MobId (NOT Identifier — six buya_library_mob tiers share a key but spawn
+    # on different maps). The server concatenates AreaSpawns + AreaSpawnsTrap + AreaSpawnsCrafting
+    # (Content.cs LoadContent) and drops ExcludedSpawnMobIds from Spawns.csv at load.
+    excluded = {num(x) for x in _parse_keys(_CONTENT, r"ExcludedSpawnMobIds\s*=\s*new\(\)\s*\{([^}]*)\}",
+                                            [], "ExcludedSpawnMobIds") or ()}
+    if not excluded:
+        m = re.search(r"ExcludedSpawnMobIds\s*=\s*new\(\)\s*\{([^}]*)\}", _CONTENT)
+        excluded = {num(x) for x in re.findall(r"\d+", m.group(1))} if m else {729}
+    spawn = {}
+    def add_spawn(mid, mapid, tag=""):
+        nm = maps_by_id.get(mapid, f"map {mapid}")
+        spawn.setdefault(mid, {}).setdefault(nm, set())
+        if tag: spawn[mid][nm].add(tag)
     for r in rows("Spawns.csv"):
-        k = mob_by_id.get(num(r["SpnMobId"]))
-        if k:
-            spawn_maps.setdefault(k, set()).add(maps_by_id.get(num(r["SpnMapId"]), f"map {r['SpnMapId']}"))
+        if num(r["SpnMobId"]) not in excluded:
+            add_spawn(num(r["SpnMobId"]), num(r["SpnMapId"]))
     for r in rows("AreaSpawns.csv"):
-        k = mob_by_id.get(num(r["MobId"]))
-        if k:
-            spawn_maps.setdefault(k, set()).add(maps_by_id.get(num(r["Map"]), f"map {r['Map']}"))
+        add_spawn(num(r["MobId"]), num(r["Map"]))
+    for r in rows_opt("AreaSpawnsTrap.csv"):
+        add_spawn(num(r["MobId"]), num(r["Map"]), "trap, rare" if num(r.get("RespawnSec")) > 0 else "trap")
+    for r in rows_opt("AreaSpawnsCrafting.csv"):
+        add_spawn(num(r["MobId"]), num(r["Map"]), "crafting")
 
-    bosses = {r["MobKey"] for r in rows("MobBosses.csv")}
+    # Ambush bursts: AmbushConfig maps ("90-96;208" lists) fire AmbushBursts tables when a hidden trap is
+    # stepped on (Content.LoadAmbushConfig / World.RefillAmbush) — ~19 mobs spawn ONLY this way.
+    bursts = {}
+    for r in rows_opt("AmbushBursts.csv"):
+        ids = {num(x) for x in (r.get("MobIds") or "").split(";") if num(x) > 0}
+        bursts.setdefault((r.get("Table") or "").strip(), set()).update(ids)
+    def map_list(s):
+        out = []
+        for part in (s or "").split(";"):
+            part = part.strip()
+            if "-" in part[1:]:
+                lo, hi = part.split("-", 1)
+                if lo.strip().isdigit() and hi.strip().isdigit():
+                    out.extend(range(int(lo), int(hi) + 1))
+            elif part.isdigit():
+                out.append(int(part))
+        return out
+    for r in rows_opt("AmbushConfig.csv"):
+        mob_ids = set()
+        primary = (r.get("Primary") or "").strip()
+        if primary.startswith("burst:"):
+            mob_ids |= bursts.get(primary[6:], set())
+        elif primary.startswith("single:"):
+            mob_ids.add(num(primary[7:]))
+        elif primary.startswith("ogre:"):
+            parts = primary[5:].split("/")
+            mob_ids.add(num(parts[0]))
+            if len(parts) >= 3: mob_ids.add(num(parts[1]))
+        for col in ("SentryTable", "BigTable"):
+            t = (r.get(col) or "").strip()
+            if t: mob_ids |= bursts.get(t, set())
+        for mid in mob_ids:
+            for mp in map_list(r.get("Maps")):
+                add_spawn(mid, mp, "ambush")
+
+    # Side tables — each mirrors its loader's own skip rules.
+    flees = {r["Identifier"] for r in rows_opt("MobFlees.csv") if (r.get("Flees") or "0").strip() != "0"}
+    still = {r["Identifier"] for r in rows_opt("MobStationary.csv") if (r.get("Stationary") or "0").strip() != "0"}
+    bosskit = {r["MobKey"]: r for r in rows_opt("MobBosses.csv") if r.get("MobKey")}
+    rules = {}
+    for r in rows_opt("MobSpawnRules.csv"):
+        k = (r.get("MobKey") or "").strip()
+        if not k or k == "*":       # '*' is the global HpJitter switch, not a rule
+            continue
+        if any(num(r.get(c)) > 0 for c in ("MaxAlive", "FleeBelowPct", "SpawnChance", "DeathCooldownSec")) \
+                or (r.get("Rooms") or "").strip() or (r.get("CapMaps") or "").strip():
+            rules[k] = r
+    chatterby = {r["MobKey"]: r for r in rows_opt("MobChatter.csv") if r.get("MobKey")}
+    pets = {r["mobKey"]: r for r in rows_opt("Pets.csv") if r.get("mobKey")}
+    nodes = {r["NodeMob"]: r for r in rows_opt("HarvestNodes.csv") if r.get("NodeMob")}
+
+    atlas_live = _atlas_names("atlas_monsters.csv")
+    atlas_2005 = _atlas_names("atlas_monsters_2005.csv")
+    has_atlas = atlas_live is not None or atlas_2005 is not None
+    def atlas_flag(name):
+        n1 = re.sub(r"[^a-z0-9]", "", name.lower())
+        n2 = re.sub(r"[^a-z0-9]", "", re.sub(r"\s*\[[^\]]*\]\s*$", "", name).lower())
+        hit_live = atlas_live is not None and (n1 in atlas_live or n2 in atlas_live)
+        hit_2005 = atlas_2005 is not None and (n1 in atlas_2005 or n2 in atlas_2005)
+        return "both" if hit_live and hit_2005 else "live" if hit_live else "2005" if hit_2005 else ""
+
     out = []
     for r in rows("mobs.csv"):
-        key, name = r["Identifier"], r["Description"]
+        key, name = r["Identifier"], clean_name(r["Description"])
         if not key or key == "test":
             continue
+        mid = num(r["MobId"])
+        hp = max(1, num(r["Vita"]))            # Content.LoadMobs: hp <= 0 loads as 1
+        mind, maxd = num(r["MinDmg"]), num(r["MaxDmg"])
+        if mind <= 0: mind = 1                 # …and the damage clamps
+        if maxd < mind: maxd = mind
+        move = num(r["MobMoveTime"]) or 2500   # 0/absent -> the loader's calm default
+        st = (r.get("SpawnTime") or "").strip()
+        respawn = num(st) if st != "" and num(st, -1) >= 0 else 180   # DefaultSpawnTimeSec; 0 is real
+        beh = (r.get("MobBehavior") or "0").strip()
+        prot, will = num(r["MobProtection"]), num(r["Will"])
+        deflect = int(100 - (0.9 ** prot) * 100 + 0.5) if prot > 0 else 0
+        if prot >= 200:
+            prot_t = "immune — deflects ~100% of fail-able spells"
+        elif prot > 0 or will > 0:
+            prot_t = f"deflects ≈{deflect}% of fail-able spells"
+            if will: prot_t += f" · Will {will} adds up to +{will // 10} prot vs lower-Will casters"
+        else:
+            prot_t = ""
+
+        pills, sub = [], []
+        atl = atlas_flag(name) if has_atlas else "n/a"
+        if has_atlas and not atl:
+            pills.append({"t": "no atlas", "ti": "Not documented on NexusAtlas — neither the live site "
+                          "(2026, documents modern NexusTK) nor the ~2005 Wayback archive. Likely "
+                          "RTK-added rather than era-original."})
+        myth = key in bosskit
+        if myth:
+            b = bosskit[key]
+            heal, hc = num(b.get("HealAmount")), max(2, num(b.get("HealChance"), 2))
+            pb, ls = num(b.get("ParaBreakChance")), num(b.get("LastStandMs"))
+            pills.append({"t": "mythic", "ti": "Mythic boss — carries the MobBosses.csv survival kit "
+                          "(and player weapons roll their Large damage range against it)"})
+            bits = []
+            if heal: bits.append(f"a lethal blow heals it {heal:,} ({hc - 1}-in-{hc}) unless overkilled "
+                                 f"(dmg ≥ HP+{heal:,} kills through)")
+            if ls: bits.append(f"first brink: {fmt_ms(ls)} frozen last stand")
+            if pb and heal: bits.append(f"heals through paralysis 1-in-{pb} per 3s")
+            sub.append({"t": "boss kit: " + " · ".join(bits),
+                        "ti": "game-data/MobBosses.csv · World.cs lethal-blow ladder: last stand → overkill → save roll"})
+        elif r.get("MobIsBoss") == "1":
+            pills.append({"t": "boss", "ti": "MobIsBoss — player weapons roll their Large damage range "
+                          "against it (no mythic survival kit)"})
+        if beh == "1":
+            pills.append({"t": "aggro", "ti": "Attacks on sight (MobBehavior 1)"})
+        if beh == "2":
+            pills.append({"t": "dummy", "ti": "Inert training target — never fights back (MobBehavior 2)"})
+        if key in flees:
+            pills.append({"t": "prey", "ti": "Runs away instead of fighting when swung at (MobFlees.csv)"})
+        if key in still:
+            pills.append({"t": "still", "ti": "Never takes a step (MobStationary.csv)"})
+        if key in rules:
+            ru = rules[key]
+            bits = []
+            if num(ru.get("SpawnChance")) > 1: bits.append(f"1-in-{num(ru['SpawnChance'])} roll per spawn-point refill")
+            if num(ru.get("DeathCooldownSec")) > 0: bits.append(f"{fmt_ms(num(ru['DeathCooldownSec']) * 1000)} cooldown after a kill")
+            if num(ru.get("MaxAlive")) > 0: bits.append(f"max {num(ru['MaxAlive'])} alive")
+            if (ru.get("CapMaps") or "").strip(): bits.append("capped per map")
+            if bits:
+                pills.append({"t": "rare", "ti": "Rare spawn (MobSpawnRules.csv / World.cs refill gate)"})
+                sub.append({"t": "rare spawn: " + " · ".join(bits), "ti": "game-data/MobSpawnRules.csv"})
+            if num(ru.get("FleeBelowPct")) > 0:
+                sub.append({"t": f"breaks off and flees below {num(ru['FleeBelowPct'])}% HP",
+                            "ti": "game-data/MobSpawnRules.csv FleeBelowPct"})
+        if key in pets:
+            p = pets[key]
+            pills.append({"t": "summon", "ti": "Spawned by a spell, not the world (Pets.csv)"})
+            if p.get("key") == "cotw_giasomo_bird_poet":
+                sub.append({"t": "summoned only by the Giasomo stick's on-swing proc · lasts 5m",
+                            "ti": "game-data/Pets.csv + WeaponProcs.csv; Server/Content.cs PetSpells"})
+            else:
+                cd = num(p.get("cooldownMs"))
+                sub.append({"t": f"Poet summon — Call of the Wild lv {num(p.get('level'))} · {num(p.get('mana'))} mana"
+                               + (f" · {fmt_ms(cd)} cooldown" if cd else "")
+                               + " · lasts 5m · cap 4 (6 at lv 90, 8 at 99)",
+                            "ti": "game-data/Pets.csv; Server/Content.cs PetCapFor; expiry in World.Tick"})
+        if key in nodes:
+            nd = nodes[key]
+            tools = " or ".join(item_name(t) for t in (nd.get("Tools") or "").split("|") if t)
+            yield_tx = " / ".join(f"{item_name(b.split(':')[0])} {pctx(b.split(':')[1])}" for b in (nd.get("Yield") or "").split("|") if ":" in b)
+            bonus_tx = " / ".join(f"{item_name(b.split(':')[0])} {pctx(b.split(':')[1])}%" for b in (nd.get("Bonus") or "").split("|") if ":" in b)
+            brk = (nd.get("BreakChance") or "").strip()
+            t = f"gathering node — drop a {tools} on it ({nd.get('Skill')}): 1 + {num(nd.get('Rolls'))} coin-flip yields, weighted {yield_tx}"
+            if bonus_tx: t += f" · bonus roll {bonus_tx}"
+            if brk and brk != "0": t += f" · may snap the tool (1-in-{brk.replace('|', '/')}+dmg)"
+            pills.append({"t": "node", "ti": "Harvest node, not a fight (HarvestNodes.csv)"})
+            sub.append({"t": t, "ti": "game-data/HarvestNodes.csv · Session.Harvest.cs — on 4.95 you harvest "
+                        "by DROPPING the tool beside the node, and it never leaves your bag"})
+        if key in chatterby:
+            ch = chatterby[key]
+            lines = [l for l in (ch.get("Lines") or "").split("|") if l]
+            shown = " ".join(f"“{clean_name(l)}”" for l in lines[:3]) + (f" +{len(lines) - 3} more" if len(lines) > 3 else "")
+            sub.append({"t": f"chatters: {shown} (1-in-{num(ch.get('Chance'), 1)} per move tick)",
+                        "ti": "game-data/MobChatter.csv — RTK's 'custom mob AI' idle flavour"})
+        if key in MOB_NOTES:
+            sub.append({"t": MOB_NOTES[key][0], "ti": MOB_NOTES[key][1]})
+
+        maps = [{"t": nm, "g": ", ".join(sorted(tags))} for nm, tags in sorted(spawn.get(mid, {}).items())]
+        if any(m["g"] and "ambush" in m["g"] for m in maps) and not any(not m["g"] for m in maps):
+            pills.append({"t": "ambush", "ti": "Spawns only from stepped-on ambush traps "
+                          "(AmbushConfig/AmbushBursts.csv, World.RefillAmbush)"})
         out.append({
-            "k": key, "n": name, "lk": num(r["MobLook"]), "col": num(r["MobLookColor"]),
-            "lv": num(r["Level"]), "hp": num(r["Vita"]), "xp": num(r["Exp"]),
-            "dmg": f"{r['MinDmg']}–{r['MaxDmg']}" if num(r["MaxDmg"]) else "",
-            "hit": num(r["MobHit"]), "ac": num(r["MobArmor"]), "prot": num(r["MobProtection"]),
-            "agg": r.get("MobBehavior") == "1",
-            "boss": r.get("MobIsBoss") == "1" or key in bosses,
-            "maps": sorted(spawn_maps.get(key, []))[:5],
-            "drops": drops.get(key, [])[:8],
-            "sp": spells.get(key, [])[:6],
+            "k": key, "id": mid, "n": name, "lk": num(r["MobLook"]), "col": num(r["MobLookColor"]),
+            "lv": num(r["Level"]), "hp": hp, "xp": num(r["Exp"]),
+            "dmg": f"{mind:,}–{maxd:,}", "dmgN": maxd,
+            "hit": num(r["MobHit"]), "ac": num(r["MobArmor"]),
+            "prot": prot, "protT": prot_t,
+            "mv": move, "mvT": fmt_ms(move),
+            "rs": respawn, "rsT": fmt_ms(respawn * 1000) if respawn > 0 else "next tick",
+            "agg": beh == "1", "boss": r.get("MobIsBoss") == "1", "myth": myth,
+            "rare": key in rules and any(num(rules[key].get(c)) > 0 for c in ("SpawnChance", "DeathCooldownSec", "MaxAlive")),
+            "atl": atl, "pills": pills, "sub": sub,
+            "maps": maps, "drops": drops.get(key, []), "sp": casts.get(key, []),
         })
-    out.sort(key=lambda m: (m["lv"], m["n"].lower()))
+    out.sort(key=lambda m: (m["lv"], m["n"].lower(), m["id"]))
 
     has_sprites = sprites is not None
     page = HEAD.format(title="Mobs", css=CHROME_CSS) + nav("mobs") + """

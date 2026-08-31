@@ -1,0 +1,395 @@
+# NexusAtlas monsters as archived by the Wayback Machine ~2005-10 (pre-6.5) — the era-closest
+# documentation. Copied from the game repo's re/monster-matcher/atlas.json (scraped once from
+# web.archive.org snapshots; snap = the snapshot timestamp each name came from). The archive has
+# gaps (e.g. Blue rooster, Mythic boar are era mobs it missed), so the generator treats presence
+# on EITHER this list or atlas_monsters.csv (the live 2026 site) as 'documented on NexusAtlas'.
+name,exp,type,page,snap
+Adolescent dragon,7200000,Dragon,dragon,20051025195040
+Agile monkey,350000,Animal,monkey,20051026063937
+Albino buck,1200,,buya,20051026062046
+Angry ox,2000000,,ox,20051025193016
+Arctic deer,1100,Animal,arctic,20051101215721
+Avalance king,27050327,,arctic,20051101215721
+Avalance ogre,3000000,,arctic,20051101215721
+Bat,150,,buya,20051026062046
+Beady-eyed stalker,5700000,,rat,20051026061132
+Bear,1000,Animal,islets,20051101215917
+Big bat,500,,buya,20051026062046
+Big rat,500,,buya,20051026062046
+Black buck,500,,wilderness,20051026071600
+Black chick,30000,,rooster,20051026061002
+Black chicken,2000000,,rooster,20051026061002
+Black sheep,5900000,,sheep,20051025191332
+Black skeleton,170000,Undead,vale,20051026061645
+Black tiger,7200000,Animal,tiger,20051026062745
+Blight thug,1000,Human,nagnang,20051026064205
+Blissful bird,250,Animal,buya,20051026062046
+Blizzard,5000000,,arctic,20051101215721
+Blizzard king,10000000,,arctic,20051101215721
+Blizzard ogre,1000000,,arctic,20051101215721
+Blood fox,1500,Animal,buya,20051026062046
+Blood mantis,2000,,kugnae,20051026060930
+Blood rat,145000,,rat,20051026061132
+Blood snake,580000,,snake,20051026062021
+Blood tick,2000,,buya,20051026062046
+Blood wolf,2000,Animal,wilderness,20051026071600
+Boa,4444,Animal,islets,20051101215917
+Boar champion,1300000,,pig,20051026062520
+Boar defender,9450000,,pig,20051026062520
+Boar guardian,4500000,,pig,20051026062520
+Boar sentry,580000,,pig,20051026062520
+Bold boar,7500000,,pig,20051026062520
+Bold hog,7300000,,pig,20051026062520
+Bold pig,7100000,,pig,20051026062520
+Bold piglet,6900000,,pig,20051026062520
+Brazen,8650000,Animal,tiger,20051026062745
+Bright monkey,430000,Animal,monkey,20051026063937
+Carrion raven,3500,Animal,kugnae,20051026060930
+Cat,90,Animal,buya,20051026062046
+Ch'tan,2000000,,crossroads,20051026071536
+Charging ox,440000,,ox,20051025193016
+Citelam,1150000,,arctic,20051101215721
+Cow,900,Animal,nagnang,20051026064205
+Crazed mongrel,320000,Animal,dog,20051026061957
+Crazy claw,9900000,Animal,tiger,20051026062745
+Crow,40,Animal,nagnang,20051026064205
+Dark buck,300,Animal,buya,20051026062046
+Dark deer,300,Animal,buya,20051026062046
+Dark fox,1300,Animal,buya,20051026062046
+Dark mantis,1600000,Insect,crossroads,20051026071536
+Dark sheep,9000000,,sheep,20051025191332
+Dark snake,4500000,,snake,20051026062021
+Dark tiger,900000,Animal,tiger,20051026062745
+Death mongrel,480000,,dog,20051026061957
+Deathwish,2000000,,vale,20051026061645
+Deep woods mantis,200000,,crossroads,20051026071536
+Deer,50,Animal,arctic,20051101215721
+Diamond horse,880000,,horse,20051026063509
+Diamond monkey,900000,,monkey,20051026063937
+Dirt mantis,440000,,crossroads,20051026071536
+Divine dog,1000000,,dog,20051026061957
+Divine dragon,26000000,,dragon,20051025195040
+Divine horse,2800000,,horse,20051026063509
+Divine monkey,620000,,monkey,20051026063937
+Divine mouse,500000,,rat,20051026061132
+Divine ox,5000000,,ox,20051025193016
+Divine pig,10000000,,pig,20051026062520
+Divine rabbit,500000,,rabbit,20051026064003
+Divine rat,2100000,,rat,20051026061132
+Divine rooster,1600000,,rooster,20051026061002
+Divine sheep,16000000,,sheep,20051025191332
+Divine snake,12000000,,snake,20051026062021
+Divine tiger,20000000,,tiger,20051026062745
+Doe,50,Animal,arctic,20051101215721
+Dog assassin,160000,,dog,20051026061957
+Dog avenger,9000000,,dog,20051026061957
+Dog cutthroat,1100000,,dog,20051026061957
+Dog defender,4000000,,dog,20051026061957
+Dog guardian,500000,,dog,20051026061957
+Dog sentry,90000,,dog,20051026061957
+Dog trooper,250000,Animal,dog,20051026061957
+Dragon avenger,35000000,,dragon,20051025195040
+Dragon defender,8100000,,dragon,20051025195040
+Dragon guardian,8500000,,dragon,20051025195040
+Dragon hatchling,1450000,Dragon,dragon,20051025195040
+Dragon mage,4800000,,dragon,20051025195040
+Dragon sentry,2150000,,dragon,20051025195040
+Drake,1350000,Dragon,dragon,20051025195040
+Earth rat,3500000,,rat,20051026061132
+Earth snake,8000,,kugnae,20051026060930
+Elite horse,280000,,horse,20051026063509
+Evil presence,0,Undead,nagnang,20051026064205
+Fast monkey,600000,Animal,monkey,20051026063937
+Fat pig,480000,,pig,20051026062520
+Fierce dog,15000,Animal,dog,20051026061957
+Fierce mouse,100,,buya,20051026062046
+Fierce sheep,590000,,sheep,20051025191332
+Fiery chick,470000,,rooster,20051026061002
+Fighting dog,32000,Animal,dog,20051026061957
+Fire rat,4400000,,rat,20051026061132
+Fire snake,710000,,snake,20051026062021
+Fire snorter,6300000,,horse,20051026063509
+Fire worm,2500,,kugnae,20051026060930
+Flaming sheep,7300000,,sheep,20051025191332
+Fluff,630000,,rabbit,20051026064003
+Flurry king,7000000,,arctic,20051101215721
+Flurry ogre,700000,,arctic,20051101215721
+Forest mantis,300000,,crossroads,20051026071536
+Forever tree,2000000,Plant,wilderness,20051026071600
+Fox,320,Animal,buya,20051026062046
+Frost ogre,640000,,arctic,20051101215721
+Frothing mutt,1500000,Animal,dog,20051026061957
+Ghost mantis,1600000,,crossroads,20051026071536
+Giant bull,1450000,,ox,20051025193016
+Giant centipede,600,Insect,kugnae,20051026060930
+Giant hare,6500,,rabbit,20051026064003
+Giant iron tiger,10000,,wilderness,20051026071600
+Giant mantis,1200,,kugnae,20051026060930
+Giant rabbit,180000,Animal,rabbit,20051026064003
+Giant scorpion,65000,Insect,kugnae,20051026060930
+Giant spider,45000,Insect,kugnae,20051026060930
+Giant tiger,1170000,Animal,tiger,20051026062745
+Gim-yi,40000,,wilderness,20051026071600
+Glowing snake,3250000,,snake,20051026062021
+Golden hare,2700,,rabbit,20051026064003
+Golden horse,900000,,horse,20051026063509
+Golden lobster,2000000,,wilderness,20051026071600
+Golden rabbit,40000,Animal,wilderness,20051026071600
+Golden tiger,810000,Animal,tiger,20051026062745
+Great horns,6300000,,ox,20051025193016
+Great roost,2500000,,rooster,20051026061002
+Great wyrm,9900000,Dragon,dragon,20051025195040
+Green squirrel,550,,nagnang,20051026064205
+Grim ogre,200000,,ogre,20051023221123
+Hail king,3000000,,arctic,20051101215721
+Hail ogre,300000,,arctic,20051101215721
+Hare,80,Animal,buya,20051026062046
+Hare witch,45000,,rabbit,20051026064003
+Hill ogre,1600000,,ogre,20051023221123
+Hooves,6600000,,horse,20051026063509
+Hop,405000,,rabbit,20051026064003
+Horse,640,Animal,buya,20051026062046
+Horse avenger,17000000,,horse,20051026063509
+Horse chongun,3200000,,horse,20051026063509
+Horse defender,7400000,,horse,20051026063509
+Horse do,750000,,horse,20051026063509
+Horse guardian,1200000,,horse,20051026063509
+Horse guardsman,340000,,horse,20051026063509
+Horse sentry,350000,,horse,20051026063509
+Horse swordsman,760000,,horse,20051026063509
+Huge tiger,9000000,Animal,tiger,20051026062745
+Hunter rat,700000,,rat,20051026061132
+Ice ogre,820000,,arctic,20051101215721
+Ice panther,700000,Animal,arctic,20051101215721
+Iron panda,4200,,wilderness,20051026071600
+Iron tiger,7000,,wilderness,20051026071600
+Island lobster,500,,hausson,20051026064140
+Killer mongrel,1600000,,dog,20051026061957
+Killer rat,190000,,rat,20051026061132
+Knap,9900000,Animal,tiger,20051026062745
+Lake winny,5900000,,horse,20051026063509
+Large bull,205000,,ox,20051025193016
+Large centipede,30,Insect,buya,20051026062046
+Large hare,300,Animal,buya,20051026062046
+Lava fox,1600,,buya,20051026062046
+Lava rat,740000,,rat,20051026061132
+Lava snake,3700000,,snake,20051026062021
+Lesser ghost,55000,,buya,20051026062046
+Lesser skeleton,90000,,buya,20051026062046
+Leviathan,80000,,nagnang,20051026064205
+Li,34000,,buya,20051026062046
+Lightning wolf,4000,Animal,buya,20051026062046
+Lobster,55000,,vale,20051026061645
+Log,800000,,ogre,20051023221123
+Mad dog,40000,,dog,20051026061957
+Mad hare,110000,Animal,rabbit,20051026064003
+Mad rabbit,5500,,rabbit,20051026064003
+Magic rabbit,5,Animal,nagnang,20051026064205
+Maletic,1150000,,arctic,20051101215721
+Man-shik's crow,500000,Animal,wilderness,20051026071600
+Marsh ogre,1600000,,ogre,20051023221123
+Massive scorpion,260000,,kugnae,20051026060930
+Mature dragon,7600000,Dragon,dragon,20051025195040
+Meter worm,7000000,,snake,20051026062021
+Mighty mouse,450000,,rat,20051026061132
+Mighty wyrm,9000000,Dragon,dragon,20051025195040
+Monkey avenger,3000000,,monkey,20051026063937
+Monkey basher,800000,,monkey,20051026063937
+Monkey defender,1170000,,monkey,20051026063937
+Monkey guardian,340000,Sentry,monkey,20051026063937
+Monkey mauler,55000,,monkey,20051026063937
+Monkey sentry,24000,,monkey,20051026063937
+Monstrous monkey,370000,,monkey,20051026063937
+Mouse,15,Animal,buya,20051026062046
+Muck ogre,440000,,ogre,20051023221123
+Mud bull,5800,Animal,kugnae,20051026060930
+Mud rat,650000,,rat,20051026061132
+Mud snake,1000,Animal,kugnae,20051026060930
+Mythic dog,140000,,dog,20051026061957
+Mythic dragon,4400000,,dragon,20051025195040
+Mythic hare,37000,,rabbit,20051026064003
+Mythic horse,570000,,horse,20051026063509
+Mythic monkey,50000,,monkey,20051026063937
+Mythic mouse,35000,,rat,20051026061132
+Mythic ox,825000,,ox,20051025193016
+Mythic pig,1100000,,pig,20051026062520
+Mythic rat,330000,,rat,20051026061132
+Mythic rooster,120000,,rooster,20051026061002
+Mythic sheep,2000000,,sheep,20051025191332
+Mythic snake,1600000,,snake,20051026062021
+Mythic tiger,3000000,,tiger,20051026062745
+Nagnang guardsman,640,Human,nagnang,20051026064205
+Nangen boy,0,Human,nagnang,20051026064205
+Nangen man,0,Human,nagnang,20051026064205
+Nangen merchant,0,Human,nagnang,20051026064205
+Nangen woman,0,Human,nagnang,20051026064205
+Night,4000000,,arctic,20051101215721
+Nine-tailed fox,20000,,buya,20051026062046
+Northern ogre,520000,,arctic,20051101215721
+Obese pig,2000000,,pig,20051026062520
+Ogre explorer,400,,islets,20051101215917
+Old dragon,10800000,Dragon,dragon,20051025195040
+Ox avenger,25000000,,ox,20051025193016
+Ox charger,5600000,,ox,20051025193016
+Ox defender,7800000,,ox,20051025193016
+Ox gorer,850000,,ox,20051025193016
+Ox guardian,2700000,,ox,20051025193016
+Ox sentry,450000,,ox,20051025193016
+Pale dog,75000,,dog,20051026061957
+Pale hunger,6550000,,ox,20051025193016
+Pale scorpion,155000,Insect,kugnae,20051026060930
+Pale zombie,20000,,buya,20051026062046
+Pig avenger,30000000,,pig,20051026062520
+Pig champion,12000000,,pig,20051026062520
+Plain monkey,7000,Animal,monkey,20051026063937
+Plain snake,400000,,snake,20051026062021
+Polar bear,250000,Animal,vale,20051026061645
+Quick monkey,250000,Animal,monkey,20051026063937
+Rabbit,5,Animal,arctic,20051101215721
+Rabbit avenger,2400000,,rabbit,20051026064003
+Rabbit defender,1100000,Sentry,rabbit,20051026064003
+Rabbit guardian,250000,Sentry,rabbit,20051026064003
+Rabbit sentry,16000,,rabbit,20051026064003
+Rabbit witch,550000,,rabbit,20051026064003
+Radiant chick,80000,,rooster,20051026061002
+Radiant snake,600000,,snake,20051026062021
+Radiant spider,100000,Insect,kugnae,20051026060930
+Raging bull,320000,,ox,20051025193016
+Raging tiger,5400000,Animal,tiger,20051026062745
+Rampaging bull,1700000,,ox,20051025193016
+Rat,25,,buya,20051026062046
+Rat avenger,16000000,,rat,20051026061132
+Rat defender,7000000,Sentry,rat,20051026061132
+Rat guardian,1000000,,rat,20051026061132
+Rat lord,2200000,,rat,20051026061132
+Rat sentry,200000,,rat,20051026061132
+Raven,250,Animal,buya,20051026062046
+Ravenous bird,400,Animal,buya,20051026062046
+Red chick,340000,,rooster,20051026061002
+Red hare,400,Animal,kugnae,20051026060930
+Red sheep,4300000,,sheep,20051025191332
+Restless tiger,675000,Animal,tiger,20051026062745
+Rock lobster,350000,,wilderness,20051026071600
+Rooster avenger,8000000,,rooster,20051026061002
+Rooster barbarian,1800000,,rooster,20051026061002
+Rooster defender,5400000,Sentry,rooster,20051026061002
+Rooster guardian,600000,,rooster,20051026061002
+Rooster sentry,70000,,rooster,20051026061002
+Rooster swordsman,150000,,rooster,20051026061002
+Sand lobster,300000,,wilderness,20051026071600
+Satan's little helper,300000,Undead,vale,20051026061645
+Seki,16500,,buya,20051026062046
+Serpentine dragon,10800000,Dragon,dragon,20051025195040
+Shadow mantis,440000,,crossroads,20051026071536
+Sheep,400,Animal,kugnae,20051026060930
+Sheep avenger,35000000,,sheep,20051025191332
+Sheep defender,8100000,,sheep,20051025191332
+Sheep guardian,7200000,,sheep,20051025191332
+Sheep sentry,1200000,,sheep,20051025191332
+Sheep sheperd,18000000,,sheep,20051025191332
+Sheep veteran,2600000,,sheep,20051025191332
+Simple monkey,180000,Animal,monkey,20051026063937
+Simple snake,2350000,,snake,20051026062021
+Sin-tu,2000000,,crossroads,20051026071536
+Skeleton Ja,240000,Undead,vale,20051026061645
+Skeleton Je,200000,Undead,vale,20051026061645
+Skeleton Ji,280000,Undead,vale,20051026061645
+Skeleton Ju,200000,Undead,kugnae,20051026060930
+Skeleton mage,200000,Undead,kugnae,20051026060930
+Skeleton Sa,2500000,Undead,vale,20051026061645
+Skeleton warrior,200000,Undead,kugnae,20051026060930
+Skilled horse,220000,,horse,20051026063509
+Sleet king,1000000,,arctic,20051101215721
+Sleet ogre,100000,,arctic,20051101215721
+Slime ogre,440000,,ogre,20051023221123
+Slitherly,7400000,,snake,20051026062021
+Slush king,20000,,arctic,20051101215721
+Slush ogre,2000,,arctic,20051101215721
+Sly monkey,16000,Animal,monkey,20051026063937
+Small rabbit,5,Animal,kugnae,20051026060930
+Snake,80,Animal,buya,20051026062046
+Snake avenger,35000000,,snake,20051026062021
+Snake defender,9450000,,snake,20051026062021
+Snake guardian,6300000,,snake,20051026062021
+Snake mage,16000000,,snake,20051026062021
+Snake sentry,800000,,snake,20051026062021
+Snake shaman,1700000,,snake,20051026062021
+Snow beast,500000,,vale,20051026061645
+Snow king,400000,,arctic,20051101215721
+Snow ogre,40000,,arctic,20051101215721
+Snow rabbit,600,Animal,arctic,20051101215721
+Southern ogre,300000,,ogre,20051023221123
+Spasm,8100000,,snake,20051026062021
+Spirit dog,8000000,,dog,20051026061957
+Spirit dragon,35000000,,dragon,20051025195040
+Spirit horse,15000000,,horse,20051026063509
+Spirit monkey,2800000,,monkey,20051026063937
+Spirit mouse,2550000,,rat,20051026061132
+Spirit ox,22000000,,ox,20051025193016
+Spirit pig,28000000,,pig,20051026062520
+Spirit rabbit,2000000,,rabbit,20051026064003
+Spirit rat,14000000,,rat,20051026061132
+Spirit rooster,7000000,,rooster,20051026061002
+Spirit sheep,34000000,,sheep,20051025191332
+Spirit snake,32000000,,snake,20051026062021
+Spirit tiger,35000000,,tiger,20051026062745
+Spirited horse,610000,,horse,20051026063509
+Spotted mutt,1250000,Animal,dog,20051026061957
+Spry monkey,20000,Animal,monkey,20051026063937
+Spunky dog,400000,,dog,20051026061957
+Spunky monkey,630000,Animal,monkey,20051026063937
+Squirrel,10,,arctic,20051101215721
+Sting,800000,Insect,crossroads,20051026071536
+Stone ogre,600,,islets,20051101215917
+Storm,4200000,,arctic,20051101215721
+Storm snake,8500000,,snake,20051026062021
+Stout pig,1700000,,pig,20051026062520
+Stout piglet,1350000,,pig,20051026062520
+Stout warthog,2700000,,pig,20051026062520
+Strange thing,140000,,nagnang,20051026064205
+Stubborn pig,290000,,pig,20051026062520
+Stubborn piglet,240000,,pig,20051026062520
+Stubborn warthog,530000,,pig,20051026062520
+Summit,6000000,,arctic,20051101215721
+Sun feather,3900000,,rooster,20051026061002
+Sun fox,3000,Animal,buya,20051026062046
+Sute,40000,Undead,buya,20051026062046
+Terrified chicken,900,Animal,kugnae,20051026060930
+The infected,250000,Undead,nagnang,20051026064205
+Thump,630000,,rabbit,20051026064003
+Tiger,1200,Animal,islets,20051101215917
+Tiger avenger,35000000,,tiger,20051026062745
+Tiger slasher,22000000,,tiger,20051026062745
+Tiger warrior,3200000,,tiger,20051026062745
+Tough fight,6800000,,ox,20051025193016
+Trapdoor spider,76000,,kugnae,20051026060930
+Two stripes,14000000,,arctic,20051101215721
+Ugly monkey,23000,Animal,monkey,20051026063937
+Ugly sheep,840000,,sheep,20051025191332
+Vile rat,100000,,rat,20051026061132
+Void mouse,0,Animal,nagnang,20051026064205
+Warthog,8200,,kugnae,20051026060930
+White chicken,480000,,rooster,20051026061002
+White rabbit,5,Animal,buya,20051026062046
+White rat,25,,buya,20051026062046
+White rooster,500000,,rooster,20051026061002
+White wolf,2200,Animal,buya,20051026062046
+Wicked ghost,90000,,buya,20051026062046
+Wild chick,1800000,,rooster,20051026061002
+Wild chicken,48000,,rooster,20051026061002
+Wild horse,170000,,horse,20051026063509
+Wild pig,900,Animal,kugnae,20051026060930
+Wild piglet,550,Animal,kugnae,20051026060930
+Wild rooster,71000,,rooster,20051026061002
+Witch,55000,,kugnae,20051026060930
+Witch shaman,90000,,kugnae,20051026060930
+Wolf,640,Animal,buya,20051026062046
+Wolf-kin,2000000,,dog,20051026061957
+Wooden horse,3800000,,horse,20051026063509
+Worm,550,Insect,kugnae,20051026060930
+Yachi,14000,,buya,20051026062046
+Yang mouse,0,Animal,nagnang,20051026064205
+Yin mouse,0,Animal,nagnang,20051026064205
+Young dragon,1600000,Dragon,dragon,20051025195040
+Zangze,2000000,,ogre,20051023221123
+Zin-te,2000000,,ogre,20051023221123
