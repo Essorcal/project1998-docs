@@ -1,0 +1,222 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Items — game-repo fix catalog · Project1998</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+  :root {
+    --ground: #F4F6F1; --surface: #FCFDFB; --ink: #1F2A26; --ink-soft: #55645D;
+    --ink-faint: #8A978F; --rule: #DDE4DD; --rule-soft: #E8EDE7;
+    --accent: #2E7D62; --accent-ink: #1E5A46; --focus: #2E7D62; --chip-ghost: #F0F3EE;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --ground: #141B18; --surface: #1B2420; --ink: #D8E2DA; --ink-soft: #93A49A;
+      --ink-faint: #66766D; --rule: #2A3630; --rule-soft: #222D28;
+      --accent: #6FBF9F; --accent-ink: #8FD4B8; --focus: #6FBF9F; --chip-ghost: #202A25;
+    }
+  }
+  :root[data-theme="dark"] {
+    --ground: #141B18; --surface: #1B2420; --ink: #D8E2DA; --ink-soft: #93A49A;
+    --ink-faint: #66766D; --rule: #2A3630; --rule-soft: #222D28;
+    --accent: #6FBF9F; --accent-ink: #8FD4B8; --focus: #6FBF9F; --chip-ghost: #202A25;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--ground); color: var(--ink);
+    font-family: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif; font-size: 14.5px; line-height: 1.55; }
+  a { color: var(--accent-ink); text-underline-offset: 2px; }
+  code { font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 0.92em; color: var(--accent-ink); }
+  .sitenav { max-width: min(1680px, 96vw); margin: 0 auto; padding: 14px 24px 0;
+    display: flex; gap: 16px; align-items: baseline; font-size: 14px; flex-wrap: wrap; }
+  .sitenav a { color: var(--ink-soft); text-decoration: none; }
+  .sitenav a:hover { color: var(--accent-ink); text-decoration: underline; }
+  .sitenav .brand { font-family: "Gowun Batang", Georgia, serif; font-weight: 700;
+    color: var(--ink); margin-right: auto; font-size: 16px; }
+  .sitenav a[aria-current="page"] { color: var(--accent-ink); font-weight: 600; }
+  .wrap { max-width: min(1100px, 96vw); margin: 0 auto; padding: 0 24px 96px; }
+  header.hero { padding: 34px 0 6px; }
+  .kicker { font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 12px;
+    letter-spacing: 0.14em; text-transform: uppercase; color: var(--accent); margin: 0 0 8px; }
+  h1 { font-family: "Gowun Batang", Georgia, serif; font-weight: 700;
+    font-size: clamp(28px, 4.5vw, 38px); line-height: 1.15; margin: 0 0 8px; text-wrap: balance; }
+  h2 { font-family: "Gowun Batang", Georgia, serif; font-size: 21px; margin: 34px 0 8px; }
+  h3 { font-size: 15.5px; margin: 22px 0 6px; }
+  .lede { max-width: 72ch; color: var(--ink-soft); margin: 0 0 8px; }
+  .meta { font-size: 12.5px; color: var(--ink-faint); margin: 4px 0 0;
+    font-family: "IBM Plex Mono", ui-monospace, monospace; }
+  ul { padding-left: 22px; } li { margin: 3px 0; }
+  .card { display: block; background: var(--surface); border: 1px solid var(--rule);
+    border-radius: 8px; padding: 16px 18px; margin: 12px 0; text-decoration: none; }
+  .card:hover { border-color: var(--accent); }
+  .card b { color: var(--ink); font-size: 15.5px; }
+  .card p { margin: 6px 0 0; color: var(--ink-soft); font-size: 13.5px; }
+  .pill { font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 10.5px;
+    padding: 1px 7px; border-radius: 999px; background: var(--chip-ghost); color: var(--ink-soft);
+    white-space: nowrap; margin-left: 6px; }
+  details { margin: 10px 0; border: 1px solid var(--rule-soft); border-radius: 6px; padding: 8px 14px; background: var(--surface); }
+  summary { cursor: pointer; font-weight: 600; }
+  details .cols { columns: 3 240px; margin-top: 8px; font-size: 13px; color: var(--ink-soft); }
+  table { border-collapse: collapse; width: 100%; font-size: 13.5px; margin: 8px 0; }
+  th, td { text-align: left; padding: 5px 10px; border-bottom: 1px solid var(--rule-soft); vertical-align: top; }
+  th { font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 11px; letter-spacing: 0.07em;
+    text-transform: uppercase; color: var(--ink-faint); font-weight: 500; }
+  footer { margin-top: 40px; padding-top: 14px; border-top: 1px solid var(--rule); font-size: 12.5px; color: var(--ink-faint); }
+</style>
+</head>
+<body>
+<nav class="sitenav">
+  <a class="brand" href="./">Project1998</a>
+  <a href="commands.html">Commands</a>
+  <a href="quest-registry.html">Quests</a>
+  <a href="spells.html">Spells</a>
+  <a href="effects.html">Effects</a>
+  <a href="items.html">Items</a>
+  <a href="mobs.html">Mobs</a>
+  <a href="atlas.html">Atlas</a>
+  <a href="map-editor.html">Map Editor</a>
+  <a href="noclip.html">No-Clip</a>
+  <a href="reports.html" aria-current="page">Reports</a>
+  <a href="patch-notes.html">Patch Notes</a>
+</nav>
+<div class="wrap">
+  <header class="hero">
+    <p class="kicker">Project1998 · reports</p>
+    <h1>Items — game-repo fix catalog</h1>
+    <p class="lede">Catalogued during the docs items-page build. These are game-repo issues — none are fixed by the docs pass; they ride the pr/* flow and need approval.</p>
+    <p class="meta">source: docs/items-pass session · 2026-08-30 · data: tools/data/atlas_items.csv vs game-data/Items.csv</p>
+  </header>
+<p>Catalogued during the docs items-page build (branch docs/items-pass in project1998-docs). These are</p>
+<p>GAME-repo (C:/Repo/NexusTK) issues - none are fixed by the docs pass; they ride the pr/* flow and</p>
+<p>need Caleb&#x27;s approval. Source data: tools/data/atlas_items.csv (NexusAtlas snapshot, 1,600 items,</p>
+<p>scraped 2026-08-30) + game-data/Items.csv, matched by display name (677/2,251 matched).</p>
+<h2>1. Era items INVISIBLE in the 4.95 client (ItmIcon &gt;= 1310) - 92 items</h2>
+<p>The 4.95 Item.epf has 1,310 frames; these Atlas-confirmed (i.e. real-NexusTK) items carry later-client</p>
+<p>icon ids, so the bag/ground draw shows nothing in-game. Fix = find the right 4.95 frame (re/</p>
+<p>match_item_icon.py + the atlas gifs cached in %LOCALAPPDATA%/Project1998/atlas_cache/gifs can automate</p>
+<p>suggestions, the way re/atlas_icon_audit.py did for weapons).</p>
+<ul>
+<li><code>baronial_kagum_huan</code> (#48027, type 3) icon 1967 - &quot;Baronial Kagum Huan&quot;</li>
+<li><code>baronial_kagum_xu</code> (#48028, type 3) icon 1967 - &quot;Baronial Kagum Xu&quot;</li>
+<li><code>basic_sickle</code> (#14006, type 3) icon 2966 - &quot;Basic sickle&quot;</li>
+<li><code>blue_dragon_longsword</code> (#127, type 3) icon 1454 - &quot;Blue dragon longsword&quot;</li>
+<li><code>dark_staff</code> (#46016, type 3) icon 2349 - &quot;Dark staff&quot;</li>
+<li><code>iron_sword</code> (#116, type 3) icon 2522 - &quot;Iron sword&quot;</li>
+<li><code>molghi_bow</code> (#50002, type 3) icon 3011 - &quot;Molghi bow&quot;</li>
+<li><code>winter_scepter</code> (#46014, type 3) icon 2008 - &quot;Winter scepter&quot;</li>
+<li><code>green_cloak</code> (#517, type 4) icon 4985 - &quot;Green cloak&quot;</li>
+<li><code>immortality_charm</code> (#51026, type 5) icon 1322 - &quot;Immortality charm&quot;</li>
+<li><code>lantern</code> (#117, type 5) icon 1568 - &quot;Lantern&quot;</li>
+<li><code>life_charm</code> (#51025, type 5) icon 1319 - &quot;Life charm&quot;</li>
+<li><code>love_charm</code> (#51024, type 5) icon 1323 - &quot;Love charm&quot;</li>
+<li><code>mystic buckler</code> (#51014, type 5) icon 2337 - &quot;Mystic buckler&quot;</li>
+<li><code>nature_charm</code> (#51021, type 5) icon 1320 - &quot;Nature charm&quot;</li>
+<li><code>soul_charm</code> (#51022, type 5) icon 1320 - &quot;Soul charm&quot;</li>
+<li><code>spirit_charm</code> (#51023, type 5) icon 1321 - &quot;Spirit charm&quot;</li>
+<li><code>diadem</code> (#41270, type 6) icon 2106 - &quot;Diadem&quot;</li>
+<li><code>covert_band</code> (#26025, type 7) icon 1769 - &quot;Covert band&quot;</li>
+<li><code>covert_band</code> (#56027, type 7) icon 1769 - &quot;Covert Band&quot;</li>
+<li><code>demon_dagger</code> (#26027, type 7) icon 1752 - &quot;Demon dagger&quot;</li>
+<li><code>demon_dagger</code> (#56018, type 7) icon 1752 - &quot;Demon dagger&quot;</li>
+<li><code>earth_orb</code> (#26037, type 7) icon 1716 - &quot;Earth orb&quot;</li>
+<li><code>fabled_trowel</code> (#56025, type 7) icon 1748 - &quot;Fabled Trowel&quot;</li>
+<li><code>fire_orb</code> (#26035, type 7) icon 1712 - &quot;Fire orb&quot;</li>
+<li><code>floating_ring_of_substratum</code> (#25041, type 7) icon 2286 - &quot;Floating ring of Substratum&quot;</li>
+<li><code>insidious_disk</code> (#26029, type 7) icon 1753 - &quot;Insidious disk&quot;</li>
+<li><code>insidious_disk</code> (#56028, type 7) icon 1753 - &quot;Insidious Disk&quot;</li>
+<li><code>jeweled_ring_of_substratum</code> (#25042, type 7) icon 2286 - &quot;Jeweled ring of Substratum&quot;</li>
+<li><code>laras_royal_signet</code> (#26003, type 7) icon 2950 - &quot;Lara&#x27;s Royal Signet&quot;</li>
+<li><code>large_amber_ring</code> (#25017, type 7) icon 1586 - &quot;Large amber ring&quot;</li>
+<li><code>large_baekho_ring</code> (#25018, type 7) icon 1586 - &quot;Large baekho ring&quot;</li>
+<li><code>large_chung_ryong_ring</code> (#25019, type 7) icon 1586 - &quot;Large chung ryong ring&quot;</li>
+<li><code>large_dark_ring</code> (#25020, type 7) icon 1586 - &quot;Large dark ring&quot;</li>
+<li><code>large_hyun_moo_ring</code> (#25021, type 7) icon 1586 - &quot;Large hyun moo ring&quot;</li>
+<li><code>large_ju_jak_ring</code> (#25022, type 7) icon 1586 - &quot;Large ju jak ring&quot;</li>
+<li><code>large_white_ring</code> (#25023, type 7) icon 1586 - &quot;Large white ring&quot;</li>
+<li><code>large_yellow_ring</code> (#25024, type 7) icon 1586 - &quot;Large yellow ring&quot;</li>
+<li><code>luxury_amber_bracelet</code> (#26017, type 7) icon 2021 - &quot;Luxury amber bracelet&quot;</li>
+<li><code>luxury_amber_bracelet</code> (#26044, type 7) icon 2021 - &quot;Luxury amber bracelet&quot;</li>
+<li><code>luxury_dark_bracelet</code> (#26018, type 7) icon 2025 - &quot;Luxury dark bracelet&quot;</li>
+<li><code>luxury_dark_bracelet</code> (#26045, type 7) icon 2025 - &quot;Luxury dark bracelet&quot;</li>
+<li><code>luxury_yellow_bracelet</code> (#26020, type 7) icon 2028 - &quot;Luxury yellow bracelet&quot;</li>
+<li><code>luxury_yellow_bracelet</code> (#26046, type 7) icon 2028 - &quot;Luxury yellow bracelet&quot;</li>
+<li><code>medium_amber_ring</code> (#25025, type 7) icon 1585 - &quot;Medium amber ring&quot;</li>
+<li><code>medium_baekho_ring</code> (#25026, type 7) icon 1585 - &quot;Medium baekho ring&quot;</li>
+<li><code>medium_chung_ryong_ring</code> (#25027, type 7) icon 1585 - &quot;Medium chung ryong ring&quot;</li>
+<li><code>medium_dark_ring</code> (#25028, type 7) icon 1585 - &quot;Medium dark ring&quot;</li>
+<li><code>medium_hyun_moo_ring</code> (#25029, type 7) icon 1585 - &quot;Medium hyun moo ring&quot;</li>
+<li><code>medium_ju_jak_ring</code> (#25030, type 7) icon 1585 - &quot;Medium ju jak ring&quot;</li>
+<li><code>medium_white_ring</code> (#25031, type 7) icon 1585 - &quot;Medium white ring&quot;</li>
+<li><code>medium_yellow_ring</code> (#25032, type 7) icon 1585 - &quot;Medium yellow ring&quot;</li>
+<li><code>metal_orb</code> (#26036, type 7) icon 1714 - &quot;Metal orb&quot;</li>
+<li><code>mountains_champion</code> (#26006, type 7) icon 3355 - &quot;Mountain&#x27;s champion&quot;</li>
+<li><code>mountains_promise</code> (#26007, type 7) icon 2945 - &quot;Mountain&#x27;s promise&quot;</li>
+<li><code>noble_tag</code> (#26008, type 7) icon 2559 - &quot;Noble tag&quot;</li>
+<li><code>plain_amber_bracelet</code> (#26021, type 7) icon 2021 - &quot;Plain amber bracelet&quot;</li>
+<li><code>plain_amber_bracelet</code> (#26040, type 7) icon 2021 - &quot;Plain amber bracelet&quot;</li>
+<li><code>plain_dark_bracelet</code> (#26022, type 7) icon 2025 - &quot;Plain dark bracelet&quot;</li>
+<li><code>plain_yellow_bracelet</code> (#26024, type 7) icon 2022 - &quot;Plain yellow bracelet&quot;</li>
+<li><code>plain_yellow_bracelet</code> (#26042, type 7) icon 2022 - &quot;Plain yellow bracelet&quot;</li>
+<li><code>platinum_jubilee_gauntlet</code> (#26032, type 7) icon 1884 - &quot;Platinum jubilee gauntlet&quot;</li>
+<li><code>qi_shard</code> (#26033, type 7) icon 1711 - &quot;Qi shard&quot;</li>
+<li><code>shee_lee_ring</code> (#25014, type 7) icon 1886 - &quot;Shee-Lee ring&quot;</li>
+<li><code>silken_squall_glove</code> (#26014, type 7) icon 2497 - &quot;Silken Squall glove&quot;</li>
+<li><code>small_amber_ring</code> (#25033, type 7) icon 1608 - &quot;Small amber ring&quot;</li>
+<li><code>small_baekho_ring</code> (#25034, type 7) icon 1608 - &quot;Small baekho ring&quot;</li>
+<li><code>small_chung_ryong_ring</code> (#25035, type 7) icon 1608 - &quot;Small chung ryong ring&quot;</li>
+<li><code>small_dark_ring</code> (#25036, type 7) icon 1608 - &quot;Small dark ring&quot;</li>
+<li><code>small_hyun_moo_ring</code> (#25037, type 7) icon 1608 - &quot;Small hyun moo ring&quot;</li>
+<li><code>small_ju_jak_ring</code> (#25038, type 7) icon 1608 - &quot;Small ju jak ring&quot;</li>
+<li><code>small_yellow_ring</code> (#25040, type 7) icon 1608 - &quot;Small yellow ring&quot;</li>
+<li><code>substratum_gauntlet</code> (#26031, type 7) icon 2496 - &quot;Substratum gauntlet&quot;</li>
+<li><code>tuna_wizard_eye</code> (#26016, type 7) icon 2615 - &quot;Tuna wizard eye&quot;</li>
+<li><code>water_orb</code> (#26038, type 7) icon 1713 - &quot;Water orb&quot;</li>
+<li><code>water_queen_ring</code> (#25015, type 7) icon 2949 - &quot;Water queen ring&quot;</li>
+<li><code>wood_orb</code> (#26034, type 7) icon 1715 - &quot;Wood orb&quot;</li>
+<li><code>azure_diamond</code> (#27004, type 9) icon 3253 - &quot;Azure diamond&quot;</li>
+<li><code>crimson_diamond</code> (#27008, type 9) icon 3253 - &quot;Crimson diamond&quot;</li>
+<li><code>gruff_ring</code> (#27001, type 9) icon 4388 - &quot;Gruff ring&quot;</li>
+<li><code>jade_diamond</code> (#27002, type 9) icon 3253 - &quot;Jade diamond&quot;</li>
+<li><code>night_diamond</code> (#27006, type 9) icon 3253 - &quot;Night diamond&quot;</li>
+<li><code>radiant_diamond</code> (#27012, type 9) icon 3253 - &quot;Radiant diamond&quot;</li>
+<li><code>searing_diamond</code> (#27010, type 9) icon 3253 - &quot;Searing diamond&quot;</li>
+<li><code>cerise_diamond</code> (#27009, type 10) icon 3253 - &quot;Cerise diamond&quot;</li>
+<li><code>forest_diamond</code> (#27003, type 10) icon 3253 - &quot;Forest diamond&quot;</li>
+<li><code>lazuline_diamond</code> (#27005, type 10) icon 3253 - &quot;Lazuline diamond&quot;</li>
+<li><code>lucent_diamond</code> (#27011, type 10) icon 3253 - &quot;Lucent diamond&quot;</li>
+<li><code>shade_diamond</code> (#27007, type 10) icon 3253 - &quot;Shade diamond&quot;</li>
+<li><code>torrid_diamond</code> (#27013, type 10) icon 3253 - &quot;Torrid diamond&quot;</li>
+<li><code>red_fox_fur</code> (#5, type 18) icon 2419 - &quot;Red fox fur&quot;</li>
+<li><code>skeleton_key</code> (#56050, type 18) icon 1768 - &quot;Skeleton key&quot;</li>
+</ul>
+<h2>2. Worn-look problems (client-side render when equipped)</h2>
+<ul>
+<li><code>green_cloak</code> (#517): Caleb reports the armor does not render when equipped on 4.95, on top of the</li>
+</ul>
+<p>  bad icon (4985). ItmLook is 14 / LookColor 0 - needs a valid 4.95 armor look. The Atlas page</p>
+<p>  (armor/peasantarmor.php) has the worn gif for reference (photo/armor60/greencloak.gif).</p>
+<ul>
+<li>No systematic look audit was run (needs a client-render harness); green_cloak is the only reported case.</li>
+</ul>
+<h2>3. Atlas items with NO registry row at all (era candidates worth adding)</h2>
+<p>The Atlas lists 936 items the registry lacks. Most are post-4.95 (Ancient/Antique boss drops,</p>
+<p>anniversary swords, Woodlands crafts, vortex gear). The one Caleb already hit:</p>
+<ul>
+<li><b>Wedding cloak</b> - on armor/peasantarmor.php (&quot;works as armor in game&quot; per Caleb, but there is NO</li>
+</ul>
+<p>  wedding_cloak row in Items.csv; only wedding_dress #512 and wedding_band #25008 exist). If it works</p>
+<p>  in HIS game, the row may live under another key - worth a look before adding one.</p>
+<p>Full list: %LOCALAPPDATA%/Project1998/atlas_cache/match_report.json (atlas_only).</p>
+<h2>4. Era items the modern Atlas has DROPPED (matching caveat, not a bug)</h2>
+<p>&quot;Not on the Atlas&quot; does not always mean RTK-added: Peasant garb/dress, Tarnished shield, the Oaken</p>
+<p>sword tutorial family, Lucky Ring, Steel Gauntlet, Magic Glove, Sage&#x27;s Band and the fireworks are all</p>
+<p>plausibly era-original but missing from the live Atlas (tutorial/newbie gear got pruned there). The</p>
+<p>docs page flags these &quot;not on atlas&quot; - era curation should overrule the flag per item, not trust it</p>
+<p>blindly.</p>
+<footer>Session-generated report — a snapshot for team review, not regenerated nightly.
+The live database pages are the always-current view; when this report and the site disagree, the site wins.</footer>
+</div>
+</body>
+</html>

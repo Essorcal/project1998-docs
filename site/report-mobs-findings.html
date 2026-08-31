@@ -1,0 +1,155 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mobs — findings &amp; fix catalog · Project1998</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+  :root {
+    --ground: #F4F6F1; --surface: #FCFDFB; --ink: #1F2A26; --ink-soft: #55645D;
+    --ink-faint: #8A978F; --rule: #DDE4DD; --rule-soft: #E8EDE7;
+    --accent: #2E7D62; --accent-ink: #1E5A46; --focus: #2E7D62; --chip-ghost: #F0F3EE;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --ground: #141B18; --surface: #1B2420; --ink: #D8E2DA; --ink-soft: #93A49A;
+      --ink-faint: #66766D; --rule: #2A3630; --rule-soft: #222D28;
+      --accent: #6FBF9F; --accent-ink: #8FD4B8; --focus: #6FBF9F; --chip-ghost: #202A25;
+    }
+  }
+  :root[data-theme="dark"] {
+    --ground: #141B18; --surface: #1B2420; --ink: #D8E2DA; --ink-soft: #93A49A;
+    --ink-faint: #66766D; --rule: #2A3630; --rule-soft: #222D28;
+    --accent: #6FBF9F; --accent-ink: #8FD4B8; --focus: #6FBF9F; --chip-ghost: #202A25;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--ground); color: var(--ink);
+    font-family: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif; font-size: 14.5px; line-height: 1.55; }
+  a { color: var(--accent-ink); text-underline-offset: 2px; }
+  code { font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 0.92em; color: var(--accent-ink); }
+  .sitenav { max-width: min(1680px, 96vw); margin: 0 auto; padding: 14px 24px 0;
+    display: flex; gap: 16px; align-items: baseline; font-size: 14px; flex-wrap: wrap; }
+  .sitenav a { color: var(--ink-soft); text-decoration: none; }
+  .sitenav a:hover { color: var(--accent-ink); text-decoration: underline; }
+  .sitenav .brand { font-family: "Gowun Batang", Georgia, serif; font-weight: 700;
+    color: var(--ink); margin-right: auto; font-size: 16px; }
+  .sitenav a[aria-current="page"] { color: var(--accent-ink); font-weight: 600; }
+  .wrap { max-width: min(1100px, 96vw); margin: 0 auto; padding: 0 24px 96px; }
+  header.hero { padding: 34px 0 6px; }
+  .kicker { font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 12px;
+    letter-spacing: 0.14em; text-transform: uppercase; color: var(--accent); margin: 0 0 8px; }
+  h1 { font-family: "Gowun Batang", Georgia, serif; font-weight: 700;
+    font-size: clamp(28px, 4.5vw, 38px); line-height: 1.15; margin: 0 0 8px; text-wrap: balance; }
+  h2 { font-family: "Gowun Batang", Georgia, serif; font-size: 21px; margin: 34px 0 8px; }
+  h3 { font-size: 15.5px; margin: 22px 0 6px; }
+  .lede { max-width: 72ch; color: var(--ink-soft); margin: 0 0 8px; }
+  .meta { font-size: 12.5px; color: var(--ink-faint); margin: 4px 0 0;
+    font-family: "IBM Plex Mono", ui-monospace, monospace; }
+  ul { padding-left: 22px; } li { margin: 3px 0; }
+  .card { display: block; background: var(--surface); border: 1px solid var(--rule);
+    border-radius: 8px; padding: 16px 18px; margin: 12px 0; text-decoration: none; }
+  .card:hover { border-color: var(--accent); }
+  .card b { color: var(--ink); font-size: 15.5px; }
+  .card p { margin: 6px 0 0; color: var(--ink-soft); font-size: 13.5px; }
+  .pill { font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 10.5px;
+    padding: 1px 7px; border-radius: 999px; background: var(--chip-ghost); color: var(--ink-soft);
+    white-space: nowrap; margin-left: 6px; }
+  details { margin: 10px 0; border: 1px solid var(--rule-soft); border-radius: 6px; padding: 8px 14px; background: var(--surface); }
+  summary { cursor: pointer; font-weight: 600; }
+  details .cols { columns: 3 240px; margin-top: 8px; font-size: 13px; color: var(--ink-soft); }
+  table { border-collapse: collapse; width: 100%; font-size: 13.5px; margin: 8px 0; }
+  th, td { text-align: left; padding: 5px 10px; border-bottom: 1px solid var(--rule-soft); vertical-align: top; }
+  th { font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 11px; letter-spacing: 0.07em;
+    text-transform: uppercase; color: var(--ink-faint); font-weight: 500; }
+  footer { margin-top: 40px; padding-top: 14px; border-top: 1px solid var(--rule); font-size: 12.5px; color: var(--ink-faint); }
+</style>
+</head>
+<body>
+<nav class="sitenav">
+  <a class="brand" href="./">Project1998</a>
+  <a href="commands.html">Commands</a>
+  <a href="quest-registry.html">Quests</a>
+  <a href="spells.html">Spells</a>
+  <a href="effects.html">Effects</a>
+  <a href="items.html">Items</a>
+  <a href="mobs.html">Mobs</a>
+  <a href="atlas.html">Atlas</a>
+  <a href="map-editor.html">Map Editor</a>
+  <a href="noclip.html">No-Clip</a>
+  <a href="reports.html" aria-current="page">Reports</a>
+  <a href="patch-notes.html">Patch Notes</a>
+</nav>
+<div class="wrap">
+  <header class="hero">
+    <p class="kicker">Project1998 · reports</p>
+    <h1>Mobs — findings &amp; fix catalog</h1>
+    <p class="lede">Everything the mobs-page build surfaced beyond the page itself: era cross-reference counts, game-data nits, and sprite-renderer palette bugs from the side-by-side look check.</p>
+    <p class="meta">source: docs/mobs-pass session · 2026-08-30 · data: tools/data/atlas_monsters*.csv</p>
+  </header>
+
+<p class="lede">Side-by-side art comparison: <a href="report-mob-look-check.html">the full look-check
+report</a> — 356 suspicion-scored cards, our rendered sprite next to the NexusAtlas image.</p>
+<h2>Era cross-reference counts</h2>
+<table>
+<tr><th>Mobs total</th><td>715</td></tr>
+<tr><th>Matched on NexusAtlas</th><td>479 — 350 on both the live site and the 2005 archive, 4 live-only,
+122 archive-only (the live site deleted those era mobs, which is why the flag uses the union)</td></tr>
+<tr><th>Flagged <code>no atlas</code></th><td>236 — likely RTK/private-server additions</td></tr>
+<tr><th>Mythic kits / boss-only</th><td>72 / 9</td></tr>
+<tr><th>Rare-spawn pills</th><td>4</td></tr>
+<tr><th>Ambush spawn provenance</th><td>31 mobs</td></tr>
+<tr><th>No rendered sprite</th><td>53 — all look ids ≥ 617, beyond the 5.33 client table; none of them
+atlas-matched, so zero <i>comparable</i> mobs lack a sprite</td></tr>
+</table>
+
+<p>Catalogued during the docs mobs-page build; none of these were changed anywhere — they are for</p>
+<p>Caleb&#x27;s separate game-repo / render passes. Docs-side context: the union atlas cross-reference and</p>
+<p>per-mob findings live in <code>project1998-docs/tools/data/atlas_monsters{,_2005}.csv</code> and the</p>
+<p>side-by-side look report <code>mob-look-check.html</code> (this directory — 356 suspicion-scored cards).</p>
+<h2>game-data (game repo, pr/* cherry-pick flow)</h2>
+<ul>
+<li><b>mobs.csv:633</b> — <code>722,rabbit_invasion_mob,</code><b><code>Rabbot Invasion 4</code></b> — typo for &quot;Rabbit Invasion 4&quot; (its five siblings are all &quot;Rabbit Invasion N&quot;).</li>
+<li><b>mobs.csv:647</b> — <code>736,abyssal_rab_guardian,</code><b><code>Rabibit Guardian</code></b> — typo for &quot;Rabbit Guardian&quot;.</li>
+<li><b>mobs.csv:641</b> — <b><code>testxyz</code> (MobId 730)</b> — leftover test mob with a valid MobLook (0), so the server LOADS it and the docs page shows it. Either delete the row or make it unloadable like <code>test</code> is filtered docs-side. (<code>test</code>, MobId 0, line 2, also loads server-side for the same reason.)</li>
+<li><b>39 abyssal placeholder display names</b> — <code>abyssal monkey1</code>, <code>abyssal_dog3</code>, <code>abyssal_oxbossf</code>, <code>abyssal_sheepguardian</code> etc. (MobIds 738–791; exact list greps as <code>Description</code> islower/contains <code>_</code>). They render raw on the live page. Real names or a naming pass needed if this content ships.</li>
+<li><b>map_index.csv</b> — missing names for maps <b>2977, 2978, 2979</b> (ginko-tree crafting maps from AreaSpawnsCrafting.csv); the docs page shows &quot;map 2977&quot; fallbacks.</li>
+<li><b>game-data/monster_mapping.json</b> — <code>entries</code> is empty (version 2, never populated by re/monster-matcher). Dead file; delete or populate.</li>
+</ul>
+<h2>Render-side (docs repo tools/local/render_sprites.py — NOT game-data bugs)</h2>
+<p>In-game looks are probably fine; the committed docs sprite sheet is what mis-renders. From the</p>
+<p>scored look report (top ~20 cards):</p>
+<ul>
+<li><b>Palette wrap bug</b>: MobLookColor is applied as <code>palette_index % 33</code> over the DLPalette blocks.</li>
+</ul>
+<p>  Colour bytes <b>11</b> (pale/albino family: ghost_mantis, albino_buck, ice_panther, pale_scorpion,</p>
+<p>  stout_pig, boa) and <b>29</b> (white family: white_chicken, white_rabbit, white_wolf, shadow_mantis)</p>
+<p>  render dark/green instead of pale/white. The 5.33 client&#x27;s colour-byte → palette mapping for</p>
+<p>  values ≥33 needs real reverse-engineering.</p>
+<ul>
+<li><b>Mob5xPalettes.csv override granularity</b>: overrides are keyed per <b>Look</b> only, so</li>
+</ul>
+<p>  diamond_horse and golden_horse (both look 17, colours 11/30) collapse to the same palette 3.</p>
+<p>  Needs (Look, Colour) keying or per-mob rows.</p>
+<ul>
+<li><b>Look 130 family renders a wrong blob</b>: tiger_blizzard / tiger_slasher / dummy_tiger_slasher</li>
+</ul>
+<p>  show a small dark shape where the atlas shows the big white yeti-tiger. Verify look 130&#x27;s frame</p>
+<p>  index in the 5.33 MONSTER.DNA (possible id shift vs 4.95).</p>
+<ul>
+<li><b>53 mobs unrenderable</b>: look ids ≥617 (abyssal/event/instance content + harvest nodes) exceed</li>
+</ul>
+<p>  the 5.33 client&#x27;s monster table — no sprite possible from this client; none are atlas-matched.</p>
+<h2>Recovery trick worth keeping</h2>
+<p>NexusAtlas pages deleted since 2005 usually still host their monster GIFs at the predictable URL</p>
+<p><code>https://www.nexusatlas.com/photo/monster60/&lt;lowercase-alphanumeric-name&gt;[1].gif</code></p>
+<p>(100/124 era-mob images recovered that way; Mod_Security blocks bare curl — send browser headers).</p>
+<p><code>Spawns.csv</code> also still carries the spy_hwan rows (mob 729) that the server filters at
+load — cleanable in the same pass.</p>
+
+<footer>Session-generated report — a snapshot for team review, not regenerated nightly.
+The live database pages are the always-current view; when this report and the site disagree, the site wins.</footer>
+</div>
+</body>
+</html>

@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Discoveries register · Project1998</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+  :root {
+    --ground: #F4F6F1; --surface: #FCFDFB; --ink: #1F2A26; --ink-soft: #55645D;
+    --ink-faint: #8A978F; --rule: #DDE4DD; --rule-soft: #E8EDE7;
+    --accent: #2E7D62; --accent-ink: #1E5A46; --focus: #2E7D62; --chip-ghost: #F0F3EE;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --ground: #141B18; --surface: #1B2420; --ink: #D8E2DA; --ink-soft: #93A49A;
+      --ink-faint: #66766D; --rule: #2A3630; --rule-soft: #222D28;
+      --accent: #6FBF9F; --accent-ink: #8FD4B8; --focus: #6FBF9F; --chip-ghost: #202A25;
+    }
+  }
+  :root[data-theme="dark"] {
+    --ground: #141B18; --surface: #1B2420; --ink: #D8E2DA; --ink-soft: #93A49A;
+    --ink-faint: #66766D; --rule: #2A3630; --rule-soft: #222D28;
+    --accent: #6FBF9F; --accent-ink: #8FD4B8; --focus: #6FBF9F; --chip-ghost: #202A25;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--ground); color: var(--ink);
+    font-family: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif; font-size: 14.5px; line-height: 1.55; }
+  a { color: var(--accent-ink); text-underline-offset: 2px; }
+  code { font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 0.92em; color: var(--accent-ink); }
+  .sitenav { max-width: min(1680px, 96vw); margin: 0 auto; padding: 14px 24px 0;
+    display: flex; gap: 16px; align-items: baseline; font-size: 14px; flex-wrap: wrap; }
+  .sitenav a { color: var(--ink-soft); text-decoration: none; }
+  .sitenav a:hover { color: var(--accent-ink); text-decoration: underline; }
+  .sitenav .brand { font-family: "Gowun Batang", Georgia, serif; font-weight: 700;
+    color: var(--ink); margin-right: auto; font-size: 16px; }
+  .sitenav a[aria-current="page"] { color: var(--accent-ink); font-weight: 600; }
+  .wrap { max-width: min(1100px, 96vw); margin: 0 auto; padding: 0 24px 96px; }
+  header.hero { padding: 34px 0 6px; }
+  .kicker { font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 12px;
+    letter-spacing: 0.14em; text-transform: uppercase; color: var(--accent); margin: 0 0 8px; }
+  h1 { font-family: "Gowun Batang", Georgia, serif; font-weight: 700;
+    font-size: clamp(28px, 4.5vw, 38px); line-height: 1.15; margin: 0 0 8px; text-wrap: balance; }
+  h2 { font-family: "Gowun Batang", Georgia, serif; font-size: 21px; margin: 34px 0 8px; }
+  h3 { font-size: 15.5px; margin: 22px 0 6px; }
+  .lede { max-width: 72ch; color: var(--ink-soft); margin: 0 0 8px; }
+  .meta { font-size: 12.5px; color: var(--ink-faint); margin: 4px 0 0;
+    font-family: "IBM Plex Mono", ui-monospace, monospace; }
+  ul { padding-left: 22px; } li { margin: 3px 0; }
+  .card { display: block; background: var(--surface); border: 1px solid var(--rule);
+    border-radius: 8px; padding: 16px 18px; margin: 12px 0; text-decoration: none; }
+  .card:hover { border-color: var(--accent); }
+  .card b { color: var(--ink); font-size: 15.5px; }
+  .card p { margin: 6px 0 0; color: var(--ink-soft); font-size: 13.5px; }
+  .pill { font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 10.5px;
+    padding: 1px 7px; border-radius: 999px; background: var(--chip-ghost); color: var(--ink-soft);
+    white-space: nowrap; margin-left: 6px; }
+  details { margin: 10px 0; border: 1px solid var(--rule-soft); border-radius: 6px; padding: 8px 14px; background: var(--surface); }
+  summary { cursor: pointer; font-weight: 600; }
+  details .cols { columns: 3 240px; margin-top: 8px; font-size: 13px; color: var(--ink-soft); }
+  table { border-collapse: collapse; width: 100%; font-size: 13.5px; margin: 8px 0; }
+  th, td { text-align: left; padding: 5px 10px; border-bottom: 1px solid var(--rule-soft); vertical-align: top; }
+  th { font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 11px; letter-spacing: 0.07em;
+    text-transform: uppercase; color: var(--ink-faint); font-weight: 500; }
+  footer { margin-top: 40px; padding-top: 14px; border-top: 1px solid var(--rule); font-size: 12.5px; color: var(--ink-faint); }
+</style>
+</head>
+<body>
+<nav class="sitenav">
+  <a class="brand" href="./">Project1998</a>
+  <a href="commands.html">Commands</a>
+  <a href="quest-registry.html">Quests</a>
+  <a href="spells.html">Spells</a>
+  <a href="effects.html">Effects</a>
+  <a href="items.html">Items</a>
+  <a href="mobs.html">Mobs</a>
+  <a href="atlas.html">Atlas</a>
+  <a href="map-editor.html">Map Editor</a>
+  <a href="noclip.html">No-Clip</a>
+  <a href="reports.html" aria-current="page">Reports</a>
+  <a href="patch-notes.html">Patch Notes</a>
+</nav>
+<div class="wrap">
+  <header class="hero">
+    <p class="kicker">Project1998 · reports</p>
+    <h1>Discoveries register</h1>
+    <p class="lede">The master list of what the completeness pass turned up beyond the pages themselves.</p>
+    <p class="meta">compiled 2026-08-31 · orchestrator session · sources: spells / items / mobs passes</p>
+  </header>
+
+<p class="lede">Everything the content-completeness sessions surfaced that is NOT fixed by the docs pages
+themselves — split by where the fix lives and whether it needs a decision first. Compiled 2026-08-31 by the
+orchestrator session from the spells, items and mobs passes.</p>
+
+<h2>Fix in the game repo <span class="pill">sessions spawned</span></h2>
+<ul>
+<li><b>92 era items invisible in the 4.95 client</b> — Atlas-confirmed items carrying icon ids ≥ 1310
+(the 4.95 Item.epf has 1,310 frames): nothing draws in bag or on ground. Full list in the
+<a href="report-items-game-fixes.html">items fix catalog</a>.</li>
+<li><b>green_cloak worn look broken</b> — does not render when equipped (ItmLook 14 / LookColor 0), on top
+of its bad icon.</li>
+<li><b>Wedding cloak mystery</b> — works as armor in-game per Caleb, but Items.csv has no wedding_cloak row
+(only wedding_dress and wedding_band). Find which row actually serves it before adding one.</li>
+<li><b>mobs.csv typos</b> — "Rabbot Invasion 4" (:633), "Rabibit Guardian" (:647); 39 abyssal placeholder
+display names; <code>testxyz</code> (id 730) loads in-game; map_index.csv missing 2977–2979;
+spy_hwan ghost rows in Spawns.csv.</li>
+<li><b>Duplicate item keys</b> — 15 duplicated keys plus donor_scroll ×5; every lookup resolves first-wins,
+so the later rows are unreachable dead weight.</li>
+<li><b>Sage-ladder rows in SpellLearnCosts.csv</b> — the archive merge wrote share_wisdom trainer rows the
+NpcGrantedSpells gate has to hold against; cleaning the rows removes the trap.</li>
+</ul>
+
+<h2>Fix in the docs repo (render tooling)</h2>
+<ul>
+<li><b>Sprite palette bugs</b> — MobLookColor 11/29 block-wrap, Mob5xPalettes horse collapse, the look-130
+tiger blob (<a href="report-mobs-findings.html">details</a>); then re-render the mob sheet.</li>
+<li><b>effects.html width</b> — the page was edited in place for the unified width; if its local builder in
+the game repo's <code>re/</code> tooling reruns, the width needs re-applying there.</li>
+</ul>
+
+<h2>Needs a decision before anyone fixes anything</h2>
+<ul>
+<li><b>Era curation of flagged content</b> — 236 mobs and 1,574 items are "not on atlas", but absence ≠
+RTK-added (era tutorial gear was pruned from the live Atlas; 122 era mobs exist only on the 2005 archive).
+The flag is a screen for per-item review, not a delete list. 936 atlas-only items are era candidates to add.</li>
+<li><b>Mob-cast Blind is a no-op on players</b> — it occupies the cure slot but impairs nothing
+(acknowledged gap, Session.MobSpells.cs). Implement the impairment or document it as intended.</li>
+<li><b>Smith repair is a stub</b> (NpcAbility.cs) while 1,624 items are repairable and 122 decay forever —
+priority call on implementing Fix-Item.</li>
+<li><b>5 spell fx ids beyond the 4.95 effect table</b> (153, 241, 396, 427, 519) — which client are they
+from, and what should those spells play?</li>
+<li><b>2 inactive spells</b> (horse_spawn, cotw_controller_poet, SplActive=0) — intended retirement or
+unfinished content?</li>
+<li><b>36 mobs with Vita 0</b> — the server clamps to 1 HP at load; placeholder data or intended idiom?</li>
+<li><b>Durability 1,000,000 overflows to "never wears"</b> — the ushort overflow is load-bearing for ~1,050
+items; worth making explicit rather than accidental.</li>
+<li><b>7 NoDrop items carry sell prices</b> no shop can pay (only the bank-vault fee reads them) — intended?</li>
+<li><b>Explorer's Remedy has no teaching NPC</b> — the archive files it under a rumored wilderness/vale NPC;
+content gap to design or decline.</li>
+<li><b>MobEquipment.csv</b> is header-only with no server consumer — delete or implement.</li>
+<li><b>CI hygiene</b> — the regen/deploy workflows' actions warn about the Node 20 runner deprecation.</li>
+</ul>
+
+<footer>Session-generated report — a snapshot for team review, not regenerated nightly.
+The live database pages are the always-current view; when this report and the site disagree, the site wins.</footer>
+</div>
+</body>
+</html>

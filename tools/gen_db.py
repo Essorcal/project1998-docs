@@ -45,6 +45,7 @@ NAV = """<nav class="sitenav">
   <a href="atlas.html">Atlas</a>
   <a href="map-editor.html">Map Editor</a>
   <a href="noclip.html">No-Clip</a>
+  <a href="reports.html">Reports</a>
   <a href="patch-notes.html">Patch Notes</a>
 </nav>"""
 
