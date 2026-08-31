@@ -802,6 +802,9 @@ def build_mobs():
             bits.append(("blind " + fmt_ms(dur) if dur else "blind") + " — no effect on players")
             title = ("Acknowledged gap (Session.MobSpells.cs): no player-blind state exists, so the row "
                      "lands and occupies the blinds slot (cures work) but does not impair you")
+        elif eff == "melee":
+            bits.append("bonus swing with its own damage band")
+            title = "A melee row is an extra ordinary swing (real damage/hit/crit vs your AC), not a spell — World.cs"
         elif eff:
             bits.append(eff)
         if (r.get("Trigger") or "").strip() == "onhit":
@@ -809,21 +812,21 @@ def build_mobs():
         else:
             if num(r.get("EveryMs")): bits.append(f"every {fmt_ms(num(r['EveryMs']))}")
             if num(r.get("Range")) > 1: bits.append(f"range {num(r['Range'])}")
+        say = " ".join(f"“{clean_name(s)}”" for s in (r.get("Say") or "").split("|") if s.strip())
         casts.setdefault(r["MobKey"], []).append({
-            "n": clean_name(r["Name"]), "d": " · ".join(bits),
-            "say": clean_name((r.get("Say") or "").strip()), "ti": title})
+            "n": clean_name(r["Name"]), "d": " · ".join(bits), "say": say, "ti": title})
 
     # Spawn provenance keyed by MobId (NOT Identifier — six buya_library_mob tiers share a key but spawn
     # on different maps). The server concatenates AreaSpawns + AreaSpawnsTrap + AreaSpawnsCrafting
     # (Content.cs LoadContent) and drops ExcludedSpawnMobIds from Spawns.csv at load.
-    excluded = {num(x) for x in _parse_keys(_CONTENT, r"ExcludedSpawnMobIds\s*=\s*new\(\)\s*\{([^}]*)\}",
-                                            [], "ExcludedSpawnMobIds") or ()}
-    if not excluded:
-        m = re.search(r"ExcludedSpawnMobIds\s*=\s*new\(\)\s*\{([^}]*)\}", _CONTENT)
-        excluded = {num(x) for x in re.findall(r"\d+", m.group(1))} if m else {729}
+    m = re.search(r"ExcludedSpawnMobIds\s*=\s*new\(\)\s*\{([^}]*)\}", _CONTENT)
+    excluded = {num(x) for x in re.findall(r"\d+", m.group(1))} if m else None
+    if excluded is None:
+        print("warning: could not parse ExcludedSpawnMobIds from server source; using baked copy", file=sys.stderr)
+        excluded = {729}
     spawn = {}
     def add_spawn(mid, mapid, tag=""):
-        nm = maps_by_id.get(mapid, f"map {mapid}")
+        nm = clean_name(maps_by_id.get(mapid, f"map {mapid}"))
         spawn.setdefault(mid, {}).setdefault(nm, set())
         if tag: spawn[mid][nm].add(tag)
     for r in rows("Spawns.csv"):
@@ -980,10 +983,11 @@ def build_mobs():
         if key in nodes:
             nd = nodes[key]
             tools = " or ".join(item_name(t) for t in (nd.get("Tools") or "").split("|") if t)
-            yield_tx = " / ".join(f"{item_name(b.split(':')[0])} {pctx(b.split(':')[1])}" for b in (nd.get("Yield") or "").split("|") if ":" in b)
+            yields = [(item_name(b.split(":")[0]), pctx(b.split(":")[1])) for b in (nd.get("Yield") or "").split("|") if ":" in b]
+            yield_tx = yields[0][0] if len(yields) == 1 else " / ".join(f"{n} {w}" for n, w in yields) + " (weighted)"
             bonus_tx = " / ".join(f"{item_name(b.split(':')[0])} {pctx(b.split(':')[1])}%" for b in (nd.get("Bonus") or "").split("|") if ":" in b)
             brk = (nd.get("BreakChance") or "").strip()
-            t = f"gathering node — drop a {tools} on it ({nd.get('Skill')}): 1 + {num(nd.get('Rolls'))} coin-flip yields, weighted {yield_tx}"
+            t = f"gathering node — harvest by dropping {tools} on it ({nd.get('Skill')}): 1 + {num(nd.get('Rolls'))} coin-flip yields of {yield_tx}"
             if bonus_tx: t += f" · bonus roll {bonus_tx}"
             if brk and brk != "0": t += f" · may snap the tool (1-in-{brk.replace('|', '/')}+dmg)"
             pills.append({"t": "node", "ti": "Harvest node, not a fight (HarvestNodes.csv)"})
@@ -1018,31 +1022,59 @@ def build_mobs():
     out.sort(key=lambda m: (m["lv"], m["n"].lower(), m["id"]))
 
     has_sprites = sprites is not None
-    page = HEAD.format(title="Mobs", css=CHROME_CSS) + nav("mobs") + """
+    atlas_opts = """
+      <option value="atlas">On NexusAtlas</option><option value="noatlas">Not on NexusAtlas (likely RTK)</option>""" if has_atlas else ""
+    page = HEAD.format(title="Mobs", css=CHROME_CSS) + nav("mobs") + f"""
+<style>
+  #tbl td:nth-child({2 if has_sprites else 1}) {{ min-width: 260px; }}
+  #tbl td.maps {{ min-width: 170px; }}
+  #tbl td.drops {{ min-width: 200px; }}
+  #tbl td.casts {{ min-width: 210px; }}
+  .rare {{ cursor: help; }}
+  .more {{ color: var(--ink-faint); cursor: help; white-space: nowrap; }}
+</style>
 <div class="wrap">
   <header class="hero">
     <p class="kicker">Project1998 · database</p>
     <h1>Mobs</h1>
-    <p class="lede">Every creature in the registry — stats, where it spawns, what it drops, and what it
-    casts, straight from the server's data files. ★ marks rare loot.</p>
+    <p class="lede">Every creature the server knows — stats, behaviour, where it spawns (points, areas,
+    trap and crafting fields, stepped-on ambushes), what it drops and what it casts, with the numbers the
+    server itself enforces. Loot lines roll independently; <span class="rare">★</span> rares are one slot —
+    at most one per kill, first listed to hit wins. Prot is spell deflection, Lv doubles as evasion, and
+    spawned Vita jitters by up to ±2×(min+max damage). Hover pills, sub-lines and column heads for the
+    mechanics and their sources. The NexusAtlas cross-reference (live site ∪ 2005 archive) flags likely
+    RTK-added creatures — presence proves documentation, not era-correctness.</p>
   </header>
   <div class="toolbar">
-    <input id="q" type="search" placeholder="Filter — name, map, drop…" aria-label="Filter mobs">
+    <input id="q" type="search" placeholder="Filter — name, map, drop, cast, pill…" aria-label="Filter mobs">
     <select id="kind" aria-label="Kind filter"><option value="">All</option>
-      <option value="boss">Bosses</option><option value="agg">Aggressive</option></select>
+      <option value="boss">Bosses</option><option value="myth">Mythic bosses</option>
+      <option value="agg">Aggressive</option><option value="rare">Rare spawns</option>{atlas_opts}</select>
     <span class="count" id="count"></span>
   </div>
-  <div class="tablewrap"><table>
-    <thead><tr>""" + ("<th></th>" if has_sprites else "") + """<th data-s="n">Mob</th><th data-s="lv">Lv</th>
-    <th data-s="hp">Vita</th><th data-s="xp">Exp</th><th data-s="dmg">Damage</th><th data-s="ac">AC</th>
+  <div class="tablewrap"><table id="tbl">
+    <thead><tr>""" + ("<th></th>" if has_sprites else "") + """<th data-s="n">Mob</th>
+    <th data-s="lv" title="Also its evasion: player to-hit = 55 + (grace+level)·0.75 + hit − mob level, clamped 5–100, 3% crit (Combat.cs)">Lv</th>
+    <th data-s="hp" title="Spawned HP varies by up to ±2×(MinDmg+MaxDmg) when the jitter fits (World.Materialize)">Vita</th>
+    <th data-s="xp">Exp</th>
+    <th data-s="dmgN" title="Per-swing melee range, before your AC — floor(dmg·(1+AC/100)), AC floored at −80; a rear approach doubles it (Session.Entity.cs)">Damage</th>
+    <th data-s="ac" title="The mob's own melee armor — lower is tougher, same convention as player AC">AC</th>
+    <th data-s="hit" title="The mob's to-hit bonus in its swing roll (Session.Entity.cs)">Hit</th>
+    <th data-s="prot" title="Spell deflection: fail chance = 1 − 0.9^prot on CanFail spells; the mob's Will advantage adds prot in 10-point steps (Session.Spells.cs RollDeflect)">Prot</th>
+    <th data-s="mv" title="ms between move attempts — lower is faster (MobMoveTime; 0 loads as 2500)">Speed</th>
+    <th data-s="rs" title="Static respawn delay after death (SpawnTime; rare trap bosses add up to +50% jitter)">Respawn</th>
     <th>Spawns</th><th>Drops</th><th>Casts</th></tr></thead>
     <tbody id="rows"></tbody>
   </table></div>
 """ + jsdata("DATA", out) + jsdata("SPRITES", sprites or {}) + f"<script>const HAS_SPRITES = {str(has_sprites).lower()};</script>" + """
 <script>
 const tbody = document.getElementById('rows'), q = document.getElementById('q'),
-      kind = document.getElementById('kind'), count = document.getElementById('count');
+      kind = document.getElementById('kind'), count = document.getElementById('count'),
+      toolbar = document.querySelector('.toolbar'), twrap = document.querySelector('.tablewrap');
 let sortKey = null, sortDir = 1, shown = 300;
+function headTop(){ document.documentElement.style.setProperty('--thead-top', toolbar.offsetHeight + 'px'); }
+headTop(); addEventListener('resize', headTop);
+function snapTop(){ const y = twrap.offsetTop - toolbar.offsetHeight; if (scrollY > y) scrollTo(0, y); }
 function esc(s){ return String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
 function spr(m){
   if (!HAS_SPRITES) return '';
@@ -1050,29 +1082,56 @@ function spr(m){
   if (!pos) return '<td></td>';
   return `<td><span class="spr" style="width:${pos[2]}px;height:${pos[3]}px;background-image:url(img/mob-sprites.png);background-position:-${pos[0]}px -${pos[1]}px"></span></td>`;
 }
+const ATL_T = {both: 'on NexusAtlas — live site and 2005 archive', live: 'on NexusAtlas — live site only (the 2005 archive missed it)',
+               2005: 'on NexusAtlas — 2005 archive only (deleted from the live site since)'};
+function blob(m){
+  return (m.n + ' ' + m.k + ' ' + m.pills.map(p => p.t).join(' ') + ' ' + m.sub.map(s => s.t).join(' ') + ' ' +
+          m.maps.map(x => x.t + ' ' + x.g).join(' ') + ' ' + m.drops.map(d => d.t).join(' ') + ' ' +
+          m.sp.map(c => c.n + ' ' + c.d + ' ' + c.say).join(' ')).toLowerCase();
+}
+function capped(list, cap, fmt){
+  const head = list.slice(0, cap).map(fmt), rest = list.slice(cap);
+  if (rest.length) head.push(`<span class="more" title="${esc(rest.slice(0, 40).map(x => x.t).join(', '))}${rest.length > 40 ? ' …' : ''}">+${rest.length} more</span>`);
+  return head.join(', ');
+}
+const RARE_T = 'rare slot — at most ONE ★ drops per kill: the first listed rare to hit wins, amount always 1';
+function mobCell(m){
+  return `<td><span class="nm"${m.atl && ATL_T[m.atl] ? ` title="${esc(ATL_T[m.atl])}"` : ''}>${esc(m.n)}</span>`
+    + m.pills.map(p => ` <span class="pill" title="${esc(p.ti)}">${esc(p.t)}</span>`).join('')
+    + `<span class="k">${esc(m.k)} · #${m.id}</span>`
+    + m.sub.map(s => `<span class="sub" title="${esc(s.ti)}">${esc(s.t)}</span>`).join('') + '</td>';
+}
+function castLine(c){
+  const say = c.say ? ` · <em>${esc(c.say)}</em>` : '';
+  return `<span${c.ti ? ` title="${esc(c.ti)}"` : ''}>${esc(c.n)}${c.d ? ' — ' + esc(c.d) : ''}${say}</span>`;
+}
 function render(){
   const needle = q.value.trim().toLowerCase(), f = kind.value;
-  let rows = DATA.filter(m => (f !== 'boss' || m.boss) && (f !== 'agg' || m.agg) &&
-    (!needle || (m.n + ' ' + m.k + ' ' + m.maps.join(' ') + ' ' + m.drops.join(' ')).toLowerCase().includes(needle)));
+  let rows = DATA.filter(m =>
+    (f !== 'boss' || m.boss || m.myth) && (f !== 'myth' || m.myth) && (f !== 'agg' || m.agg) &&
+    (f !== 'rare' || m.rare) && (f !== 'atlas' || m.atl) && (f !== 'noatlas' || !m.atl) &&
+    (!needle || blob(m).includes(needle)));
   if (sortKey) rows = rows.slice().sort((a,b) => {
     const x = a[sortKey], y = b[sortKey];
     return (typeof x === 'number' && typeof y === 'number' ? x - y : String(x).localeCompare(String(y))) * sortDir;
   });
   tbody.innerHTML = rows.slice(0, shown).map(m => `<tr>
     ${spr(m)}
-    <td><span class="nm">${esc(m.n)}</span>${m.boss ? ' <span class="pill">boss</span>' : ''}${m.agg ? ' <span class="pill">aggro</span>' : ''}<span class="k">${esc(m.k)}</span></td>
+    ${mobCell(m)}
     <td class="n">${m.lv || ''}</td><td class="n">${m.hp.toLocaleString()}</td><td class="n">${m.xp.toLocaleString()}</td>
-    <td class="n">${m.dmg}</td><td class="n">${m.ac || ''}</td>
-    <td class="sub">${m.maps.map(esc).join(', ')}</td>
-    <td class="sub">${m.drops.map(esc).join(', ')}</td>
-    <td class="sub">${m.sp.map(esc).join(', ')}</td></tr>`).join('')
-    + (rows.length > shown ? `<tr><td colspan="10"><button id="more" style="font:inherit;padding:6px 14px;cursor:pointer">Show ${rows.length - shown} more…</button></td></tr>` : '');
+    <td class="n">${m.dmg}</td><td class="n">${m.ac || ''}</td><td class="n">${m.hit || ''}</td>
+    <td class="n"${m.protT ? ` title="${esc(m.protT)}"` : ''}>${m.prot || ''}</td>
+    <td class="n">${esc(m.mvT)}</td><td class="n">${esc(m.rsT)}</td>
+    <td class="sub maps">${capped(m.maps, 5, x => esc(x.t) + (x.g ? ` <span class="muted">(${esc(x.g)})</span>` : ''))}</td>
+    <td class="sub drops">${capped(m.drops, 8, d => (d.r ? `<span class="rare" title="${RARE_T}">★</span> ` : '') + esc(d.t))}</td>
+    <td class="sub casts">${m.sp.slice(0, 6).map(castLine).join('<br>')}${m.sp.length > 6 ? `<br><span class="more" title="${esc(m.sp.slice(6).map(c => c.n).join(', '))}">+${m.sp.length - 6} more</span>` : ''}</td></tr>`).join('')
+    + (rows.length > shown ? `<tr><td colspan="14"><button id="more" style="font:inherit;padding:6px 14px;cursor:pointer">Show ${rows.length - shown} more…</button></td></tr>` : '');
   count.textContent = Math.min(shown, rows.length) + ' shown of ' + rows.length + ' matching (' + DATA.length + ' total)';
   const b = document.getElementById('more');
   if (b) b.addEventListener('click', () => { shown += 600; render(); });
 }
-q.addEventListener('input', () => { shown = 300; render(); });
-kind.addEventListener('change', () => { shown = 300; render(); });
+q.addEventListener('input', () => { shown = 300; render(); snapTop(); });
+kind.addEventListener('change', () => { shown = 300; render(); snapTop(); });
 document.querySelectorAll('th[data-s]').forEach(th => th.addEventListener('click', () => {
   const k = th.dataset.s;
   sortDir = (sortKey === k) ? -sortDir : 1; sortKey = k;
