@@ -8,7 +8,7 @@
 <body>
 <style>
   .sitenav {
-    max-width: 940px; margin: 0 auto; padding: 14px 24px 0;
+    max-width: min(1680px, 96vw); margin: 0 auto; padding: 14px 24px 0;
     display: flex; gap: 18px; align-items: baseline; font-size: 14px;
     font-family: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
   }
@@ -114,7 +114,7 @@
   }
   a { color: var(--accent-ink); text-underline-offset: 2px; }
   a:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
-  .wrap { max-width: 900px; margin: 0 auto; padding: 0 24px 96px; }
+  .wrap { max-width: min(1680px, 96vw); margin: 0 auto; padding: 0 24px 96px; }
 
   /* ---- header ---- */
   header.hero { padding: 44px 0 20px; }
