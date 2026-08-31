@@ -15,6 +15,7 @@ on:
 
 permissions:
   contents: write
+  actions: write   # the push below is made with GITHUB_TOKEN, which does NOT trigger deploy.yml on its own
 
 concurrency:
   group: status-probe
@@ -59,6 +60,8 @@ jobs:
           fi
 
       - name: Commit if the state changed (or checkedAt is stale)
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
           git config user.name "status-probe"
           git config user.email "actions@github.com"
@@ -83,6 +86,8 @@ jobs:
             git add site/status.json
             git commit -m "status: $(python3 -c "import json; d=json.load(open('site/status.json')); print('up' if d.get('up') else 'DOWN')")"
             git push
+            # A GITHUB_TOKEN push never triggers other workflows — dispatch the deploy ourselves.
+            gh workflow run deploy.yml
           else
             echo "no state change — skipping commit"
           fi
