@@ -20,6 +20,13 @@ def rows(name):
         lines = [l for l in f if not l.lstrip().startswith("#")]
     return list(csv.DictReader(lines))
 
+def rows_opt(name):
+    """rows(), but an absent file is empty rather than fatal — for the smaller side tables."""
+    if not os.path.exists(os.path.join(GD, name)):
+        print(f"warning: {name} not found; generating without it", file=sys.stderr)
+        return []
+    return rows(name)
+
 def num(v, default=0):
     try:
         return int(float(v))
@@ -134,7 +141,11 @@ Regenerated automatically; report mismatches on Discord.</footer>
 """
 
 # ---------------------------------------------------------------- lookups
-paths = {num(r["PthId"]): r["PthMark0"] for r in rows("Paths.csv") if r.get("PthMark0")}
+# Full path tree: name, base-class id (PthType) and PthIcon (0 base class / 4 NPC subpath / 1-3 PC subpath),
+# mirroring Content.PathBaseOf / Content.IsNpcSubpath.
+PATHS = {num(r["PthId"]): {"name": r["PthMark0"], "base": num(r["PthType"]), "icon": num(r["PthIcon"])}
+         for r in rows("Paths.csv") if r.get("PthMark0")}
+paths = {pid: p["name"] for pid, p in PATHS.items()}
 def path_name(pid):
     if pid == 99: return "All"
     if pid == -1: return "Any"
@@ -158,40 +169,325 @@ def jsdata(name, obj):
     return f"<script>const {name} = {json.dumps(obj, separators=(',', ':'), ensure_ascii=False)};</script>"
 
 # ---------------------------------------------------------------- spells
+# Server-code mirrors. The classification SETS are parsed out of Server/Content.cs and npc_dialog.lua at
+# generation time so the page tracks the code; each has a baked fallback (warned on stderr) so the nightly
+# regen survives a refactor that moves them. The narrative provenance STRINGS (dog requirements, sage terms,
+# quest grants) are transcriptions — their one source is named next to each.
+import re
+
+def _read(relpath):
+    p = os.path.join(GAME, relpath)
+    try:
+        return io.open(p, encoding="utf-8", errors="replace").read()
+    except OSError:
+        return ""
+
+def _parse_keys(text, pattern, fallback, label):
+    m = re.search(pattern, text, re.S)
+    keys = re.findall(r'"([a-z0-9_]+)"', m.group(1)) if m else []
+    if not keys:
+        print(f"warning: could not parse {label} from server source; using baked copy", file=sys.stderr)
+        return fallback
+    return keys
+
+_CONTENT = _read(os.path.join("Server", "Content.cs"))
+_DIALOG = _read(os.path.join("game-data", "npc_dialog.lua"))
+
+# Content.cs SageLadder — rung order matters (rung n = index+1).
+SAGE_LADDER = _parse_keys(_CONTENT, r"SageLadder\s*=\s*\{([^}]*)\}",
+    ["share_wisdom", "mentors_wisdom", "apprentices_wisdom", "adepts_wisdom", "sages_wisdom"], "SageLadder")
+# Content.cs SplitTrapSpells — the 8 post-2003 individual traps behind the SplitTrapSpells era gate.
+SPLIT_TRAPS = set(_parse_keys(_CONTENT, r"SplitTrapSpells\s*=\s*new\([^)]*\)\s*\{([^}]*)\}",
+    ["set_dart_trap", "set_flash_trap", "set_repeating_dart_trap", "set_snare_trap",
+     "set_spear_trap", "set_poison_dart_trap", "set_death_trap", "set_sleep_trap"], "SplitTrapSpells"))
+# Content.cs UniversalBaseSpells — taught to EVERY class (tutorial), SpellCosts rows are relearn-only.
+UNIVERSAL = set(_parse_keys(_CONTENT, r"UniversalBaseSpells\s*=\s*new\([^)]*\)\s*\{([^}]*)\}",
+    ["soothe"], "UniversalBaseSpells"))
+# npc_dialog.lua ALL_DOG_SPELLS — membership of the Dog Linguist flow.
+DOG_SPELLS = set(_parse_keys(_DIALOG, r"ALL_DOG_SPELLS\s*=\s*\{([^}]*)\}",
+    ["greater_blessing", "spirit_fury", "spot_traps", "serpents_fury",
+     "fissure", "lava_surge", "survive", "fascinate"], "ALL_DOG_SPELLS"))
+# Content.cs CityLockedSpells: base key -> region id (RegionCityName: 0 Kugnae, 1 Buya, 2 Mythic, 3 Nagnang).
+_m = re.search(r"CityLockedSpells\s*=\s*new\([^)]*\)\s*\{(.*?)\};", _CONTENT, re.S)
+CITY_LOCK = dict(re.findall(r'\["([a-z0-9_]+)"\]\s*=\s*(\d+)', _m.group(1))) if _m else {}
+if not CITY_LOCK:
+    print("warning: could not parse CityLockedSpells; using baked copy", file=sys.stderr)
+    CITY_LOCK = {"maros_remedy": "0", "masos_remedy": "1", "daggers_remedy": "3"}
+CITY_NAME = {"0": "Kugnae", "1": "Buya", "2": "the Mythic", "3": "Nagnang"}
+CITY_TRAINER = {"maros_remedy": "Maro", "masos_remedy": "Maso", "daggers_remedy": "Dagger"}
+
+# Content.cs NpcGrantedSpells = SageLadder + propose: trainers refuse these even where cost rows exist.
+NPC_GRANTED = set(SAGE_LADDER) | {"propose"}
+
+# Content.cs BaseKey: strip one alignment prefix, then one class suffix.
+def base_key(k):
+    k = k.lower()
+    for pre in ("kwisin_", "mingken_", "ohaeng_"):
+        if k.startswith(pre):
+            k = k[len(pre):]
+            break
+    for suf in ("_peasant", "_warrior", "_rogue", "_mage", "_poet"):
+        if k.endswith(suf):
+            k = k[:-len(suf)]
+            break
+    return k
+
+# npc_dialog.lua DOG_SPELLS table (kill/goods requirements) + BIG_GATE_VITA/MANA 20000/10000. The two-line
+# summary per spell is a transcription of that table; sources tswolf + nexusatlas per its own header.
+DOG_INFO = {
+    "greater_blessing": "Warrior Dog Linguist · lv 70 · slay 3 Trapdoor spiders",
+    "spirit_fury": "Warrior Dog Linguist · lv 99 + 20k vita or 10k mana · slay the Non-Corporeal Bunny · Ambrosia + 10,000 gold",
+    "spot_traps": "Rogue Dog Linguist · lv 70 · slay 3 Trapdoor spiders",
+    "serpents_fury": "Rogue Dog Linguist · lv 99 + 20k vita or 10k mana · slay Zin-te and Zangze · show a Whisper bracelet (not taken)",
+    "fissure": "Mage Dog Linguist · lv 70 · Amber, Amethyst, Quartz, Topaz",
+    "lava_surge": "Mage Dog Linguist · lv 99 + 20k vita or 10k mana · slay an Ice panther · Star staff + Scribe's pen",
+    "survive": "Poet Dog Linguist · lv 70 · 10 Mountain ginseng + Pearl charm",
+    "fascinate": "Poet Dog Linguist · lv 99 + 20k vita or 10k mana · slay an Ice panther · Titanium lance + Purified water",
+}
+# The dialog-enforced learn levels (DOG_SPELLS `level` fields; Content.SageLevel = 90). Spells.csv carries
+# SplLevel 0 for all of these because no trainer path applies — the NPC flow is the gate.
+DOG_LEVEL = {"greater_blessing": 70, "spot_traps": 70, "fissure": 70, "survive": 70,
+             "spirit_fury": 99, "serpents_fury": 99, "lava_surge": 99, "fascinate": 99}
+SAGE_LEVEL = 90
+
+BASE_CLASS = {1: "Warrior", 2: "Rogue", 3: "Mage", 4: "Poet"}
+RANK = {1: "Il san", 2: "Ee san", 3: "Sam san"}
+MARK_SPELL_LEVEL = 99   # Content.MarkSpellLevel — mark rows carry SplLevel 0, floored at load
+
+def clean_name(s):
+    return (s or "").replace("\\", "")   # Content.Clean strips the export's backslash escapes
+
+def fmt_ms(ms):
+    ms = num(ms, 0)
+    if ms <= 0: return ""
+    if ms < 1000: return f"{ms}ms"
+    s = round(ms / 1000)
+    for big, small, bu, su in ((86400, 3600, "d", "h"), (3600, 60, "h", "m"), (60, 1, "m", "s")):
+        if s >= big:
+            hi, rest = divmod(s, big)
+            lo = round(rest / small)
+            return f"{hi}{bu} {lo}{su}" if lo else f"{hi}{bu}"
+    return f"{s}s"
+
 def build_spells():
     params = {r["key"]: r for r in rows("SpellParams.csv")}
     effects = {r["key"]: r for r in rows("spell_effects.csv")}
     levels = {r["key"]: num(r["level"]) for r in rows("SpellLevels.csv")}
+    texts = {r["key"]: r for r in rows("SpellText.csv")}
+    mods = {r["key"]: r for r in rows("SpellMods.csv")}
+    itemnames = {r["ItmIdentifier"]: clean_name(r["ItmDescription"]) for r in rows("Items.csv")}
+    def item_name(k):
+        return itemnames.get(k, k.replace("_", " "))
+
+    # ServerTuning.csv SplitTrapSpells toggle (Content.SplitTrapSpellsEnabled, default 0 = era gate closed).
+    tuning = {r[list(r)[0]]: r[list(r)[1]] for r in rows("ServerTuning.csv")}
+    split_traps_on = num(tuning.get("SplitTrapSpells"), 0) != 0
+
+    # SpellLearnCosts.csv: key -> {base pathId -> row}. Content.LearnCostFor keys strictly on base path 1-4;
+    # the row's own `level` is the level the trainer actually enforces (SpellsForClass overrides SplLevel).
     costs = {}
     for r in rows("SpellLearnCosts.csv"):
-        items = [f"{r[f'item{i}'].replace('_', ' ')} x{r[f'amt{i}']}"
-                 for i in (1, 2, 3, 4) if r.get(f"item{i}")]
+        costs.setdefault(r["key"], {})[num(r["pathId"])] = r
+
+    def cost_text(r):
+        items = [f"{item_name(r[f'item{i}'])} x{r[f'amt{i}']}" for i in (1, 2, 3, 4) if r.get(f"item{i}")]
         gold = num(r.get("gold"))
-        parts = ([f"{gold:,} gold"] if gold else []) + items
-        costs[(r["key"], num(r["pathId"]))] = ", ".join(parts)
+        return ", ".join(([f"{gold:,} gold"] if gold else []) + items) or "free"
+
+    # WeaponProcs.csv: spell key -> "Item name chance%" list (spells that arrive as weapon procs).
+    procs = {}
+    for r in rows("WeaponProcs.csv"):
+        if r.get("spell"):
+            procs.setdefault(r["spell"], []).append(f"{item_name(r['item'])} {r['chancePct']}%")
+
+    # MobSpells.csv rows are self-contained mob spells matched to player spells by DISPLAY NAME — the mob
+    # rows carry their own mob-tuned numbers, so this is "mobs cast a spell of this name".
+    mobnames = {r["Identifier"]: r["Description"] for r in rows("mobs.csv")}
+    castby = {}
+    for r in rows("MobSpells.csv"):
+        if r.get("MobKey") and r.get("Name"):
+            castby.setdefault(r["Name"].strip().lower(), set()).add(mobnames.get(r["MobKey"], r["MobKey"]))
+
+    def effect_text(key, p, e, m):
+        parts = []
+        verb = (p.get("verb") or "").strip()
+        stat, amount = (p.get("stat") or "").strip(), (p.get("amount") or "").strip()
+        base, coeff, wc = (p.get("base") or "").strip(), (p.get("coeff") or "").strip(), (p.get("willcoeff") or "").strip()
+        if verb == "venom":
+            seg = "DoT"
+            if (p.get("flat") or "").strip(): seg += f" flat {num(p['flat']):,}/tick"
+            elif amount: seg += f" tick cap {num(amount):,}"
+            parts.append(seg)
+        elif verb == "endear":
+            parts.append("mind control")                 # base column holds the aether for this family
+        elif verb == "kamikaze":
+            parts.append(f"blast {coeff}×caster's current HP — caster left at {amount} HP")
+        elif stat and amount:
+            parts.append(f"{stat} {num(amount):+d}")
+        elif verb == "heal" and amount:
+            parts.append(f"heal {amount}" + (f" + {wc}×Will" if wc else ""))
+        elif verb == "drain" and amount:
+            parts.append(f"absorb mobs ≤{num(amount):,} HP")
+        elif base or coeff:
+            parts.append(base if not num(coeff, 0) and base else f"{base or 0} + {coeff or 0}×Will")
+        elif amount and num(amount):
+            parts.append(f"amount {amount}")
+        arch = (e.get("archetype") or "").strip()
+        expr = (e.get("amountExpr") or "").strip()
+        if expr and not (base or coeff or amount):
+            label = {"Damage": "dmg", "Heal": "heal", "ManaBattery": "mana"}.get(arch, "amount")
+            parts.append(f"{label} {expr}")
+        if (e.get("buffStat") or "").strip() and not stat:
+            parts.append(f"{e['buffStat']} {num(e.get('buffAmt')):+d}" if (e.get("buffAmt") or "").strip() else e["buffStat"])
+        # A params row means the verb defines the behavior — the spell_effects debuff is then only the old
+        # keyword extraction (amnesia's own notes call it out as wrong), so it defers to the verb.
+        if (e.get("debuff") or "").strip() and not p: parts.append(e["debuff"])
+        if (e.get("cureCat") or "").strip(): parts.append(f"cures {e['cureCat']}")
+        if (e.get("healthCost") or "").strip(): parts.append(f"cost {e['healthCost']}")
+        chance = (p.get("chance") or "").strip() or (e.get("chance") or "").strip()
+        if chance: parts.append(f"{chance}% to land")
+        if (m.get("rage") or "").strip(): parts.append(f"fury tier {m['rage']}")
+        if (m.get("enchantAmt") or "").strip():
+            parts.append(f"enchant ×{m['enchantAmt']}" + (f" ({num(m.get('enchantMana')):,} mana)" if (m.get("enchantMana") or "").strip() else ""))
+        return " · ".join(parts)
+
+    def learn_lines(key, name, pid, lv, e_class):
+        """[(line, title)] for the Learn / source column, mirroring who can actually grant the spell."""
+        if key in SPLIT_TRAPS and not split_traps_on:
+            return [("Era-gated off (SplitTrapSpells=0) — Set Trap sets this trap", "Server/Content.cs IsOutOfEraSplitTrap")]
+        if key in DOG_SPELLS:
+            return [(DOG_INFO.get(key, "Taught only by the class's Dog Linguist — kills and goods, never the guildmaster"),
+                     "game-data/npc_dialog.lua DOG_SPELLS")]
+        if key in SAGE_LADDER:
+            rung = SAGE_LADDER.index(key) + 1
+            line = f"Sage only (rung {rung}/5) · lv 90+ · 100,000 gold · 90-day wait · replaces the rung below"
+            if rung == 5: line += " · requires Sam san"
+            return [(line, "game-data/npc_dialog.lua SageNpc; Server/Content.cs SageLadder")]
+        if key == "propose":
+            return [("Wedding flow only — never sold by trainers", "Server/Content.cs NpcGrantedSpells")]
+        if key == "restore_poet":
+            return [("Quest: avenge the Dogs (Old Dog NPC) · Poet lv 99 + Dog legend · slay Tiger Storm with no other kills · +50,000,000 exp",
+                     "game-data/npc_dialog.lua OldDogNpc")]
+        out = []
+        if key in UNIVERSAL:
+            out.append(("Tutorial quest — taught to every class (5 acorns + 5 rabbit meat)",
+                        "game-data/npc_dialog.lua; Server/Content.cs UniversalBaseSpells"))
+            per = costs.get(key, {})
+            for p_ in sorted(per):
+                r = per[p_]
+                out.append((f"relearn: {BASE_CLASS[p_]} lv {num(r['level'])} — {cost_text(r)}", r.get("source") or ""))
+            missing = [BASE_CLASS[p_] for p_ in BASE_CLASS if p_ not in per]
+            if missing:
+                out.append((f"{'/'.join(missing)}s cannot relearn it", "Server/Content.cs CanRelearnAtNpc"))
+            return out
+        if pid in PATHS and PATHS[pid]["icon"] != 0:      # subpath signature spell — granted at the rank
+            base = paths.get(PATHS[pid]["base"], "?")
+            kind = "NPC" if PATHS[pid]["icon"] == 4 else "PC"
+            return [(f"Granted on reaching {paths[pid]} ({kind} subpath of {base})", "Server/Content.cs SpellsForClass")]
+        if pid == 5:
+            return [("GM only", "")]
+        per = costs.get(key, {})
+        lock = CITY_LOCK.get(base_key(key))
+        for p_ in sorted(per):
+            r = per[p_]
+            line = f"{BASE_CLASS.get(p_, f'path {p_}')} lv {num(r['level'])} — {cost_text(r)}"
+            if lock is not None:
+                line += f" · {CITY_NAME.get(lock, lock)} only ({CITY_TRAINER.get(base_key(key), 'trainer')})"
+            out.append((line, r.get("source") or ""))
+        if out:
+            return out
+        if pid in BASE_CLASS:
+            return [(f"{BASE_CLASS[pid]} trainer lv {lv} — free", "no SpellLearnCosts row: taught free")]
+        if pid == 0:
+            return [(f"Any class trainer lv {lv} — free", "no SpellLearnCosts row: taught free")]
+        if key in procs:
+            return []                                     # proc-only: the procs line below covers it
+        if (e_class or "") in ("baseFunc", "instance"):
+            return [("Internal server mechanism", "")]
+        return [("Not trainer-taught", "")]
 
     out = []
     for r in rows("Spells.csv"):
-        key, name = r["SplIdentifier"], r["SplDescription"]
+        key, name = r["SplIdentifier"], clean_name(r["SplDescription"])
         if not key or key.startswith("=="):
             continue
         pid = num(r["SplPthId"])
-        p, e = params.get(key, {}), effects.get(key, {})
+        typ = num(r["SplType"])
+        mk = num(r["SplMark"])
+        p, e, m = params.get(key, {}), effects.get(key, {}), mods.get(key, {})
+        e_class = (e.get("class") or "").strip()
         mana = p.get("mana") or e.get("mana") or ""
-        formula = ""
-        if p.get("base") or p.get("coeff"):
-            formula = f"{p.get('base') or 0} + {p.get('coeff') or 0}×Will"
+        active = r.get("SplActive") != "0"
+
+        # Level exactly as the server derives it: SpellLevels override -> SplLevel, floored to 99 for mark
+        # rows (LoadSpells), then the class's own SpellLearnCosts level wins where a row exists
+        # (SpellsForClass). Subpath signature spells pin to the rank (MarkSpellLevel).
+        lv = levels.get(key, num(r["SplLevel"]))
+        if mk > 0: lv = max(lv, MARK_SPELL_LEVEL)
+        if key in SAGE_LADDER: lv = SAGE_LEVEL
+        if key in DOG_LEVEL: lv = DOG_LEVEL[key]
+        if pid in PATHS and PATHS[pid]["icon"] != 0:
+            lv = MARK_SPELL_LEVEL
+        elif pid in BASE_CLASS and pid in costs.get(key, {}):
+            lv = num(costs[key][pid]["level"])
+
+        # Durations: SpellParams wins over spell_effects (the verb reads its params row when one exists).
+        # The sage rungs' params.duration IS the aether, per the row's own notes.
+        sage = key in SAGE_LADDER
+        dur_ms = 0 if sage else (num(p.get("duration"), 0) or num(e.get("durationMs"), 0))
+        durmax = 0 if sage else num(p.get("durationMax"), 0)
+        aet_ms = num(p.get("duration"), 0) if sage else num(e.get("aether"), 0)
+        if (p.get("verb") or "").strip() == "endear":    # endear family: params.base IS the aether
+            aet_ms = aet_ms or num(p.get("base"), 0)
+        if (p.get("verb") or "").strip() == "venom" and not (p.get("flat") or "").strip():
+            # venom-family durations are the upper bound of 1+rand(...) — the notes carry the full shape.
+            # (flat-tick rows like burn run a FIXED duration and take the normal branch.)
+            dur_tx = f"≤{fmt_ms(dur_ms)}" if dur_ms >= 1000 else ""
+            if dur_ms < 1000: dur_ms = 0
+        elif durmax and durmax < dur_ms:
+            dur_tx = f"{fmt_ms(dur_ms)} (boss {fmt_ms(durmax)})"   # amnesia: 15m on a mob, 5s on a boss
+        else:
+            dur_tx = fmt_ms(dur_ms) + (f"–{fmt_ms(durmax)}" if durmax else "")
+
+        pills = []
+        if typ == 5: pills.append("skill")
+        if not active: pills.append("inactive")
+        if key in SPLIT_TRAPS and not split_traps_on: pills.append("era off")
+        if pid == 5 or e_class == "GM": pills.append("GM")
+        if e_class in ("baseFunc", "instance"): pills.append("internal")
+
+        detail = []
+        q = (r.get("SplQuestion") or "").strip()
+        if q.upper() == "NO": q = ""
+        if typ == 2: detail.append("targeted")
+        if typ == 1: detail.append("prompt-cast")
+        if q: detail.append(f"asks “{clean_name(q)}”")
+        if r.get("SplCanFail") == "1": detail.append("can fail (deflect)")
+        if (p.get("verb") or "").strip(): detail.append(f"verb: {p['verb']}")
+        t = texts.get(key)
+        if t:
+            if (t.get("targetText") or "").strip(): detail.append(f"“{t['targetText']}”")
+            if (t.get("fadeText") or "").strip(): detail.append(f"fades: “{t['fadeText']}”")
+        if num(p.get("pcDps"), 0): detail.append(f"vs players: {num(p['pcDps']):,}/tick, {fmt_ms(p.get('pcDurMs'))}")
+        if key in procs: detail.append("weapon proc: " + ", ".join(procs[key]))
+
+        mobs = sorted(castby.get(name.strip().lower(), []))
+        subpath = PATHS.get(pid, {}).get("icon", 0) != 0 and pid in PATHS
         out.append({
-            "k": key, "n": name, "c": path_name(pid), "cl": pid,
-            "lv": levels.get(key, num(r["SplLevel"])), "mk": num(r["SplMark"]),
+            "k": key, "id": num(r["SplId"]), "n": name, "c": path_name(pid), "cl": pid,
+            "cb": paths.get(PATHS[pid]["base"], "") if subpath else "",
+            "lv": lv, "mk": mk, "rk": RANK.get(mk, ""),
             "al": ALIGN.get(num(r["SplAlignment"], -1), ""),
             "mana": num(mana) if str(mana).strip() else "",
             "cat": (p.get("category") or e.get("archetype") or "").strip(),
+            "eff": effect_text(key, p, e, m),
+            "durMs": dur_ms or "", "dur": dur_tx, "aetMs": aet_ms or "", "aet": fmt_ms(aet_ms),
             "fx": num(e.get("animation"), -1) if (e.get("animation") or "").strip() else "",
-            "form": formula,
-            "cost": costs.get((key, pid), "") or costs.get((key, 99), ""),
+            "snd": num(e.get("sound"), -1) if (e.get("sound") or "").strip() else "",
+            "learn": [{"t": l, "s": s} for l, s in learn_lines(key, name, pid, lv, e_class)],
             "note": (p.get("notes") or "").strip(),
-            "skill": r.get("SplType") == "5",
+            "det": " · ".join(detail),
+            "mb": mobs, "pills": pills,
         })
     out.sort(key=lambda s: (s["cl"], s["lv"], s["n"].lower()))
 
@@ -202,19 +498,24 @@ def build_spells():
   <header class="hero">
     <p class="kicker">Project1998 · database</p>
     <h1>Spells &amp; Skills</h1>
-    <p class="lede">Every spell and skill the server teaches, with class, level, mana, formulas and learn
-    costs merged from the server's own data files. <code>fx</code> is the Effect.tbl animation id
-    (audition in game with <code>@efx &lt;id&gt;</code>, or click one to watch it on the <a href="effects.html">4.95 Effect Table</a>).</p>
+    <p class="lede">Every spell and skill the server knows, with the level, mana, effect, durations and
+    per-class learn costs the server itself enforces — including who actually teaches it (trainers, the
+    Sage, the Dog Linguists, quests) and which mobs cast a spell of the same name (with their own mob-tuned
+    numbers). Lv is the level <em>your own class</em> learns it at; the Learn column carries the other
+    classes. Hover a learn line for its source. <code>fx</code> is the Effect.tbl animation id
+    (audition in game with <code>@efx &lt;id&gt;</code>, or click one to watch it on the
+    <a href="effects.html">4.95 Effect Table</a>). Era toggles are read at generation time.</p>
   </header>
   <div class="toolbar">
-    <input id="q" type="search" placeholder="Filter — name, key, category…" aria-label="Filter spells">
+    <input id="q" type="search" placeholder="Filter — name, key, effect, mob, teacher…" aria-label="Filter spells">
     <select id="cls" aria-label="Class filter"><option value="">All classes</option>{opts}</select>
     <span class="count" id="count"></span>
   </div>
   <div class="tablewrap"><table id="tbl">
-    <thead><tr><th data-s="n">Spell</th><th data-s="c">Class</th><th data-s="lv">Lv</th><th data-s="mk">Mark</th>
-    <th data-s="al">Align</th><th data-s="mana">Mana</th><th data-s="cat">Category</th><th data-s="form">Formula</th>
-    <th data-s="fx">FX</th><th data-s="cost">Learn cost</th></tr></thead>
+    <thead><tr><th data-s="n">Spell</th><th data-s="c">Class</th><th data-s="lv">Lv</th><th data-s="mk">Rank</th>
+    <th data-s="al">Align</th><th data-s="mana">Mana</th><th data-s="cat">Category</th><th data-s="eff">Effect</th>
+    <th data-s="durMs">Duration</th><th data-s="aetMs">Aether</th>
+    <th data-s="fx">FX</th><th>Learn / source</th></tr></thead>
     <tbody id="rows"></tbody>
   </table></div>
 """ + jsdata("DATA", out) + """
@@ -223,19 +524,30 @@ const tbody = document.getElementById('rows'), q = document.getElementById('q'),
       cls = document.getElementById('cls'), count = document.getElementById('count');
 let sortKey = null, sortDir = 1;
 function esc(s){ return String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+function blob(s){
+  return (s.n + ' ' + s.k + ' ' + s.cat + ' ' + s.note + ' ' + s.eff + ' ' + s.det + ' ' +
+          s.rk + ' ' + s.pills.join(' ') + ' ' + s.learn.map(l => l.t).join(' ') + ' ' + s.mb.join(' ')).toLowerCase();
+}
+function castBy(s){
+  if (!s.mb.length) return '';
+  const head = s.mb.slice(0, 4).map(esc).join(', '), more = s.mb.length - 4;
+  return `<span class="sub">cast by ${s.mb.length} mob${s.mb.length > 1 ? 's' : ''}: ${head}${more > 0 ? ` +${more} more` : ''}</span>`;
+}
 function render(){
   const needle = q.value.trim().toLowerCase(), c = cls.value;
-  let rows = DATA.filter(s => (!c || s.c === c) &&
-    (!needle || (s.n + ' ' + s.k + ' ' + s.cat + ' ' + s.note).toLowerCase().includes(needle)));
+  let rows = DATA.filter(s => (!c || s.c === c) && (!needle || blob(s).includes(needle)));
   if (sortKey) rows = rows.slice().sort((a,b) => {
     const x = a[sortKey], y = b[sortKey];
     return (typeof x === 'number' && typeof y === 'number' ? x - y : String(x).localeCompare(String(y))) * sortDir;
   });
   tbody.innerHTML = rows.map(s => `<tr>
-    <td><span class="nm">${esc(s.n)}</span>${s.skill ? ' <span class="pill">skill</span>' : ''}<span class="k">${esc(s.k)}</span>${s.note ? `<span class="sub">${esc(s.note)}</span>` : ''}</td>
-    <td>${esc(s.c)}</td><td class="n">${s.lv || ''}</td><td class="n">${s.mk || ''}</td>
+    <td><span class="nm">${esc(s.n)}</span>${s.pills.map(p => ` <span class="pill">${esc(p)}</span>`).join('')}<span class="k">${esc(s.k)} · #${s.id}</span>${s.note ? `<span class="sub">${esc(s.note)}</span>` : ''}${s.det ? `<span class="sub">${esc(s.det)}</span>` : ''}${castBy(s)}</td>
+    <td>${esc(s.c)}${s.cb ? `<span class="k">${esc(s.cb)} subpath</span>` : ''}</td>
+    <td class="n">${s.lv || ''}</td><td>${esc(s.rk)}</td>
     <td>${esc(s.al)}</td><td class="n">${s.mana}</td><td>${esc(s.cat)}</td>
-    <td>${esc(s.form)}</td><td class="n">${(typeof s.fx === 'number' && s.fx > 0) ? `<a href="effects.html#csv${s.fx}">${s.fx}</a>` : s.fx}</td><td class="sub">${esc(s.cost)}</td></tr>`).join('');
+    <td>${esc(s.eff)}</td><td class="n">${esc(s.dur)}</td><td class="n">${esc(s.aet)}</td>
+    <td class="n"${(typeof s.snd === 'number' && s.snd >= 0) ? ` title="sound ${s.snd}"` : ''}>${(typeof s.fx === 'number' && s.fx > 0) ? `<a href="effects.html#csv${s.fx}">${s.fx}</a>` : s.fx}</td>
+    <td class="sub">${s.learn.map(l => `<span${l.s ? ` title="${esc(l.s)}"` : ''}>${esc(l.t)}</span>`).join('<br>')}</td></tr>`).join('');
   count.textContent = rows.length + ' of ' + DATA.length;
 }
 q.addEventListener('input', render); cls.addEventListener('change', render);
