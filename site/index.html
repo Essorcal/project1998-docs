@@ -79,6 +79,8 @@
     let t = `${dot} Server ${s.up ? 'online' : 'offline'}`;
     if (s.players !== undefined) t += ` · ${s.players} online`;
     if (s.restartInMin) t += ` · restart in ~${s.restartInMin} min`;
+    if (s.era) t += ` · era ${s.era}`;
+    if (s.since && s.players === undefined) t += ` · since ${new Date(s.since).toLocaleString()}`;
     if (s.checkedAt) t += ` · checked ${new Date(s.checkedAt).toLocaleTimeString()}`;
     el.textContent = t; el.style.display = 'block';
   }).catch(() => {});

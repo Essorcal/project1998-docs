@@ -1,0 +1,88 @@
+name: server status
+
+# Probes the production server and maintains site/status.json, which the landing page's status
+# strip reads. Committing triggers the normal Pages deploy, so commits happen only when the
+# state CHANGES (or 6h have passed, to keep checkedAt honest) — not on every probe.
+#
+# Tier 1 (this): TCP-connect probes of the public login/game ports -> up/down.
+# Tier 2 (once the server ships its status responder): the probe upgrades to fetching rich
+# JSON (players online, era date, restart countdown) from the game port — see the game repo's
+# StatusResponder. The fetch below already tries it and falls back to the TCP probe.
+on:
+  schedule:
+    - cron: "*/10 * * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: status-probe
+  cancel-in-progress: false
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Probe and update status.json
+        run: |
+          HOST=project1998.com
+          NOW=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+
+          # Tier 2 attempt: the game server's HTTP status responder on the game port.
+          RICH=$(curl -s -m 8 "http://$HOST:2006/status.json" || true)
+          if echo "$RICH" | python3 -c "import sys,json; d=json.load(sys.stdin); assert 'up' in d" 2>/dev/null; then
+            echo "$RICH" | python3 -c "
+          import sys, json
+          d = json.load(sys.stdin)
+          d['checkedAt'] = '$NOW'
+          json.dump(d, open('site/status.json', 'w'))
+          "
+            echo "rich status from the server itself"
+          else
+            # Tier 1: TCP connect probes. Up = both login and game answer.
+            up=true
+            for p in 2001 2006; do
+              timeout 6 bash -c "echo > /dev/tcp/$HOST/$p" 2>/dev/null || up=false
+            done
+            python3 - "$up" "$NOW" <<'EOF'
+          import json, os, sys
+          up = sys.argv[1] == 'true'; now = sys.argv[2]
+          old = {}
+          if os.path.exists('site/status.json'):
+              try: old = json.load(open('site/status.json'))
+              except Exception: pass
+          since = old.get('since', now) if old.get('up') == up else now
+          json.dump({'up': up, 'since': since, 'checkedAt': now}, open('site/status.json', 'w'))
+          EOF
+          fi
+
+      - name: Commit if the state changed (or checkedAt is stale)
+        run: |
+          git config user.name "status-probe"
+          git config user.email "actions@github.com"
+          CHANGED=$(python3 - <<'EOF'
+          import json, subprocess
+          new = json.load(open('site/status.json'))
+          try:
+              old = json.loads(subprocess.run(['git', 'show', 'HEAD:site/status.json'],
+                                              capture_output=True, text=True).stdout)
+          except Exception:
+              old = None
+          def core(d): return d and {k: v for k, v in d.items() if k != 'checkedAt'}
+          from datetime import datetime, timezone
+          stale = True
+          if old and 'checkedAt' in old:
+              age = datetime.now(timezone.utc) - datetime.fromisoformat(old['checkedAt'].replace('Z', '+00:00'))
+              stale = age.total_seconds() > 6 * 3600
+          print('yes' if (core(new) != core(old) or stale) else 'no')
+          EOF
+          )
+          if [ "$CHANGED" = "yes" ]; then
+            git add site/status.json
+            git commit -m "status: $(python3 -c "import json; d=json.load(open('site/status.json')); print('up' if d.get('up') else 'DOWN')")"
+            git push
+          else
+            echo "no state change — skipping commit"
+          fi
