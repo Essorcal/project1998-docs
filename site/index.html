@@ -67,6 +67,23 @@
     code and updated alongside it. When a sheet and the code disagree, the code wins.</p>
   </header>
 
+  <div id="status" style="display:none; margin-top:18px; padding:10px 16px; border:1px solid var(--rule);
+       border-radius:8px; background:var(--surface); font-size:14px; color:var(--ink-soft)"></div>
+  <script>
+  // Server-status strip: shows only if a status.json exists on this site (written by a future
+  // automation once the game host exposes its state — until then the strip stays hidden).
+  fetch('status.json').then(r => r.ok ? r.json() : null).then(s => {
+    if (!s) return;
+    const el = document.getElementById('status');
+    const dot = s.up ? '🟢' : '🔴';
+    let t = `${dot} Server ${s.up ? 'online' : 'offline'}`;
+    if (s.players !== undefined) t += ` · ${s.players} online`;
+    if (s.restartInMin) t += ` · restart in ~${s.restartInMin} min`;
+    if (s.checkedAt) t += ` · checked ${new Date(s.checkedAt).toLocaleTimeString()}`;
+    el.textContent = t; el.style.display = 'block';
+  }).catch(() => {});
+  </script>
+
   <div class="cards">
     <a class="card" href="commands.html">
       <h2>The @Command Scroll</h2>
@@ -79,6 +96,28 @@
       <p>Every persistent quest key a character can carry and every legend mark with its internal key —
       the companion sheet to <code>@quest</code> and <code>@legend</code>.</p>
       <span class="go">quest-registry.html →</span>
+    </a>
+    <a class="card" href="atlas.html">
+      <h2>World Atlas</h2>
+      <p>Every map, rendered with the real client tile art — clickable warps, spawn overlays, and NPC
+      pins. Walk the whole world from your browser.</p>
+      <span class="go">atlas.html →</span>
+    </a>
+    <a class="card" href="spells.html">
+      <h2>Spells &amp; Skills</h2>
+      <p>Every spell with class, level, mana, damage formulas and learn costs — merged from the
+      server's own data files.</p>
+      <span class="go">spells.html →</span>
+    </a>
+    <a class="card" href="items.html">
+      <h2>Items</h2>
+      <p>2,300+ items with real icons, stats, requirements, prices, and which mobs drop them.</p>
+      <span class="go">items.html →</span>
+    </a>
+    <a class="card" href="mobs.html">
+      <h2>Mobs</h2>
+      <p>Every creature — stats, spawn locations, drop tables, and the spells they cast.</p>
+      <span class="go">mobs.html →</span>
     </a>
     <a class="card" href="map-editor.html">
       <h2>Map Editor</h2>

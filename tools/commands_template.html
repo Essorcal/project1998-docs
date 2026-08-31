@@ -1,0 +1,348 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The @Command Scroll · Project1998</title>
+</head>
+<body>
+<style>
+  .sitenav {
+    max-width: 940px; margin: 0 auto; padding: 14px 24px 0;
+    display: flex; gap: 18px; align-items: baseline; font-size: 14px;
+    font-family: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+  }
+  .sitenav a { color: var(--ink-soft); text-decoration: none; }
+  .sitenav a:hover { color: var(--accent-ink); text-decoration: underline; }
+  .sitenav a:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+  .sitenav .brand {
+    font-family: "Gowun Batang", Georgia, serif; font-weight: 700;
+    color: var(--ink); margin-right: auto; font-size: 16px;
+  }
+  .sitenav a[aria-current="page"] { color: var(--accent-ink); font-weight: 600; }
+</style>
+<nav class="sitenav">
+  <a class="brand" href="./">Project1998</a>
+  <a href="commands.html" aria-current="page">Commands</a>
+  <a href="quest-registry.html">Quests</a>
+  <a href="spells.html">Spells</a>
+  <a href="items.html">Items</a>
+  <a href="mobs.html">Mobs</a>
+  <a href="atlas.html">Atlas</a>
+  <a href="map-editor.html">Map Editor</a>
+  <a href="noclip.html">No-Clip</a>
+  <a href="patch-notes.html">Notes</a>
+</nav>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+  :root {
+    --ground: #F4F6F1;
+    --surface: #FCFDFB;
+    --ink: #1F2A26;
+    --ink-soft: #55645D;
+    --ink-faint: #8A978F;
+    --rule: #DDE4DD;
+    --rule-soft: #E8EDE7;
+    --accent: #2E7D62;
+    --accent-ink: #1E5A46;
+    --tier-p: #5A6B8C;
+    --tier-p-bg: #EBEFF6;
+    --tier-t: #2E7D62;
+    --tier-t-bg: #E6F1EB;
+    --tier-g: #A8402E;
+    --tier-g-bg: #F7EAE6;
+    --chip-ghost: #F0F3EE;
+    --mono-args: #6E7E76;
+    --note-bg: #EDF3EE;
+    --focus: #2E7D62;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --ground: #141B18;
+      --surface: #1B2420;
+      --ink: #D8E2DA;
+      --ink-soft: #93A49A;
+      --ink-faint: #66766D;
+      --rule: #2A3630;
+      --rule-soft: #222D28;
+      --accent: #6FBF9F;
+      --accent-ink: #8FD4B8;
+      --tier-p: #91A5CC;
+      --tier-p-bg: #202839;
+      --tier-t: #6FBF9F;
+      --tier-t-bg: #1C2F27;
+      --tier-g: #D98871;
+      --tier-g-bg: #35201B;
+      --chip-ghost: #202A25;
+      --mono-args: #7E9188;
+      --note-bg: #1C2723;
+      --focus: #6FBF9F;
+    }
+  }
+  :root[data-theme="dark"] {
+    --ground: #141B18;
+    --surface: #1B2420;
+    --ink: #D8E2DA;
+    --ink-soft: #93A49A;
+    --ink-faint: #66766D;
+    --rule: #2A3630;
+    --rule-soft: #222D28;
+    --accent: #6FBF9F;
+    --accent-ink: #8FD4B8;
+    --tier-p: #91A5CC;
+    --tier-p-bg: #202839;
+    --tier-t: #6FBF9F;
+    --tier-t-bg: #1C2F27;
+    --tier-g: #D98871;
+    --tier-g-bg: #35201B;
+    --chip-ghost: #202A25;
+    --mono-args: #7E9188;
+    --note-bg: #1C2723;
+    --focus: #6FBF9F;
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--ground);
+    color: var(--ink);
+    font-family: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+    font-size: 15px;
+    line-height: 1.5;
+  }
+  a { color: var(--accent-ink); text-underline-offset: 2px; }
+  a:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+  .wrap { max-width: 900px; margin: 0 auto; padding: 0 24px 96px; }
+
+  /* ---- header ---- */
+  header.hero { padding: 44px 0 20px; }
+  .kicker {
+    font-family: "IBM Plex Mono", ui-monospace, monospace;
+    font-size: 12px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin: 0 0 10px;
+  }
+  h1 {
+    font-family: "Gowun Batang", Georgia, serif;
+    font-weight: 700;
+    font-size: clamp(30px, 5vw, 42px);
+    line-height: 1.15;
+    margin: 0 0 10px;
+    text-wrap: balance;
+  }
+  .lede { max-width: 62ch; color: var(--ink-soft); margin: 0; }
+  .lede code, .note code, .cmd-help code {
+    font-family: "IBM Plex Mono", ui-monospace, monospace;
+    font-size: 0.92em;
+    color: var(--accent-ink);
+  }
+
+  /* ---- sticky toolbar ---- */
+  .toolbar {
+    position: sticky; top: 0; z-index: 5;
+    background: var(--ground);
+    border-bottom: 1px solid var(--rule);
+    padding: 12px 0;
+    display: flex; flex-wrap: wrap; gap: 10px; align-items: center;
+  }
+  .search {
+    flex: 1 1 240px;
+    display: flex; align-items: center; gap: 8px;
+    background: var(--surface);
+    border: 1px solid var(--rule);
+    border-radius: 6px;
+    padding: 7px 12px;
+  }
+  .search svg { flex: none; color: var(--ink-faint); }
+  .search input {
+    border: 0; outline: 0; background: transparent; width: 100%;
+    font: inherit; font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 14px;
+    color: var(--ink);
+  }
+  .search input::placeholder { color: var(--ink-faint); }
+  .search:focus-within { border-color: var(--focus); }
+  .tier-toggles { display: flex; gap: 6px; }
+  .tier-toggle {
+    font: inherit; font-size: 13px; font-weight: 600;
+    padding: 6px 12px;
+    border-radius: 999px;
+    border: 1px solid var(--rule);
+    background: var(--chip-ghost);
+    color: var(--ink-soft);
+    cursor: pointer;
+  }
+  .tier-toggle[aria-pressed="true"].tp { background: var(--tier-p-bg); color: var(--tier-p); border-color: currentColor; }
+  .tier-toggle[aria-pressed="true"].tt { background: var(--tier-t-bg); color: var(--tier-t); border-color: currentColor; }
+  .tier-toggle[aria-pressed="true"].tg { background: var(--tier-g-bg); color: var(--tier-g); border-color: currentColor; }
+  .tier-toggle:focus-visible, .search input:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+  .result-count { font-size: 13px; color: var(--ink-faint); margin-left: auto; font-variant-numeric: tabular-nums; }
+
+  /* ---- notes ---- */
+  .notes {
+    display: grid; gap: 12px;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    margin: 24px 0 8px;
+  }
+  .note {
+    background: var(--note-bg);
+    border: 1px solid var(--rule-soft);
+    border-radius: 8px;
+    padding: 12px 14px;
+    font-size: 13.5px;
+    color: var(--ink-soft);
+  }
+  .note strong { color: var(--ink); font-weight: 600; }
+
+  /* ---- sections ---- */
+  section { margin-top: 36px; }
+  .sec-head {
+    display: flex; align-items: baseline; gap: 10px;
+    border-bottom: 2px solid var(--ink);
+    padding-bottom: 6px; margin-bottom: 2px;
+  }
+  .sec-head h2 {
+    font-family: "Gowun Batang", Georgia, serif;
+    font-size: 20px; font-weight: 700; margin: 0;
+  }
+  .sec-head .count {
+    font-family: "IBM Plex Mono", ui-monospace, monospace;
+    font-size: 12px; color: var(--ink-faint);
+    font-variant-numeric: tabular-nums;
+  }
+  .sec-note { font-size: 13px; color: var(--ink-faint); margin: 6px 0 2px; max-width: 72ch; }
+
+  /* ---- command rows ---- */
+  .cmd {
+    display: grid;
+    grid-template-columns: 34px minmax(230px, 300px) 1fr;
+    gap: 12px;
+    padding: 9px 0;
+    border-bottom: 1px solid var(--rule-soft);
+    align-items: baseline;
+  }
+  .cmd:last-child { border-bottom: 0; }
+  .chip {
+    justify-self: start; align-self: center;
+    font-family: "IBM Plex Mono", ui-monospace, monospace;
+    font-size: 11px; font-weight: 600;
+    width: 22px; height: 22px;
+    display: inline-flex; align-items: center; justify-content: center;
+    border-radius: 5px;
+  }
+  .cmd[data-tier="P"] .chip { background: var(--tier-p-bg); color: var(--tier-p); }
+  .cmd[data-tier="T"] .chip { background: var(--tier-t-bg); color: var(--tier-t); }
+  .cmd[data-tier="G"] .chip { background: var(--tier-g-bg); color: var(--tier-g); }
+  .cmd-name { font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 13.5px; overflow-wrap: anywhere; }
+  .cmd-name b { font-weight: 600; color: var(--ink); }
+  .cmd-name .args { color: var(--mono-args); font-weight: 400; }
+  .cmd-help { color: var(--ink-soft); font-size: 14px; }
+  .cmd.hit .cmd-name b { color: var(--accent-ink); }
+  @media (max-width: 640px) {
+    .cmd { grid-template-columns: 34px 1fr; }
+    .cmd-help { grid-column: 2; margin-top: -4px; }
+  }
+
+  .sprite {
+    height: 26px; width: 26px;
+    image-rendering: pixelated;
+    border-radius: 4px;
+    vertical-align: -8px;
+    margin: 0 1px;
+    border: 1px solid var(--rule);
+  }
+  .empty {
+    display: none;
+    margin: 40px 0; text-align: center; color: var(--ink-faint);
+    font-family: "Gowun Batang", Georgia, serif; font-size: 17px;
+  }
+  footer {
+    margin-top: 56px; padding-top: 14px; border-top: 1px solid var(--rule);
+    font-size: 12.5px; color: var(--ink-faint);
+  }
+  footer code { font-family: "IBM Plex Mono", ui-monospace, monospace; }
+</style>
+
+<div class="wrap">
+  <header class="hero">
+    <p class="kicker">Project1998 · staff &amp; tester reference</p>
+    <h1>The @Command Scroll</h1>
+    <p class="lede">Every chat command the server answers, grouped as the source groups them. Commands above your
+    tier answer <code>Unknown command.</code> — gated tooling is indistinguishable from a typo, so this sheet is
+    the only place a tester sees the GM roster. In game, <code>@commands</code> is the compact index and
+    <code>@help &lt;word&gt;</code> the search; this page is both at once.</p>
+  </header>
+
+  <div class="toolbar">
+    <label class="search">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true"><circle cx="6" cy="6" r="4.6" stroke="currentColor" stroke-width="1.6"/><path d="M9.5 9.5 13 13" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+      <input id="q" type="search" placeholder="filter — name, argument, or description" aria-label="Filter commands">
+    </label>
+    <div class="tier-toggles" role="group" aria-label="Filter by tier">
+      <button class="tier-toggle tp" data-tier="P" aria-pressed="true">Player</button>
+      <button class="tier-toggle tt" data-tier="T" aria-pressed="true">Tester</button>
+      <button class="tier-toggle tg" data-tier="G" aria-pressed="true">GM</button>
+    </div>
+    <span class="result-count" id="count"></span>
+  </div>
+
+  <div class="notes">
+    <div class="note"><strong>Tiers stack.</strong> Player commands work for everyone; Tester adds the world/character/item tooling; GM adds moderation, spawning, config, and the RE probes. Staff level is re-read from <code>StaffAccounts</code> on every command, so a demotion lands immediately.</div>
+    <div class="note"><strong>Session toggles reset.</strong> <code>@clip</code> and <code>@anywarp</code> are per-session and always OFF at login, so a waiver can never follow a character into normal play. Both narrate what they waive.</div>
+    <div class="note"><strong>Rebuilds win.</strong> <code>@lvl</code> / <code>@class</code> / <code>@mark</code> / <code>@align</code> rebuild stats and the spellbook from the curve — set class and level first, then poke individual stats, pools, or one-off spells.</div>
+  </div>
+
+  <main id="list">
+{{SECTIONS}}
+  </main>
+
+  <p class="empty" id="empty">No command matches — the same answer the server would give.</p>
+
+  <footer>Generated from <code>Server/Commands.cs</code> on <code>master</code>. The table in
+  the source is the authority; this sheet is its readable shadow. {{TOTAL}} commands: {{P}} Player · {{T}} Tester · {{G}} GM.
+  Quest keys and legend marks have their own sheet: <a href="quest-registry.html">The Quest Registry</a>.</footer>
+</div>
+
+<script>
+  const rows = [...document.querySelectorAll('.cmd')];
+  const sections = [...document.querySelectorAll('#list section')];
+  const q = document.getElementById('q');
+  const countEl = document.getElementById('count');
+  const emptyEl = document.getElementById('empty');
+  const toggles = [...document.querySelectorAll('.tier-toggle')];
+  const tiersOn = new Set(['P', 'T', 'G']);
+
+  function apply() {
+    const needle = q.value.trim().toLowerCase().replace(/^@/, '');
+    let shown = 0;
+    rows.forEach(r => {
+      const tierOk = tiersOn.has(r.dataset.tier);
+      const textOk = !needle || r.textContent.toLowerCase().includes(needle);
+      const on = tierOk && textOk;
+      r.style.display = on ? '' : 'none';
+      r.classList.toggle('hit', on && !!needle);
+      if (on) shown++;
+    });
+    sections.forEach(s => {
+      const visible = [...s.querySelectorAll('.cmd')].filter(r => r.style.display !== 'none').length;
+      s.style.display = visible ? '' : 'none';
+      s.querySelector('.count').textContent = visible + (visible === 1 ? ' command' : ' commands');
+    });
+    countEl.textContent = shown + ' of ' + rows.length;
+    emptyEl.style.display = shown ? 'none' : 'block';
+  }
+
+  q.addEventListener('input', apply);
+  toggles.forEach(b => b.addEventListener('click', () => {
+    const t = b.dataset.tier;
+    if (tiersOn.has(t) && tiersOn.size > 1) tiersOn.delete(t);
+    else tiersOn.add(t);
+    b.setAttribute('aria-pressed', tiersOn.has(t));
+    apply();
+  }));
+  apply();
+</script>
+</body>
+</html>

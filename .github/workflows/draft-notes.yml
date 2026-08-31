@@ -1,0 +1,44 @@
+name: draft patch notes
+
+# Drafts the next patch-notes entry from the PRs merged upstream since the newest entry on the
+# published page, and opens an issue with the draft for a human to polish and commit. Manual
+# trigger only — patch notes are written for players, so a person always gets the final word.
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  draft:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Collect merged PRs since the last entry
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          SINCE=$(grep -oP '\d{4}-\d{2}-\d{2}' site/patch-notes.html | sort -r | head -1)
+          echo "Last entry: $SINCE"
+          gh pr list --repo project1998/Project1998 --state merged --limit 100 \
+            --json number,title,mergedAt,author \
+            --jq "[.[] | select(.mergedAt > \"${SINCE}T23:59:59Z\")]" > prs.json
+          python - <<'EOF'
+          import json, datetime
+          prs = json.load(open("prs.json"))
+          if not prs:
+              body = "No PRs merged upstream since the last patch-notes entry. Nothing to draft."
+          else:
+              lines = [f"Draft entry from {len(prs)} merged PR(s) — polish into the house style and "
+                       f"prepend as an `<article>` to `site/patch-notes.html`:", "", "```html",
+                       "  <article>", "    <h2>TITLE ME</h2>",
+                       f"    <p class=\"meta\">{datetime.date.today()} · AUTHOR</p>", "    <ul>"]
+              for p in sorted(prs, key=lambda p: p["mergedAt"]):
+                  lines.append(f"      <li>{p['title']} (#{p['number']}, @{p['author']['login']})</li>")
+              lines += ["    </ul>", "  </article>", "```"]
+              body = "\n".join(lines)
+          open("issue.md", "w").write(body)
+          EOF
+          gh issue create --repo "$GITHUB_REPOSITORY" \
+            --title "Patch notes draft — $(date +%F)" --body-file issue.md

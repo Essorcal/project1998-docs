@@ -1,0 +1,62 @@
+name: regenerate from game data
+
+# Docs that cannot lie: rebuild the generated pages (commands, spells, items, mobs, atlas data)
+# straight from the public game repo's source and CSVs, commit if anything changed, and deploy.
+# Runs nightly and on demand. Map images and sprite sheets are LOCAL artifacts (they need the
+# game client) — this only regenerates the data/HTML around them.
+on:
+  schedule:
+    - cron: "17 6 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  regen:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          repository: project1998/Project1998
+          path: game
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Regenerate
+        run: |
+          python tools/gen_db.py game
+          python tools/gen_commands.py game
+          python tools/gen_atlas.py game
+      - name: Commit if changed
+        id: commit
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add site
+          if git diff --cached --quiet; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            echo "No changes — game data matches the published docs."
+          else
+            git commit -m "regen: game data sync ($(cd game && git rev-parse --short HEAD))"
+            git push
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          fi
+      # A GITHUB_TOKEN push does not trigger the deploy workflow (recursion guard), so deploy here.
+      - uses: actions/configure-pages@v5
+        if: steps.commit.outputs.changed == 'true'
+      - uses: actions/upload-pages-artifact@v3
+        if: steps.commit.outputs.changed == 'true'
+        with:
+          path: site
+      - uses: actions/deploy-pages@v4
+        if: steps.commit.outputs.changed == 'true'

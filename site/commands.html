@@ -21,7 +21,18 @@
   }
   .sitenav a[aria-current="page"] { color: var(--accent-ink); font-weight: 600; }
 </style>
-<nav class="sitenav"><a class="brand" href="./">Project1998</a><a href="commands.html" aria-current="page">Commands</a><a href="quest-registry.html">Quest Registry</a><a href="map-editor.html">Map Editor</a><a href="noclip.html">No-Clip</a><a href="patch-notes.html">Patch Notes</a></nav>
+<nav class="sitenav">
+  <a class="brand" href="./">Project1998</a>
+  <a href="commands.html" aria-current="page">Commands</a>
+  <a href="quest-registry.html">Quests</a>
+  <a href="spells.html">Spells</a>
+  <a href="items.html">Items</a>
+  <a href="mobs.html">Mobs</a>
+  <a href="atlas.html">Atlas</a>
+  <a href="map-editor.html">Map Editor</a>
+  <a href="noclip.html">No-Clip</a>
+  <a href="patch-notes.html">Notes</a>
+</nav>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
 <style>
@@ -286,20 +297,20 @@
   <main id="list">
     <section>
       <div class="sec-head"><h2>Help &amp; discovery</h2><span class="count"></span></div>
-      <div class="cmd" data-tier="P"><span class="chip">P</span><span class="cmd-name"><b>@help</b> <span class="args">[page|word]</span></span><span class="cmd-help">paged detail list (12/page — <code>@help2</code> or <code>@help 2</code> for the next page); a word filters, e.g. <code>@help item</code>. Works at every tier.</span></div>
+            <div class="cmd" data-tier="P"><span class="chip">P</span><span class="cmd-name"><b>@help</b> <span class="args">[page|word]</span></span><span class="cmd-help">paged detail list (12/page — <code>@help2</code> or <code>@help 2</code> for the next page); a word filters, e.g. <code>@help item</code>. Dispatched before the command table, so it works at every tier.</span></div>
       <div class="cmd" data-tier="P"><span class="chip">P</span><span class="cmd-name"><b>@commands</b> / <b>@cmds</b></span><span class="cmd-help">compact index of every command you can use (names only; @help &lt;word&gt; for details)</span></div>
     </section>
 
     <section>
       <div class="sec-head"><h2>World &amp; navigation</h2><span class="count"></span></div>
-      <div class="cmd" data-tier="T"><span class="chip">T</span><span class="cmd-name"><b>@warp</b> <span class="args">&lt;map name|id&gt; [x y]</span></span><span class="cmd-help">teleport</span></div>
-      <div class="cmd" data-tier="T"><span class="chip">T</span><span class="cmd-name"><b>@go</b> <span class="args">&lt;x&gt; &lt;y&gt;</span></span><span class="cmd-help">jump to a tile on the map you're already on (bad/out-of-range coords → 0 0)</span></div>
+      <div class="cmd" data-tier="T"><span class="chip">T</span><span class="cmd-name"><b>@warp</b> <span class="args">&lt;map name|id&gt; [x y]</span></span><span class="cmd-help">teleport — browse destinations on the <a href="atlas.html">World Atlas</a></span></div>
+      <div class="cmd" data-tier="T"><span class="chip">T</span><span class="cmd-name"><b>@go</b> <span class="args">&lt;x&gt; &lt;y&gt;</span></span><span class="cmd-help">jump to a tile on the map you&#x27;re already on (bad/out-of-range coords -&gt; 0 0)</span></div>
       <div class="cmd" data-tier="T"><span class="chip">T</span><span class="cmd-name"><b>@rez</b> <span class="args">[username]</span></span><span class="cmd-help">revive a player (or yourself) to full HP/MP (a full heal if already alive)</span></div>
       <div class="cmd" data-tier="T"><span class="chip">T</span><span class="cmd-name"><b>@approach</b> <span class="args">&lt;username&gt;</span></span><span class="cmd-help">teleport to an online player</span></div>
       <div class="cmd" data-tier="T"><span class="chip">T</span><span class="cmd-name"><b>@die</b></span><span class="cmd-help">kill yourself (ghost form + real death penalties; @rez to get back up)</span></div>
       <div class="cmd" data-tier="T"><span class="chip">T</span><span class="cmd-name"><b>@clip</b> <span class="args">[0|1]</span></span><span class="cmd-help">no-clip: walk through walls, mobs and players (this session only; warps still work) — needs the client companion: <a href="noclip.html">setup guide</a></span></div>
       <div class="cmd" data-tier="T"><span class="chip">T</span><span class="cmd-name"><b>@anywarp</b> <span class="args">[0|1]</span></span><span class="cmd-help">use any warp despite level/mark/path/quest requirements (this session only; echoes the denial it waived)</span></div>
-      <div class="cmd" data-tier="T"><span class="chip">T</span><span class="cmd-name"><b>@showwarps</b> <span class="args">[0|1] | look [warpFrame] [doorFrame]</span></span><span class="cmd-help">mark every warp + scripted doorway on the map (you only; follows across maps; lists destinations). Both kinds default to frame 877, the blue pinwheel <img class="sprite" alt="frame 877: a blue pinwheel with a red hub" src="data:image/png;base64,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"/>; <code>look</code> re-tunes live and reports how many of each kind it re-stamped</span></div>
+      <div class="cmd" data-tier="T"><span class="chip">T</span><span class="cmd-name"><b>@showwarps</b> <span class="args">[0|1] | look [warpFrame] [doorFrame]</span></span><span class="cmd-help">mark every warp + scripted doorway on the map (you only; follows across maps; lists destinations). Both kinds default to frame 877, the blue pinwheel <img class="sprite" alt="frame 877: a blue pinwheel with a red hub" src="img/pinwheel.png"/>; <code>look</code> re-tunes live and reports how many of each kind it re-stamped</span></div>
       <div class="cmd" data-tier="T"><span class="chip">T</span><span class="cmd-name"><b>@maps</b> <span class="args">[filter]</span></span><span class="cmd-help">list/fuzzy-search maps</span></div>
       <div class="cmd" data-tier="G"><span class="chip">G</span><span class="cmd-name"><b>@mobs</b> <span class="args">[filter]</span></span><span class="cmd-help">list/fuzzy-search the mob registry</span></div>
       <div class="cmd" data-tier="G"><span class="chip">G</span><span class="cmd-name"><b>@summon</b> <span class="args">&lt;mob name|id&gt;</span></span><span class="cmd-help">spawn a registry mob in front of you</span></div>
@@ -313,11 +324,11 @@
       <div class="sec-head"><h2>Character</h2><span class="count"></span></div>
       <div class="cmd" data-tier="T"><span class="chip">T</span><span class="cmd-name"><b>@lvl</b> <span class="args">&lt;1-99&gt;</span></span><span class="cmd-help">rebuild as level n: accurate stats + the matching spellbook</span></div>
       <div class="cmd" data-tier="T"><span class="chip">T</span><span class="cmd-name"><b>@mark</b> <span class="args">&lt;0-3&gt;</span></span><span class="cmd-help">subpath rank on top of 99 (Il san…Sam san): its stats + spells</span></div>
-      <div class="cmd" data-tier="T"><span class="chip">T</span><span class="cmd-name"><b>@class</b> <span class="args">&lt;Warrior|Rogue|Mage|Poet|Peasant&gt;</span></span><span class="cmd-help">set the class/path and rebuild for it (rank names like "Inferno" work too)</span></div>
+      <div class="cmd" data-tier="T"><span class="chip">T</span><span class="cmd-name"><b>@class</b> <span class="args">&lt;Warrior|Rogue|Mage|Poet|Peasant&gt;</span></span><span class="cmd-help">set the class/path and rebuild for it</span></div>
       <div class="cmd" data-tier="T"><span class="chip">T</span><span class="cmd-name"><b>@dog</b> <span class="args">[0|1]</span></span><span class="cmd-help">the Dog-quest flag: unlocks Dog spells for a base class or NPC subpath</span></div>
       <div class="cmd" data-tier="T"><span class="chip">T</span><span class="cmd-name"><b>@sage</b> <span class="args">[0-5]</span></span><span class="cmd-help">Share Wisdom rung: sets the spell AND clears the 90-day upgrade wait (bare @sage reports)</span></div>
       <div class="cmd" data-tier="T"><span class="chip">T</span><span class="cmd-name"><b>@quest</b> <span class="args">[key] [stage]</span></span><span class="cmd-help">read/set the raw quest registry (bare = dump your keys; stage 0 clears; non-numeric sets the string registry) — keys are catalogued in <a href="quest-registry.html">The Quest Registry</a></span></div>
-      <div class="cmd" data-tier="T"><span class="chip">T</span><span class="cmd-name"><b>@legend</b> <span class="args">[key] [0 | &lt;icon&gt; &lt;color&gt; &lt;text...&gt;]</span></span><span class="cmd-help">list legend marks with their internal keys; remove one, or (re)create one by key — most chains gate on the legend, not the stage</span></div>
+      <div class="cmd" data-tier="T"><span class="chip">T</span><span class="cmd-name"><b>@legend</b> <span class="args">[key] [0 | &lt;icon&gt; &lt;color&gt; &lt;text...&gt;]</span></span><span class="cmd-help">list legend marks with their internal keys; remove one, or (re)create one by key — legend marks are catalogued in <a href="quest-registry.html">The Quest Registry</a></span></div>
       <div class="cmd" data-tier="T"><span class="chip">T</span><span class="cmd-name"><b>@text</b> <span class="args">[type] [message]</span></span><span class="cmd-help">send yourself one 0x0A line on a channel; bare @text sweeps them to compare panes/colours</span></div>
       <div class="cmd" data-tier="T"><span class="chip">T</span><span class="cmd-name"><b>@align</b> <span class="args">&lt;Unaligned|Kwisin|Mingken|Ohaeng|0-3&gt;</span></span><span class="cmd-help">set sub-alignment and rebuild the book</span></div>
       <div class="cmd" data-tier="T"><span class="chip">T</span><span class="cmd-name"><b>@stats</b> <span class="args">&lt;vita&gt; &lt;mana&gt; &lt;all&gt; | &lt;vita&gt; &lt;mana&gt; &lt;might&gt; &lt;grace&gt; &lt;will&gt;</span></span><span class="cmd-help">set vitals and stats directly (overrides the curve)</span></div>
@@ -327,11 +338,11 @@
       <div class="cmd" data-tier="T"><span class="chip">T</span><span class="cmd-name"><b>@hp</b> <span class="args">&lt;n&gt;</span></span><span class="cmd-help">set max HP (vita) and refill</span></div>
       <div class="cmd" data-tier="T"><span class="chip">T</span><span class="cmd-name"><b>@mp</b> <span class="args">&lt;n&gt;</span></span><span class="cmd-help">set max MP (mana) and refill</span></div>
       <div class="cmd" data-tier="T"><span class="chip">T</span><span class="cmd-name"><b>@nation</b> <span class="args">&lt;id&gt;</span></span><span class="cmd-help">set your nation crest (persists)</span></div>
-      <div class="cmd" data-tier="T"><span class="chip">T</span><span class="cmd-name"><b>@totem</b> <span class="args">&lt;0-3&gt;</span></span><span class="cmd-help">set your totem crest (persists): 0 JuJak · 1 Baekho · 2 HyunMoo · 3 ChungRyong</span></div>
+      <div class="cmd" data-tier="T"><span class="chip">T</span><span class="cmd-name"><b>@totem</b> <span class="args">&lt;id&gt;</span></span><span class="cmd-help">set your totem crest (persists)</span></div>
       <div class="cmd" data-tier="T"><span class="chip">T</span><span class="cmd-name"><b>@karma</b> <span class="args">&lt;value|tier&gt;</span></span><span class="cmd-help">set karma outright: a number, or a tier (cat, dog, angel, …)</span></div>
       <div class="cmd" data-tier="T"><span class="chip">T</span><span class="cmd-name"><b>@dispel</b></span><span class="cmd-help">strip every buff and debuff on you</span></div>
       <div class="cmd" data-tier="T"><span class="chip">T</span><span class="cmd-name"><b>@killtrack</b> <span class="args">[clear]</span></span><span class="cmd-help">the 8-slot kill track the mythic alliances count (clear = what accepting one does)</span></div>
-      <div class="cmd" data-tier="T"><span class="chip">T</span><span class="cmd-name"><b>@coins</b> / <b>@gold</b> <span class="args">[n]</span></span><span class="cmd-help">add coins to the purse (negative removes; bare = +10000)</span></div>
+      <div class="cmd" data-tier="T"><span class="chip">T</span><span class="cmd-name"><b>@coins</b> / <b>@gold</b> <span class="args">[n]</span></span><span class="cmd-help">add coins to the purse</span></div>
       <div class="cmd" data-tier="T"><span class="chip">T</span><span class="cmd-name"><b>@ride</b> / <b>@mount</b> <span class="args">[0|1]</span></span><span class="cmd-help">get on/off the horse</span></div>
     </section>
 
@@ -353,7 +364,7 @@
       <p class="sec-note">No duration means permanent; anything applied to an online player takes effect immediately, not at their next login.</p>
       <div class="cmd" data-tier="G"><span class="chip">G</span><span class="cmd-name"><b>@ban</b> <span class="args">&lt;name&gt; [minutes] [reason]</span></span><span class="cmd-help">ban an account (no duration = permanent); kicks them if online</span></div>
       <div class="cmd" data-tier="G"><span class="chip">G</span><span class="cmd-name"><b>@unban</b> <span class="args">&lt;name&gt;</span></span><span class="cmd-help">lift an account ban</span></div>
-      <div class="cmd" data-tier="G"><span class="chip">G</span><span class="cmd-name"><b>@mute</b> <span class="args">&lt;name&gt; [minutes] [reason]</span></span><span class="cmd-help">silence speech/whisper/subpath chat; '@' commands still work</span></div>
+      <div class="cmd" data-tier="G"><span class="chip">G</span><span class="cmd-name"><b>@mute</b> <span class="args">&lt;name&gt; [minutes] [reason]</span></span><span class="cmd-help">silence speech/whisper/subpath chat; &#x27;@&#x27; commands still work</span></div>
       <div class="cmd" data-tier="G"><span class="chip">G</span><span class="cmd-name"><b>@unmute</b> <span class="args">&lt;name&gt;</span></span><span class="cmd-help">lift a mute</span></div>
       <div class="cmd" data-tier="G"><span class="chip">G</span><span class="cmd-name"><b>@kick</b> <span class="args">&lt;name&gt; [reason]</span></span><span class="cmd-help">disconnect an online player (saves them first)</span></div>
       <div class="cmd" data-tier="G"><span class="chip">G</span><span class="cmd-name"><b>@banip</b> <span class="args">&lt;ip&gt; [minutes] [reason] | remove &lt;ip&gt;</span></span><span class="cmd-help">ban a source address</span></div>
@@ -363,7 +374,7 @@
 
     <section>
       <div class="sec-head"><h2>Events</h2><span class="count"></span></div>
-      <div class="cmd" data-tier="G"><span class="chip">G</span><span class="cmd-name"><b>@carnage</b> <span class="args">&lt;name&gt; [n] | &lt;name&gt; = &lt;n&gt;</span></span><span class="cmd-help">record carnage victories (n&lt;0 removes) — Warrior Sun armor's first step reads the tally</span></div>
+      <div class="cmd" data-tier="G"><span class="chip">G</span><span class="cmd-name"><b>@carnage</b> <span class="args">&lt;name&gt; [n] | &lt;name&gt; = &lt;n&gt;</span></span><span class="cmd-help">record carnage victories (n&lt;0 removes)</span></div>
     </section>
 
     <section>
@@ -390,17 +401,17 @@
 
     <section>
       <div class="sec-head"><h2>Media</h2><span class="count"></span></div>
-      <div class="cmd" data-tier="P"><span class="chip">P</span><span class="cmd-name"><b>@music</b> <span class="args">[name|id] [vol] [mp3|midi] | old|new | stop</span></span><span class="cmd-help">play a music track, or pick the soundtrack (no argument lists them) — the one player-tier command here: a personal jukebox, loud only at yourself</span></div>
+      <div class="cmd" data-tier="P"><span class="chip">P</span><span class="cmd-name"><b>@music</b> <span class="args">[name|id] [vol] [mp3|midi] | old|new | stop</span></span><span class="cmd-help">play a music track, or pick the soundtrack (no argument lists them)</span></div>
       <div class="cmd" data-tier="G"><span class="chip">G</span><span class="cmd-name"><b>@snd</b> <span class="args">&lt;id&gt;</span></span><span class="cmd-help">play a raw client sound id</span></div>
       <div class="cmd" data-tier="G"><span class="chip">G</span><span class="cmd-name"><b>@swingsnd</b> <span class="args">&lt;id&gt;</span></span><span class="cmd-help">set + audition the melee swing sfx</span></div>
       <div class="cmd" data-tier="G"><span class="chip">G</span><span class="cmd-name"><b>@fistsnd</b> <span class="args">&lt;id&gt;</span></span><span class="cmd-help">set + audition the unarmed swing sfx</span></div>
       <div class="cmd" data-tier="G"><span class="chip">G</span><span class="cmd-name"><b>@hitsnd</b> <span class="args">&lt;id&gt;</span></span><span class="cmd-help">set + audition the on-connect impact sfx</span></div>
       <div class="cmd" data-tier="G"><span class="chip">G</span><span class="cmd-name"><b>@mobact</b> <span class="args">&lt;type&gt; [time]</span></span><span class="cmd-help">set + preview the mob attack-pose action (0x1A) on the faced mob</span></div>
-      <div class="cmd" data-tier="G"><span class="chip">G</span><span class="cmd-name"><b>@efx</b> <span class="args">&lt;id&gt;</span></span><span class="cmd-help">play a raw Effect.tbl animation over self</span></div>
+      <div class="cmd" data-tier="G"><span class="chip">G</span><span class="cmd-name"><b>@efx</b> <span class="args">&lt;id&gt;</span></span><span class="cmd-help">play a raw Effect.tbl animation over self — ids are listed per spell on the <a href="spells.html">Spells</a> sheet (FX column)</span></div>
       <div class="cmd" data-tier="G"><span class="chip">G</span><span class="cmd-name"><b>@mtx</b> <span class="args">&lt;type&gt;</span></span><span class="cmd-help">audition a raw SendMiniText channel</span></div>
-      <div class="cmd" data-tier="G"><span class="chip">G</span><span class="cmd-name"><b>@weather</b> <span class="args">clear|rain|snow | raw &lt;n&gt;</span></span><span class="cmd-help">force this map's weather</span></div>
+      <div class="cmd" data-tier="G"><span class="chip">G</span><span class="cmd-name"><b>@weather</b> <span class="args">clear|rain|snow | raw &lt;n&gt;</span></span><span class="cmd-help">force this map&#x27;s weather</span></div>
       <div class="cmd" data-tier="G"><span class="chip">G</span><span class="cmd-name"><b>@setting</b> <span class="args">[name] [on|off]</span></span><span class="cmd-help">read/set any 0x1b Options toggle</span></div>
-      <div class="cmd" data-tier="G"><span class="chip">G</span><span class="cmd-name"><b>@doze</b> <span class="args">[secs|off]</span></span><span class="cmd-help">put YOURSELF to sleep (Doze can't be self-targeted on the wire)</span></div>
+      <div class="cmd" data-tier="G"><span class="chip">G</span><span class="cmd-name"><b>@doze</b> <span class="args">[secs|off]</span></span><span class="cmd-help">put YOURSELF to sleep (Doze can&#x27;t be self-targeted on the wire)</span></div>
     </section>
 
     <section>
@@ -414,10 +425,10 @@
       <div class="cmd" data-tier="G"><span class="chip">G</span><span class="cmd-name"><b>@batch</b></span><span class="cmd-help">sentinel probe over a curated opcode set</span></div>
       <div class="cmd" data-tier="G"><span class="chip">G</span><span class="cmd-name"><b>@sweep</b></span><span class="cmd-help">disabled (crashes the client)</span></div>
       <div class="cmd" data-tier="G"><span class="chip">G</span><span class="cmd-name"><b>@mailflag</b> <span class="args">&lt;off&gt; [valHex]</span></span><span class="cmd-help">sweep the 0x08 mail/parcel notify byte</span></div>
-      <div class="cmd" data-tier="G"><span class="chip">G</span><span class="cmd-name"><b>@nat</b> <span class="args">&lt;id&gt;</span></span><span class="cmd-help">sweep nation id → HUD name (@nation is the persisted setter)</span></div>
+      <div class="cmd" data-tier="G"><span class="chip">G</span><span class="cmd-name"><b>@nat</b> <span class="args">&lt;id&gt;</span></span><span class="cmd-help">sweep nation id -&gt; HUD name</span></div>
       <div class="cmd" data-tier="G"><span class="chip">G</span><span class="cmd-name"><b>@users</b> <span class="args">[sort|sweep]</span></span><span class="cmd-help">0x36 user list (sweep = label every cell)</span></div>
-      <div class="cmd" data-tier="G"><span class="chip">G</span><span class="cmd-name"><b>@askpic</b></span><span class="cmd-help">0x49 — make the client re-upload users/&lt;name&gt;.epf</span></div>
-      <div class="cmd" data-tier="G"><span class="chip">G</span><span class="cmd-name"><b>@totemsweep</b> <span class="args">&lt;id&gt;</span></span><span class="cmd-help">diag: sweep totem id → HUD name (@totem is the setter)</span></div>
+      <div class="cmd" data-tier="G"><span class="chip">G</span><span class="cmd-name"><b>@askpic</b></span><span class="cmd-help">0x49 - make the client re-upload users/&lt;name&gt;.epf</span></div>
+      <div class="cmd" data-tier="G"><span class="chip">G</span><span class="cmd-name"><b>@totemsweep</b> <span class="args">&lt;id&gt;</span></span><span class="cmd-help">diag: sweep totem id -&gt; HUD name (@totem is the setter)</span></div>
       <div class="cmd" data-tier="G"><span class="chip">G</span><span class="cmd-name"><b>@self</b></span><span class="cmd-help">native 0x39 self-profile</span></div>
       <div class="cmd" data-tier="G"><span class="chip">G</span><span class="cmd-name"><b>@leg</b></span><span class="cmd-help">exact 6.x 0x39 replay</span></div>
       <div class="cmd" data-tier="G"><span class="chip">G</span><span class="cmd-name"><b>@ckm</b></span><span class="cmd-help">0x34 with marker strings</span></div>
@@ -425,7 +436,7 @@
       <div class="cmd" data-tier="G"><span class="chip">G</span><span class="cmd-name"><b>@boardobj</b></span><span class="cmd-help">board-sign calibration for the faced tile</span></div>
       <div class="cmd" data-tier="G"><span class="chip">G</span><span class="cmd-name"><b>@wmpos</b> <span class="args">&lt;i&gt; &lt;x&gt; &lt;y&gt;</span></span><span class="cmd-help">live-tune a world-map destination dot</span></div>
       <div class="cmd" data-tier="G"><span class="chip">G</span><span class="cmd-name"><b>@wmtest</b> <span class="args">[bg]</span></span><span class="cmd-help">native world-map screen with a given background</span></div>
-      <div class="cmd" data-tier="G"><span class="chip">G</span><span class="cmd-name"><b>@pkt</b> <span class="args">&lt;hexop&gt; [tokens] | add | send | show | clear | file &lt;name&gt;</span></span><span class="cmd-help">send a raw server→client packet</span></div>
+      <div class="cmd" data-tier="G"><span class="chip">G</span><span class="cmd-name"><b>@pkt</b> <span class="args">&lt;hexop&gt; [tokens] | add | send | show | clear | file &lt;name&gt;</span></span><span class="cmd-help">send a raw server-&gt;client packet</span></div>
       <div class="cmd" data-tier="G"><span class="chip">G</span><span class="cmd-name"><b>@delreason</b> <span class="args">[lo] [hi]</span></span><span class="cmd-help">sweep the 0x10 reason byte for a silent one</span></div>
       <div class="cmd" data-tier="G"><span class="chip">G</span><span class="cmd-name"><b>@look533</b> <span class="args">[i v | clear]</span></span><span class="cmd-help">5.33: override one of the 11 appearance bytes and redraw</span></div>
     </section>
@@ -433,7 +444,7 @@
 
   <p class="empty" id="empty">No command matches — the same answer the server would give.</p>
 
-  <footer>Generated from <code>Server/Commands.cs</code> on the <code>local-run</code> branch (2026-08-28). The table in
+  <footer>Generated from <code>Server/Commands.cs</code> on <code>master</code>. The table in
   the source is the authority; this sheet is its readable shadow. 99 commands: 3 Player · 35 Tester · 61 GM.
   Quest keys and legend marks have their own sheet: <a href="quest-registry.html">The Quest Registry</a>.</footer>
 </div>

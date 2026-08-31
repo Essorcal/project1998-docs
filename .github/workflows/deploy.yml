@@ -30,3 +30,14 @@ jobs:
           path: site
       - id: deployment
         uses: actions/deploy-pages@v4
+      # Optional: announce deploys to Discord. No-ops until the DISCORD_WEBHOOK secret exists
+      # (create a webhook in the Discord channel settings, then `gh secret set DISCORD_WEBHOOK`).
+      - name: Discord notify (optional)
+        env:
+          WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+          MSG: ${{ github.event.head_commit.message }}
+        run: |
+          if [ -n "$WEBHOOK" ]; then
+            jq -n --arg m "$MSG" '{content: ("📜 Docs updated — " + ($m | split("\n")[0]) + "\nhttps://p1998.essorcal.com/")}' \
+              | curl -sS -H 'Content-Type: application/json' -d @- "$WEBHOOK"
+          fi

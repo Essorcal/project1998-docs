@@ -1,0 +1,12 @@
+{
+  "__help_row": "      <div class=\"cmd\" data-tier=\"P\"><span class=\"chip\">P</span><span class=\"cmd-name\"><b>@help</b> <span class=\"args\">[page|word]</span></span><span class=\"cmd-help\">paged detail list (12/page — <code>@help2</code> or <code>@help 2</code> for the next page); a word filters, e.g. <code>@help item</code>. Dispatched before the command table, so it works at every tier.</span></div>",
+  "clip": " — needs the client companion: <a href=\"noclip.html\">setup guide</a>",
+  "showwarps": ". Both kinds default to frame 877, the blue pinwheel <img class=\"sprite\" alt=\"frame 877: a blue pinwheel with a red hub\" src=\"img/pinwheel.png\"/>; <code>look</code> re-tunes live and reports how many of each kind it re-stamped",
+  "quest": " — keys are catalogued in <a href=\"quest-registry.html\">The Quest Registry</a>",
+  "legend": " — legend marks are catalogued in <a href=\"quest-registry.html\">The Quest Registry</a>",
+  "efx": " — ids are listed per spell on the <a href=\"spells.html\">Spells</a> sheet (FX column)",
+  "warp": " — browse destinations on the <a href=\"atlas.html\">World Atlas</a>",
+  "__section:Moderation": "      <p class=\"sec-note\">No duration means permanent; anything applied to an online player takes effect immediately, not at their next login.</p>\n",
+  "__section:Config read-outs": "      <p class=\"sec-note\">Read-only: the toggles themselves are game-data CSV edits followed by <code>@reload</code>.</p>\n",
+  "__section:Protocol probes": "      <p class=\"sec-note\">Reverse-engineering tools: they poke raw packets at your own client to map the wire format. Expect weirdness on screen; that's the point.</p>\n"
+}
