@@ -1419,6 +1419,16 @@ def build_mobs():
   #tbl td.casts {{ min-width: 210px; }}
   .rare {{ cursor: help; }}
   .more {{ color: var(--ink-faint); cursor: help; white-space: nowrap; }}
+  /* the sheet holds 4 standing poses per mob in consecutive 48px cells (front, left, back, right);
+     stepping background-position by -48px turns the mob in place */
+  #tbl .spr {{ animation: sprturn 4s step-end infinite; }}
+  @keyframes sprturn {{
+    0%  {{ background-position: var(--bx) var(--by); }}
+    25% {{ background-position: calc(var(--bx) - 48px) var(--by); }}
+    50% {{ background-position: calc(var(--bx) - 96px) var(--by); }}
+    75% {{ background-position: calc(var(--bx) - 144px) var(--by); }}
+  }}
+  @media (prefers-reduced-motion: reduce) {{ #tbl .spr {{ animation: none; }} }}
 </style>
 <div class="wrap">
   <header class="hero">
@@ -1468,7 +1478,7 @@ function spr(m){
   if (!HAS_SPRITES) return '';
   const pos = sprPos(m);
   if (!pos) return '<td></td>';
-  return `<td><span class="spr" style="width:${pos[2]}px;height:${pos[3]}px;background-image:url(img/mob-sprites.png);background-position:-${pos[0]}px -${pos[1]}px"></span></td>`;
+  return `<td><span class="spr" style="--bx:-${pos[0]}px;--by:-${pos[1]}px;width:${pos[2]}px;height:${pos[3]}px;background-image:url(img/mob-sprites.png);background-position:var(--bx) var(--by)"></span></td>`;
 }
 const ATL_T = {both: 'on NexusAtlas — live site and 2005 archive', live: 'on NexusAtlas — live site only (the 2005 archive missed it)',
                2005: 'on NexusAtlas — 2005 archive only (deleted from the live site since)'};

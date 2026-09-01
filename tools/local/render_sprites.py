@@ -4,7 +4,9 @@ client's art (Item.epf/pal/tbl extracted into the game repo's re/, and Mon.dat i
 which CI does not have — run this on a machine with the client and commit the four outputs:
 
     site/img/item-icons.png + item-icons.json      ({ItmIcon: [x, y]}, 24x24 cells)
-    site/img/mob-sprites.png + mob-sprites.json    ({"look:0": [x, y, w, h]}, fit-48 cells)
+    site/img/mob-sprites.png + mob-sprites.json    ({"look:0": [x, y, w, h]}: 4 consecutive 48px
+        cells per mob — standing pose facing front, left, back, right (rotation order, front first)
+        — bottom-aligned; (x,y,w,h) frame the FRONT cell, the page animates x in −48 steps)
 
 Usage: python tools/local/render_sprites.py <game-repo> <client-dir>
 
@@ -162,10 +164,18 @@ def build_mobs():
         chunk_count = dna[pos + 4]
         palette, = struct.unpack_from("<H", dna, pos + 6)
         pos += 8
+        chunks = []
         for _c in range(chunk_count):
             block_count, = struct.unpack_from("<H", dna, pos)
-            pos += 2 + block_count * 9
-        mobs.append((frame_index, palette))
+            pos += 2
+            # block: u16 frame offset (relative to frame_index), u16 duration ms, rest flags
+            chunks.append([struct.unpack_from("<H", dna, pos + b * 9)[0] for b in range(block_count)])
+            pos += block_count * 9
+        # chunks 1..4 hold the standing pose per direction: up(back), right, down(front), left —
+        # offsets 0/3/6/9 of the 3-frames-per-direction walk block. Reorder to a rotation that
+        # starts facing the camera: front, left, back, right (continuing the client's cyclic order).
+        stand = [chunks[c][0] if c < len(chunks) and chunks[c] else 0 for c in (3, 4, 1, 2)]
+        mobs.append((frame_index, palette, stand))
 
     epf = open(os.path.join(RE, "monster.epf"), "rb").read()
     fc, w0, h0 = struct.unpack_from("<HHH", epf, 0)
@@ -220,24 +230,34 @@ def build_mobs():
                 px[i % w, i // w] = (*base[e], 255)
         return im
 
-    CELL, COLS = 48, 32
-    rows = (len(pairs) + COLS - 1) // COLS
-    sheet = Image.new("RGBA", (CELL * COLS, CELL * rows), (0, 0, 0, 0))
+    CELL, DIRS, PAIRS_PER_ROW = 48, 4, 8
+    rows = (len(pairs) + PAIRS_PER_ROW - 1) // PAIRS_PER_ROW
+    sheet = Image.new("RGBA", (CELL * DIRS * PAIRS_PER_ROW, CELL * rows), (0, 0, 0, 0))
     coords, drawn = {}, 0
     for n, (look, color) in enumerate(pairs):
         if look >= len(mobs):
             continue
-        res = frame(mobs[look][0])
-        if not res:
+        base_fi, _, stand = mobs[look]
+        # the four standing poses, front first; a bad frame falls back to the mob's base frame
+        ims = []
+        for off in stand:
+            res = frame(base_fi + off) or frame(base_fi)
+            if not res:
+                break
+            w, h, raw = res
+            im = mob_rgba(look, color, w, h, raw)
+            if im.width > CELL or im.height > CELL:
+                im.thumbnail((CELL, CELL), Image.NEAREST)
+            ims.append(im)
+        if len(ims) < DIRS:
             continue
-        w, h, raw = res
-        im = mob_rgba(look, color, w, h, raw)
-        if w > CELL or h > CELL:
-            im.thumbnail((CELL, CELL), Image.NEAREST)
-        x, y = (n % COLS) * CELL, (n // COLS) * CELL
-        px, py = x + (CELL - im.width) // 2, y + (CELL - im.height) // 2
-        sheet.paste(im, (px, py))
-        coords[f"{look}:{color}"] = [px, py, im.width, im.height]
+        x, y = (n % PAIRS_PER_ROW) * CELL * DIRS, (n // PAIRS_PER_ROW) * CELL
+        hmax = max(im.height for im in ims)
+        # bottom-aligned in each cell so the animation window ((x, y+CELL-hmax) 48xhmax, stepping
+        # x by CELL) keeps every direction's feet on the same line
+        for d, im in enumerate(ims):
+            sheet.paste(im, (x + d * CELL + (CELL - im.width) // 2, y + CELL - im.height))
+        coords[f"{look}:{color}"] = [x, y + CELL - hmax, CELL, hmax]
         drawn += 1
     sheet.save(os.path.join(IMG, "mob-sprites.png"), optimize=True)
     json.dump(coords, io.open(os.path.join(IMG, "mob-sprites.json"), "w", encoding="utf-8"), separators=(",", ":"))
