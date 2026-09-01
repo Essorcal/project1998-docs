@@ -124,7 +124,7 @@ CHROME_CSS = """
   td .k { font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 11px; color: var(--ink-faint); display: block; }
   td .nm { font-weight: 600; color: var(--ink); }
   .spr { width: 24px; height: 24px; display: inline-block; vertical-align: middle;
-    image-rendering: pixelated; background-repeat: no-repeat; }
+    image-rendering: pixelated; background-repeat: no-repeat; zoom: 2; }
   .muted { color: var(--ink-faint); }
   .pill { font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 10.5px;
     padding: 1px 7px; border-radius: 999px; background: var(--chip-ghost); color: var(--ink-soft); white-space: nowrap; }
@@ -999,7 +999,9 @@ def build_items():
     era_opts = ('<select id="era" aria-label="Era filter"><option value="">All items</option>'
                 + ('<option value="atlas">On NexusAtlas</option>'
                    '<option value="rtk">Not on Atlas (likely RTK-added)</option>' if has_atlas else '')
-                + '<option value="noart">No 4.95 icon art</option></select>')
+                + '<option value="noart">No 4.95 icon art</option>'
+                + ('<option value="noicon">No icon shown</option>' if has_icons else '')
+                + '</select>')
     atlas_note = (" Items are cross-referenced against a NexusAtlas snapshot: <em>not on Atlas</em> means "
                   "no page there lists the name — likely an RTK/private-server addition — while presence "
                   "proves nothing about the 4.95 era (the live Atlas documents modern NexusTK)."
@@ -1066,7 +1068,8 @@ function dropCell(i){
 function filt(){
   const needle = q.value.trim().toLowerCase(), t = typ.value, e = era ? era.value : '';
   let rows = DATA.filter(i => (!t || i.t === t) &&
-    (!e || (e === 'atlas' && i.at === 1) || (e === 'rtk' && i.at === 0) || (e === 'noart' && i.na === 1)) &&
+    (!e || (e === 'atlas' && i.at === 1) || (e === 'rtk' && i.at === 0) || (e === 'noart' && i.na === 1)
+        || (e === 'noicon' && !ICONS[i.ic] && !AICONS[i.k])) &&
     (!needle || blob(i).includes(needle)));
   if (sortKey) rows = rows.slice().sort((a,b) => {
     const x = a[sortKey], y = b[sortKey];
@@ -1407,6 +1410,7 @@ def build_mobs():
     has_sprites = sprites is not None
     atlas_opts = """
       <option value="atlas">On NexusAtlas</option><option value="noatlas">Not on NexusAtlas (likely RTK)</option>""" if has_atlas else ""
+    spr_opts = '<option value="nospr">No sprite shown</option>' if has_sprites else ""
     page = HEAD.format(title="Mobs", css=CHROME_CSS) + nav("mobs") + f"""
 <style>
   #tbl td:nth-child({2 if has_sprites else 1}) {{ min-width: 260px; }}
@@ -1432,7 +1436,7 @@ def build_mobs():
     <input id="q" type="search" placeholder="Filter — name, map, drop, cast, pill…" aria-label="Filter mobs">
     <select id="kind" aria-label="Kind filter"><option value="">All</option>
       <option value="boss">Bosses</option><option value="myth">Mythic bosses</option>
-      <option value="agg">Aggressive</option><option value="rare">Rare spawns</option>{atlas_opts}</select>
+      <option value="agg">Aggressive</option><option value="rare">Rare spawns</option>{atlas_opts}{spr_opts}</select>
     <span class="count" id="count"></span>
   </div>
   <div class="tablewrap"><table id="tbl">
@@ -1459,9 +1463,10 @@ function headTop(){ document.documentElement.style.setProperty('--thead-top', to
 headTop(); addEventListener('resize', headTop);
 function snapTop(){ const y = twrap.offsetTop - toolbar.offsetHeight; if (scrollY > y) scrollTo(0, y); }
 function esc(s){ return String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+function sprPos(m){ return SPRITES[m.lk + ':' + m.col] || SPRITES[m.lk + ':0']; }
 function spr(m){
   if (!HAS_SPRITES) return '';
-  const pos = SPRITES[m.lk + ':' + m.col] || SPRITES[m.lk + ':0'];
+  const pos = sprPos(m);
   if (!pos) return '<td></td>';
   return `<td><span class="spr" style="width:${pos[2]}px;height:${pos[3]}px;background-image:url(img/mob-sprites.png);background-position:-${pos[0]}px -${pos[1]}px"></span></td>`;
 }
@@ -1493,6 +1498,7 @@ function render(){
   let rows = DATA.filter(m =>
     (f !== 'boss' || m.boss || m.myth) && (f !== 'myth' || m.myth) && (f !== 'agg' || m.agg) &&
     (f !== 'rare' || m.rare) && (f !== 'atlas' || m.atl) && (f !== 'noatlas' || !m.atl) &&
+    (f !== 'nospr' || !sprPos(m)) &&
     (!needle || blob(m).includes(needle)));
   if (sortKey) rows = rows.slice().sort((a,b) => {
     const x = a[sortKey], y = b[sortKey];

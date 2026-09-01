@@ -76,7 +76,7 @@
   td .k { font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 11px; color: var(--ink-faint); display: block; }
   td .nm { font-weight: 600; color: var(--ink); }
   .spr { width: 24px; height: 24px; display: inline-block; vertical-align: middle;
-    image-rendering: pixelated; background-repeat: no-repeat; }
+    image-rendering: pixelated; background-repeat: no-repeat; zoom: 2; }
   .muted { color: var(--ink-faint); }
   .pill { font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 10.5px;
     padding: 1px 7px; border-radius: 999px; background: var(--chip-ghost); color: var(--ink-soft); white-space: nowrap; }
@@ -124,7 +124,7 @@
     <select id="kind" aria-label="Kind filter"><option value="">All</option>
       <option value="boss">Bosses</option><option value="myth">Mythic bosses</option>
       <option value="agg">Aggressive</option><option value="rare">Rare spawns</option>
-      <option value="atlas">On NexusAtlas</option><option value="noatlas">Not on NexusAtlas (likely RTK)</option></select>
+      <option value="atlas">On NexusAtlas</option><option value="noatlas">Not on NexusAtlas (likely RTK)</option><option value="nospr">No sprite shown</option></select>
     <span class="count" id="count"></span>
   </div>
   <div class="tablewrap"><table id="tbl">
@@ -151,9 +151,10 @@ function headTop(){ document.documentElement.style.setProperty('--thead-top', to
 headTop(); addEventListener('resize', headTop);
 function snapTop(){ const y = twrap.offsetTop - toolbar.offsetHeight; if (scrollY > y) scrollTo(0, y); }
 function esc(s){ return String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+function sprPos(m){ return SPRITES[m.lk + ':' + m.col] || SPRITES[m.lk + ':0']; }
 function spr(m){
   if (!HAS_SPRITES) return '';
-  const pos = SPRITES[m.lk + ':' + m.col] || SPRITES[m.lk + ':0'];
+  const pos = sprPos(m);
   if (!pos) return '<td></td>';
   return `<td><span class="spr" style="width:${pos[2]}px;height:${pos[3]}px;background-image:url(img/mob-sprites.png);background-position:-${pos[0]}px -${pos[1]}px"></span></td>`;
 }
@@ -185,6 +186,7 @@ function render(){
   let rows = DATA.filter(m =>
     (f !== 'boss' || m.boss || m.myth) && (f !== 'myth' || m.myth) && (f !== 'agg' || m.agg) &&
     (f !== 'rare' || m.rare) && (f !== 'atlas' || m.atl) && (f !== 'noatlas' || !m.atl) &&
+    (f !== 'nospr' || !sprPos(m)) &&
     (!needle || blob(m).includes(needle)));
   if (sortKey) rows = rows.slice().sort((a,b) => {
     const x = a[sortKey], y = b[sortKey];
