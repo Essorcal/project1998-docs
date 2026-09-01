@@ -313,6 +313,7 @@
       <div class="cmd" data-tier="G"><span class="chip">G</span><span class="cmd-name"><b>@bring</b> <span class="args">&lt;username&gt;</span></span><span class="cmd-help">pull an online player to your side (the inverse of @approach)</span></div>
       <div class="cmd" data-tier="T"><span class="chip">T</span><span class="cmd-name"><b>@die</b></span><span class="cmd-help">kill yourself (ghost form + real death penalties; @rez to get back up)</span></div>
       <div class="cmd" data-tier="T"><span class="chip">T</span><span class="cmd-name"><b>@clip</b> <span class="args">[0|1]</span></span><span class="cmd-help">no-clip: walk through walls, mobs and players (this session only; warps still work) — needs the client companion: <a href="noclip.html">setup guide</a></span></div>
+      <div class="cmd" data-tier="T"><span class="chip">T</span><span class="cmd-name"><b>@peace</b> <span class="args">[0|1]</span></span><span class="cmd-help">unprovoked mobs don&#x27;t notice you (this session only; anything you attack still fights back)</span></div>
       <div class="cmd" data-tier="T"><span class="chip">T</span><span class="cmd-name"><b>@anywarp</b> <span class="args">[0|1]</span></span><span class="cmd-help">use any warp despite level/mark/path/quest requirements (this session only; echoes the denial it waived)</span></div>
       <div class="cmd" data-tier="T"><span class="chip">T</span><span class="cmd-name"><b>@showwarps</b> <span class="args">[0|1] | look [warpFrame] [doorFrame]</span></span><span class="cmd-help">mark every warp + scripted doorway on the map (you only; follows across maps; lists destinations). Both kinds default to frame 877, the blue pinwheel <img class="sprite" alt="frame 877: a blue pinwheel with a red hub" src="img/pinwheel.png"/>; <code>look</code> re-tunes live and reports how many of each kind it re-stamped</span></div>
       <div class="cmd" data-tier="T"><span class="chip">T</span><span class="cmd-name"><b>@maps</b> <span class="args">[filter]</span></span><span class="cmd-help">list/fuzzy-search maps</span></div>
@@ -357,6 +358,7 @@
       <div class="cmd" data-tier="T"><span class="chip">T</span><span class="cmd-name"><b>@items</b> <span class="args">[filter]</span></span><span class="cmd-help">list/fuzzy-search the item registry</span></div>
       <div class="cmd" data-tier="T"><span class="chip">T</span><span class="cmd-name"><b>@item</b> <span class="args">&lt;name|id&gt; [amount]</span></span><span class="cmd-help">summon an item into the bag</span></div>
       <div class="cmd" data-tier="T"><span class="chip">T</span><span class="cmd-name"><b>@take</b> <span class="args">&lt;name|id&gt; [amount|all]</span></span><span class="cmd-help">remove an item from the bag (worn gear untouched)</span></div>
+      <div class="cmd" data-tier="T"><span class="chip">T</span><span class="cmd-name"><b>@dura</b> <span class="args">&lt;name|id&gt; &lt;n&gt;</span></span><span class="cmd-help">set an item&#x27;s durability, bag first then worn (repair/breakage testing)</span></div>
       <div class="cmd" data-tier="T"><span class="chip">T</span><span class="cmd-name"><b>@clearinv</b></span><span class="cmd-help">empty the bag and gear</span></div>
       <div class="cmd" data-tier="G"><span class="chip">G</span><span class="cmd-name"><b>@icons</b> <span class="args">[start]</span></span><span class="cmd-help">fill the bag with client Item.epf frames</span></div>
     </section>
@@ -387,7 +389,7 @@
     <section>
       <div class="sec-head"><h2>Config read-outs</h2><span class="count"></span></div>
       <p class="sec-note">Read-only: the toggles themselves are game-data CSV edits followed by <code>@reload</code>.</p>
-      <div class="cmd" data-tier="G"><span class="chip">G</span><span class="cmd-name"><b>@npc</b></span><span class="cmd-help">which NPCs are switched off (config + @reload to change)</span></div>
+      <div class="cmd" data-tier="T"><span class="chip">T</span><span class="cmd-name"><b>@npc</b> <span class="args">[name|id]</span></span><span class="cmd-help">bare: which NPCs are switched off; with a name: find that NPC and jump beside it</span></div>
       <div class="cmd" data-tier="G"><span class="chip">G</span><span class="cmd-name"><b>@craft</b></span><span class="cmd-help">crafting era-gate status (config + @reload to change)</span></div>
       <div class="cmd" data-tier="G"><span class="chip">G</span><span class="cmd-name"><b>@era</b></span><span class="cmd-help">target date + which dated content it includes</span></div>
     </section>
@@ -417,6 +419,7 @@
       <div class="cmd" data-tier="G"><span class="chip">G</span><span class="cmd-name"><b>@efx</b> <span class="args">&lt;id&gt;</span></span><span class="cmd-help">play a raw Effect.tbl animation over self — ids are listed per spell on the <a href="spells.html">Spells</a> sheet (FX column)</span></div>
       <div class="cmd" data-tier="G"><span class="chip">G</span><span class="cmd-name"><b>@mtx</b> <span class="args">&lt;type&gt;</span></span><span class="cmd-help">audition a raw SendMiniText channel</span></div>
       <div class="cmd" data-tier="G"><span class="chip">G</span><span class="cmd-name"><b>@weather</b> <span class="args">clear|rain|snow | raw &lt;n&gt;</span></span><span class="cmd-help">force this map&#x27;s weather</span></div>
+      <div class="cmd" data-tier="G"><span class="chip">G</span><span class="cmd-name"><b>@clock</b> <span class="args">[0-23 | real]</span></span><span class="cmd-help">read or pin the shared in-game hour (totem-time windows follow it; real = release)</span></div>
       <div class="cmd" data-tier="G"><span class="chip">G</span><span class="cmd-name"><b>@setting</b> <span class="args">[name] [on|off]</span></span><span class="cmd-help">read/set any 0x1b Options toggle</span></div>
       <div class="cmd" data-tier="G"><span class="chip">G</span><span class="cmd-name"><b>@doze</b> <span class="args">[secs|off]</span></span><span class="cmd-help">put YOURSELF to sleep (Doze can&#x27;t be self-targeted on the wire)</span></div>
     </section>
@@ -452,7 +455,7 @@
   <p class="empty" id="empty">No command matches — the same answer the server would give.</p>
 
   <footer>Generated from <code>Server/Commands.cs</code> on <code>master</code>. The table in
-  the source is the authority; this sheet is its readable shadow. 104 commands: 3 Player · 37 Tester · 64 GM.
+  the source is the authority; this sheet is its readable shadow. 107 commands: 3 Player · 40 Tester · 64 GM.
   Quest keys and legend marks have their own sheet: <a href="quest-registry.html">The Quest Registry</a>.</footer>
 </div>
 
