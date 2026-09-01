@@ -119,7 +119,8 @@
     <p class="lede">The remap proposal for the 92 Atlas-confirmed items whose ItmIcon lies past the
 4.95 client's 1,310 Item.epf frames: reference art beside the proposed 4.95 frame for every item,
 with alternatives, the green_cloak worn-look verdict, the wedding-cloak row, and the open judgment
-calls. Nothing here is applied yet — this is the review copy.</p>
+calls. This is the review copy — only the green_cloak remap is applied so far (verified live
+2026-08-31); the rest awaits the judgment calls below.</p>
     <p class="meta">source: ITEMS-FIX session · 2026-08-31 · art: 4.95 NexusTK.dat + 5.33 Item.epf vs NexusAtlas · tool: re/atlas_invisible_icons.py (game repo)</p>
   </header>
 <p>How to read each section: the green-bordered cells are the reference art — the NexusAtlas gif
@@ -132,7 +133,7 @@ palette-0 hue). The gold-outlined cell is the proposed 4.95 frame. Icon ids are 
 <tr><td class=mono>iron_sword #116</td><td>Iron sword</td><td class=mono>2522</td><td class=mono><b>1114</b></td><td><span class=ok>unused</span></td><td class=meta>thin blue-steel blade, unused</td></tr>
 <tr><td class=mono>lantern #117</td><td>Lantern</td><td class=mono>1568</td><td class=mono><b>1249</b></td><td><span class=ok>unused</span></td><td class=meta>the 4.95 oil-lantern frame, unused (no blue-dome art)</td></tr>
 <tr><td class=mono>blue_dragon_longsword #127</td><td>Blue dragon longsword</td><td class=mono>1454</td><td class=mono><b>1093</b></td><td><span class=ok>unused</span></td><td class=meta>long silver blade, unused (533 sprite is a segmented long blade)</td></tr>
-<tr><td class=mono>green_cloak #517</td><td>Green cloak</td><td class=mono>4985</td><td class=mono><b>460</b></td><td><span class=ok>unused</span></td><td class=meta>the GREEN member of the 453-467 cloak colour run (sonhi_cloak already sits at 463)</td></tr>
+<tr><td class=mono>green_cloak #517</td><td>Green cloak</td><td class=mono>4985</td><td class=mono><b>460</b></td><td><span class=ok>unused</span></td><td class=meta>the GREEN member of the 453-467 cloak colour run (sonhi_cloak already sits at 463) — APPLIED, verified live 2026-08-31: bag icon and worn render both fixed</td></tr>
 <tr><td class=mono>basic_sickle #14006</td><td>Basic sickle</td><td class=mono>2966</td><td class=mono><b>38</b></td><td><span class=ok>unused</span></td><td class=meta>grey sickle, unused</td></tr>
 <tr><td class=mono>shee_lee_ring #25014</td><td>Shee-Lee ring</td><td class=mono>1886</td><td class=mono><b>693</b></td><td><span class=ok>unused</span></td><td class=meta>flat silver ring, unused</td></tr>
 <tr><td class=mono>water_queen_ring #25015</td><td>Water queen ring</td><td class=mono>2949</td><td class=mono><b>240</b></td><td><span class=warn>blue_ring, black_ring, sea_ring&hellip;</span></td><td class=meta>blue sparkle ring (shares the classic blue_ring frame)</td></tr>
@@ -3124,13 +3125,14 @@ is a data file (e.g. <code>game-data/IconRemap495.csv</code>: <code>ItmId,Client
 and the same remap row keeps 4.95 correct if a later art pack restores them.</li>
 </ul>
 
-<h2>green_cloak worn look (#2 on the fix list)</h2>
-<p>The equipped render is <b>not</b> missing art: 4.95's <code>body.epf</code> has 67 armor bodies and
-body&nbsp;14 &mdash; green_cloak's <code>ItmLook</code> &mdash; is a pale-green hooded cloak (body&nbsp;15
-is the wedding dress, confirming the id space). sonhi_cloak shares look 14 (colour 3). The no-render
-report needs a live retest once the icon fix lands &mdash; with icon 4985 the item was invisible in the
-bag, so the earlier test may never have had it truly equipped, and if it still fails, sonhi_cloak is
-the working control to diff against.</p>
+<h2>green_cloak worn look (#2 on the fix list) &mdash; RESOLVED</h2>
+<p><b>Applied and verified live 2026-08-31</b> (local-run <code>cf7d046</code>): with the icon remapped
+to 460, both the bag icon and the equipped render work on the 4.95 client &mdash; the "doesn't render
+when worn" report was fallout from the invisible bag icon, not a look problem. No
+<code>ItmLook</code>/<code>ItmLookColor</code> change was needed: 4.95's <code>body.epf</code> has 67
+armor bodies and body&nbsp;14 &mdash; green_cloak's <code>ItmLook</code> &mdash; is the pale-green
+hooded cloak (body&nbsp;15 is the wedding dress, confirming the id space; sonhi_cloak shares look 14
+at colour 3).</p>
 
 <h2>Wedding cloak (#3 on the fix list)</h2>
 <p>Solved: the row exists in the RTK reference database but was never carried into
