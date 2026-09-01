@@ -309,6 +309,8 @@
       <div class="cmd" data-tier="T"><span class="chip">T</span><span class="cmd-name"><b>@go</b> <span class="args">&lt;x&gt; &lt;y&gt;</span></span><span class="cmd-help">jump to a tile on the map you&#x27;re already on (bad/out-of-range coords -&gt; 0 0)</span></div>
       <div class="cmd" data-tier="T"><span class="chip">T</span><span class="cmd-name"><b>@rez</b> <span class="args">[username]</span></span><span class="cmd-help">revive a player (or yourself) to full HP/MP (a full heal if already alive)</span></div>
       <div class="cmd" data-tier="T"><span class="chip">T</span><span class="cmd-name"><b>@approach</b> <span class="args">&lt;username&gt;</span></span><span class="cmd-help">teleport to an online player</span></div>
+      <div class="cmd" data-tier="G"><span class="chip">G</span><span class="cmd-name"><b>@where</b> <span class="args">[username]</span></span><span class="cmd-help">where a player is, without going there (bare = everyone online, with locations)</span></div>
+      <div class="cmd" data-tier="G"><span class="chip">G</span><span class="cmd-name"><b>@bring</b> <span class="args">&lt;username&gt;</span></span><span class="cmd-help">pull an online player to your side (the inverse of @approach)</span></div>
       <div class="cmd" data-tier="T"><span class="chip">T</span><span class="cmd-name"><b>@die</b></span><span class="cmd-help">kill yourself (ghost form + real death penalties; @rez to get back up)</span></div>
       <div class="cmd" data-tier="T"><span class="chip">T</span><span class="cmd-name"><b>@clip</b> <span class="args">[0|1]</span></span><span class="cmd-help">no-clip: walk through walls, mobs and players (this session only; warps still work) — needs the client companion: <a href="noclip.html">setup guide</a></span></div>
       <div class="cmd" data-tier="T"><span class="chip">T</span><span class="cmd-name"><b>@anywarp</b> <span class="args">[0|1]</span></span><span class="cmd-help">use any warp despite level/mark/path/quest requirements (this session only; echoes the denial it waived)</span></div>
@@ -318,6 +320,7 @@
       <div class="cmd" data-tier="G"><span class="chip">G</span><span class="cmd-name"><b>@summon</b> <span class="args">&lt;mob name|id&gt;</span></span><span class="cmd-help">spawn a registry mob in front of you</span></div>
       <div class="cmd" data-tier="G"><span class="chip">G</span><span class="cmd-name"><b>@reload</b></span><span class="cmd-help">hot-reload file-backed content</span></div>
       <div class="cmd" data-tier="G"><span class="chip">G</span><span class="cmd-name"><b>@restart</b> <span class="args">[minutes] [reason] | cancel</span></span><span class="cmd-help">schedule a server restart, warning everyone as it nears</span></div>
+      <div class="cmd" data-tier="G"><span class="chip">G</span><span class="cmd-name"><b>@announce</b> <span class="args">&lt;message&gt;</span></span><span class="cmd-help">system line to every player online (the restart-countdown channel)</span></div>
       <div class="cmd" data-tier="G"><span class="chip">G</span><span class="cmd-name"><b>@rabbit</b></span><span class="cmd-help">one wandering, killable rabbit</span></div>
       <div class="cmd" data-tier="G"><span class="chip">G</span><span class="cmd-name"><b>@kill</b></span><span class="cmd-help">despawn every mob on this map</span></div>
     </section>
@@ -325,6 +328,7 @@
     <section>
       <div class="sec-head"><h2>Character</h2><span class="count"></span></div>
       <div class="cmd" data-tier="T"><span class="chip">T</span><span class="cmd-name"><b>@lvl</b> <span class="args">&lt;1-99&gt;</span></span><span class="cmd-help">rebuild as level n: accurate stats + the matching spellbook</span></div>
+      <div class="cmd" data-tier="T"><span class="chip">T</span><span class="cmd-name"><b>@exp</b> <span class="args">&lt;n&gt; [kill]</span></span><span class="cmd-help">gain experience through the real leveling path (kill = eligible for the totem-time bonus)</span></div>
       <div class="cmd" data-tier="T"><span class="chip">T</span><span class="cmd-name"><b>@mark</b> <span class="args">&lt;0-3&gt;</span></span><span class="cmd-help">subpath rank on top of 99 (Il san…Sam san): its stats + spells</span></div>
       <div class="cmd" data-tier="T"><span class="chip">T</span><span class="cmd-name"><b>@class</b> <span class="args">&lt;Warrior|Rogue|Mage|Poet|Peasant&gt;</span></span><span class="cmd-help">set the class/path and rebuild for it</span></div>
       <div class="cmd" data-tier="T"><span class="chip">T</span><span class="cmd-name"><b>@dog</b> <span class="args">[0|1]</span></span><span class="cmd-help">the Dog-quest flag: unlocks Dog spells for a base class or NPC subpath</span></div>
@@ -352,6 +356,7 @@
       <div class="sec-head"><h2>Items</h2><span class="count"></span></div>
       <div class="cmd" data-tier="T"><span class="chip">T</span><span class="cmd-name"><b>@items</b> <span class="args">[filter]</span></span><span class="cmd-help">list/fuzzy-search the item registry</span></div>
       <div class="cmd" data-tier="T"><span class="chip">T</span><span class="cmd-name"><b>@item</b> <span class="args">&lt;name|id&gt; [amount]</span></span><span class="cmd-help">summon an item into the bag</span></div>
+      <div class="cmd" data-tier="T"><span class="chip">T</span><span class="cmd-name"><b>@take</b> <span class="args">&lt;name|id&gt; [amount|all]</span></span><span class="cmd-help">remove an item from the bag (worn gear untouched)</span></div>
       <div class="cmd" data-tier="T"><span class="chip">T</span><span class="cmd-name"><b>@clearinv</b></span><span class="cmd-help">empty the bag and gear</span></div>
       <div class="cmd" data-tier="G"><span class="chip">G</span><span class="cmd-name"><b>@icons</b> <span class="args">[start]</span></span><span class="cmd-help">fill the bag with client Item.epf frames</span></div>
     </section>
@@ -447,7 +452,7 @@
   <p class="empty" id="empty">No command matches — the same answer the server would give.</p>
 
   <footer>Generated from <code>Server/Commands.cs</code> on <code>master</code>. The table in
-  the source is the authority; this sheet is its readable shadow. 99 commands: 3 Player · 35 Tester · 61 GM.
+  the source is the authority; this sheet is its readable shadow. 104 commands: 3 Player · 37 Tester · 64 GM.
   Quest keys and legend marks have their own sheet: <a href="quest-registry.html">The Quest Registry</a>.</footer>
 </div>
 
