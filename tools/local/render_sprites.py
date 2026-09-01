@@ -189,20 +189,25 @@ def build_mobs():
     #                               : SUPER{s-1}.PAL          (7 extra blocks in NexusTK.dat)
     #   pixel k stays put below 0x30 (outline/skin zone), else reads base[(k + 8*colour) & 0xFF]
     # — the 8-bit add wraps for free, so colour 35 lands on ramp 3 of SUPER0. The colour we shift by is
-    # what the server actually sends a V533 client: mobs.csv MobLookColor remapped PER LOOK through
-    # game-data/Mob5xPalettes.csv (mirrors Content.Palette5x / Session.SendCreatureList — the per-look
-    # keying collapses same-look mobs by design there; if that's wrong it's a game-data bug, not ours).
+    # what the server actually sends a V533 client: mobs.csv MobLookColor remapped through
+    # game-data/Mob5xPalettes.csv (mirrors Content.Palette5x / Session.SendCreatureList). The CSV is
+    # keyed (Look, Colour) since Project1998 PR #16; the pre-PR per-Look shape (which collapsed every
+    # look-17 horse to brown — a game-data bug the docs faithfully showed) still parses for old trees.
     # Render one sprite per distinct (look, colour) pair in use, keyed by the PRE-override pair.
     import csv
     def csvrows(name):
         lines = [l for l in io.open(os.path.join(GD, name), encoding="utf-8-sig") if not l.lstrip().startswith("#")]
         return list(csv.DictReader(lines))
-    override = {int(r["Look"]): int(r["Palette"]) for r in csvrows("Mob5xPalettes.csv") if r.get("Look", "").isdigit()}
+    o_rows = [r for r in csvrows("Mob5xPalettes.csv") if r.get("Look", "").isdigit()]
+    pair_keyed = any(r.get("Colour", "").isdigit() for r in o_rows)
+    override = ({(int(r["Look"]), int(r["Colour"])): int(r["Palette"]) for r in o_rows if r.get("Colour", "").isdigit()}
+                if pair_keyed else {int(r["Look"]): int(r["Palette"]) for r in o_rows})
     pairs = sorted({(int(r["MobLook"]), int(r["MobLookColor"] or 0)) for r in csvrows("mobs.csv")
                     if r.get("MobLook", "").isdigit()})
 
     def mob_rgba(look, colour, w, h, raw):
-        sent = override.get(look, colour)          # the byte a V533 client is actually sent
+        # the byte a V533 client is actually sent
+        sent = override.get((look, colour) if pair_keyed else look, colour)
         s = sent >> 5
         base = supers[s - 1] if 1 <= s <= 7 else pals[mobs[look][1] % len(pals)]
         shift = (sent * 8) & 0xFF

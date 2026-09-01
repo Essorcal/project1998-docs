@@ -4,18 +4,28 @@
 The report is a hand-built, self-contained snapshot (atlas GIFs embedded as data URIs); this script
 does NOT rebuild it — it re-embeds the current site/img/mob-sprites.png into the `.ours` CSS,
 re-scores every card against its own embedded atlas GIF (100·colour-distance + aspect penalty),
-re-sorts the grid most-suspicious-first, and stamps the intro + per-card pills for the two known
-game-data (not renderer) issues:
-  - look 17: Mob5xPalettes.csv keys per Look, so every look-17 horse is sent colour 3 on 5.33
-  - colour >= 32: selects SUPER{c>>5 - 1}.PAL on 5.33 where the era client wrapped to ramp c-32
+re-sorts the grid most-suspicious-first, and recomputes the per-card game-data pills against the
+game repo's CURRENT Mob5xPalettes.csv (old pills are stripped first, so fixed issues drop out):
+  - "5x horse override": only while the CSV is still per-Look keyed (pre Project1998 PR #16),
+    which sent colour 3 for every look-17 horse on 5.33
+  - "SUPER palette": a colour >= 32 pair with NO remap row — 5.33 shows SUPER{c>>5 - 1}.PAL
+    where the era client wrapped to ramp c-32
 
-Usage: python tools/local/update_look_report.py
+Usage: python tools/local/update_look_report.py [game-repo]
 """
-import base64, io, json, os, re, sys
+import base64, csv, io, json, os, re, sys
 from PIL import Image
 
 SITE = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))), "site")
 REPORT = os.path.join(SITE, "report-mob-look-check.html")
+GAME = sys.argv[1] if len(sys.argv) > 1 else r"C:\Repo\NexusTK"
+
+# The server's V533 remap, in whichever shape the game tree has (see render_sprites.py build_mobs).
+_lines = [l for l in io.open(os.path.join(GAME, "game-data", "Mob5xPalettes.csv"), encoding="utf-8-sig")
+          if not l.lstrip().startswith("#")]
+_rows = [r for r in csv.DictReader(_lines) if r.get("Look", "").isdigit()]
+PAIR_KEYED = any(r.get("Colour", "").isdigit() for r in _rows)
+REMAPPED = {(int(r["Look"]), int(r["Colour"])) for r in _rows if r.get("Colour", "").isdigit()}
 
 d = io.open(REPORT, encoding="utf-8").read()
 sheet = Image.open(os.path.join(SITE, "img", "mob-sprites.png")).convert("RGBA")
@@ -95,12 +105,12 @@ for c in cards:
     c2, n = re.subn(r'(<span style="color:#66766d">score )\d+(</span>)',
                     lambda m: f"{m.group(1)}{sc}{m.group(2)}", c, count=1)
     assert n == 1
+    c2 = re.sub(r' <span class="pill"[^>]*>[^<]*</span>', '', c2)   # strip, then re-derive from the CSV
     pills = ""
-    if 'class="pill"' not in c2:                 # already-stamped cards keep their pills
-        if look == 17:
-            pills += " " + PILL_5X
-        if col >= 32:
-            pills += " " + PILL_SUPER
+    if look == 17 and not PAIR_KEYED:
+        pills += " " + PILL_5X
+    if col >= 32 and (look, col) not in REMAPPED:
+        pills += " " + PILL_SUPER
     if pills:
         c2 = c2.replace("</span><br><code>", "</span>" + pills + "<br><code>", 1)
     ident = re.search(r'<code>([a-z0-9_]+) ', c2).group(1)
@@ -137,6 +147,16 @@ new_intro = (
     'game-data problems visible in-game on 5.33 today — hover them for the details.</p>')
 if old_intro:
     d = d.replace(old_intro, new_intro, 1)
+
+# Once the game-data fix lands (pair-keyed CSV), the standing flags sentence becomes history.
+FLAGS_OPEN = ('Flags: <span class="pill">5x horse override</span> and <span class="pill">SUPER palette</span> mark '
+              'game-data problems visible in-game on 5.33 today — hover them for the details.')
+FLAGS_DONE = ('<b>2026-08-31:</b> both flagged game-data issues are fixed — Mob5xPalettes.csv keys (Look, Colour) '
+              'and remaps every colour ≥ 32 pair (Project1998 PR #16) — so the horse family and the SUPER-palette '
+              'mobs render their era hues; a <span class="pill">SUPER palette</span> pill now only appears on a '
+              'pair the CSV misses.')
+if PAIR_KEYED:
+    d = d.replace(FLAGS_OPEN, FLAGS_DONE, 1)
 
 io.open(REPORT, "w", encoding="utf-8", newline="\n").write(d)
 print(f"report updated: {len(out)} cards re-scored, sheet {len(png_b64)//1024}KB b64")
