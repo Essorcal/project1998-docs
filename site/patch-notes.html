@@ -99,6 +99,47 @@
   </header>
 
   <article>
+    <h2>True colours &amp; the docs site</h2>
+    <p class="meta">2026-08-31 · Essorcal</p>
+    <h3 class="sec">Content, quests &amp; world</h3>
+    <ul>
+      <li>The Green cloak exists again: its icon pointed past the 4.95 client's art, so it drew nothing
+      in the bag, on the ground — and, it turned out, that was the whole story behind it "not rendering
+      when worn" too. Remapped to the real 4.95 green-cloak frame and verified live: bag icon and worn
+      render both work. First fix from the invisible-icon pass — 91 more items (rings, charms, orbs,
+      diamonds, bracelets&hellip;) are identified and queued behind review on
+      <a href="report-invisible-icons.html">the proposal report</a>.</li>
+    </ul>
+    <h3 class="sec">Client &amp; UI fixes</h3>
+    <ul>
+      <li>5.33 mob colours are finally true. The colour byte is a ramp <em>shift</em>, not a palette
+      pick (RE'd from the 5.33 exe, validated against 356 NexusAtlas reference gifs): the diamond,
+      golden, lake winny and fire snorter horses no longer all collapse into the plain brown horse, and
+      sixteen era mobs whose colour byte landed on a 5.33 SUPER palette — bold piglet, hare, the
+      skeleton mage and warrior, ogre maletic, the tiger guardian and defender, dog cutthroat, pig
+      champion, hill ogre and the six armory mercenaries — wear their era colours again. The root of
+      the old "every mob is green" bug is gone for good.</li>
+    </ul>
+    <h3 class="sec">Server &amp; infrastructure</h3>
+    <ul>
+      <li>The server answers a status ping: a plain GET on the game port returns one-shot JSON — up,
+      players online, era date, restart countdown, deployed version. No new port, no client impact
+      (the client always speaks first there); it feeds the live status strip on this site.</li>
+    </ul>
+    <h3 class="sec">The website</h3>
+    <ul>
+      <li>This site went from two pages to the whole library: a <a href="atlas.html">world atlas</a>
+      of all 2,025 maps, <a href="spells.html">spells</a>, <a href="items.html">items</a> and
+      <a href="mobs.html">mobs</a> databases carrying every fact the server actually enforces
+      (restrictions, effects, shops, drops, provenance, era cross-reference against NexusAtlas), and
+      the <a href="effects.html">4.95 Effect Table</a> — snugglezone's animated Effect.tbl reference.</li>
+      <li>A <a href="reports.html">Reports</a> tab now collects session-generated review material —
+      including the invisible-icon fix proposal above — and the front page shows live server status
+      (up/down, players, era date) refreshed by a scheduled probe.</li>
+    </ul>
+  </article>
+
+  <article>
     <h2>Tooling &amp; fixes wave</h2>
     <p class="meta">2026-08-28 · Essorcal</p>
     <h3 class="sec">GM &amp; tester commands</h3>
