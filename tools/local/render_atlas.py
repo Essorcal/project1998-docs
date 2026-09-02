@@ -25,7 +25,7 @@ def main():
     tmp = tempfile.mkdtemp(prefix="p1998-atlas-")
     try:
         cmd = [sys.executable, os.path.join(GAME, "re", "render_maps.py"), "all", tmp,
-               "--data", os.path.join(CLIENT, "Tile.dat")]
+               "--data", os.path.join(CLIENT, "Tile.dat"), "--mapcells"]  # match the live map (door swaps, patched cells)
         if ONLY:
             cmd += ["--only", ONLY]
         print("rendering:", " ".join(cmd))
