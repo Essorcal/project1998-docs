@@ -98,7 +98,7 @@ KOG = {
         (4508, "wired", "Royal Court \u2014 behind the Mezzanine."),
         (4514, "wired", "Royal Palace Stairway \u2014 7-door hub behind the Throne; wired to Throne + Baths (best-guess tiles)."),
         (4513, "wired", "Kugnae Palace Baths \u2014 via the Stairway (best-guess)."),
-        (5823, "wired", "Stairway (45\u00d747) \u2014 a separate multi-floor palace stairway complex, already wired to its own upper floors (5825 / 5827). Team-flagged as part of the Koguryo palace; how it ties into the main palace rooms (Throne / 4514 stairway) is still unconfirmed."),
+        (5823, "wired", "Stairway (45\u00d747) \u2014 a separate multi-floor palace stairway complex, already wired to its own upper floors (5825 / 5827). One of SEVERAL stairway maps that look identical in the live client but are distinct maps (the doors and guards differ). Team-flagged as part of the Koguryo palace; how it ties into the main rooms is still unconfirmed."),
         (4503, "unwired", "Koguryo Tribunal Hall \u2014 has terrain but was not reached on the live walk (courtyard door was locked?); connection unknown."),
         (4510, "unwired", "KRA Training Area \u2014 has terrain but not reached on the live walk; likely hangs off the Army Quarters (4546) the way Buya\u2019s Training Hall hangs off Imperial Army, but 4546 is terrain-less so unconfirmed."),
         (4546, "noterrain", "Army Quarters \u2014 live: bottom-right courtyard door \u2192 here (3 sub-doors, mostly locked). No .map terrain."),
@@ -131,6 +131,7 @@ KOG = {
         "Our Mezzanine (4505) is a small 2-exit room but the live one is a big hub \u2014 in 4.95 did it only link Courtyard \u2194 Royal Court, or more?",
         "The Stairway (4514) throne-wing tiles are guesses \u2014 does anyone recall the real door\u2192room mapping (throne / baths / kitchen / dining)?",
         "Six rooms (Army Quarters, Victory Square, Jeongwon, Treasury, Kitchen, Dining) have no .map terrain \u2014 were they in 4.95 at all, and can anyone source the maps?",
+        "The palace has SEVERAL stairway maps that look identical in the live client but are distinct (different doors + guards): Royal Palace Stairway 4514 (wired to Throne + Baths) and Stairway 5823 (its own 5825/5827 floors), at least. Which stairway sits behind which door, and how do the throne / dining / kitchen / baths chain through them?",
     ],
 }
 
