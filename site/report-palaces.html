@@ -1,0 +1,401 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Items — game-repo fix catalog · Project1998</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+  :root {
+    --ground: #F4F6F1; --surface: #FCFDFB; --ink: #1F2A26; --ink-soft: #55645D;
+    --ink-faint: #8A978F; --rule: #DDE4DD; --rule-soft: #E8EDE7;
+    --accent: #2E7D62; --accent-ink: #1E5A46; --focus: #2E7D62; --chip-ghost: #F0F3EE;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --ground: #141B18; --surface: #1B2420; --ink: #D8E2DA; --ink-soft: #93A49A;
+      --ink-faint: #66766D; --rule: #2A3630; --rule-soft: #222D28;
+      --accent: #6FBF9F; --accent-ink: #8FD4B8; --focus: #6FBF9F; --chip-ghost: #202A25;
+    }
+  }
+  :root[data-theme="dark"] {
+    --ground: #141B18; --surface: #1B2420; --ink: #D8E2DA; --ink-soft: #93A49A;
+    --ink-faint: #66766D; --rule: #2A3630; --rule-soft: #222D28;
+    --accent: #6FBF9F; --accent-ink: #8FD4B8; --focus: #6FBF9F; --chip-ghost: #202A25;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--ground); color: var(--ink);
+    font-family: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif; font-size: 14.5px; line-height: 1.55; }
+  a { color: var(--accent-ink); text-underline-offset: 2px; }
+  code { font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 0.92em; color: var(--accent-ink); }
+  .sitenav { max-width: min(1680px, 96vw); margin: 0 auto; padding: 14px 24px 0;
+    display: flex; gap: 16px; align-items: baseline; font-size: 14px; flex-wrap: wrap; }
+  .sitenav a { color: var(--ink-soft); text-decoration: none; }
+  .sitenav a:hover { color: var(--accent-ink); text-decoration: underline; }
+  .sitenav .brand { font-family: "Gowun Batang", Georgia, serif; font-weight: 700;
+    color: var(--ink); margin-right: auto; font-size: 16px; }
+  .sitenav a[aria-current="page"] { color: var(--accent-ink); font-weight: 600; }
+  .wrap { max-width: min(1100px, 96vw); margin: 0 auto; padding: 0 24px 96px; }
+  header.hero { padding: 34px 0 6px; }
+  .kicker { font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 12px;
+    letter-spacing: 0.14em; text-transform: uppercase; color: var(--accent); margin: 0 0 8px; }
+  h1 { font-family: "Gowun Batang", Georgia, serif; font-weight: 700;
+    font-size: clamp(28px, 4.5vw, 38px); line-height: 1.15; margin: 0 0 8px; text-wrap: balance; }
+  h2 { font-family: "Gowun Batang", Georgia, serif; font-size: 21px; margin: 34px 0 8px; }
+  h3 { font-size: 15.5px; margin: 22px 0 6px; }
+  .lede { max-width: 72ch; color: var(--ink-soft); margin: 0 0 8px; }
+  .meta { font-size: 12.5px; color: var(--ink-faint); margin: 4px 0 0;
+    font-family: "IBM Plex Mono", ui-monospace, monospace; }
+  ul { padding-left: 22px; } li { margin: 3px 0; }
+  .card { display: block; background: var(--surface); border: 1px solid var(--rule);
+    border-radius: 8px; padding: 16px 18px; margin: 12px 0; text-decoration: none; }
+  .card:hover { border-color: var(--accent); }
+  .card b { color: var(--ink); font-size: 15.5px; }
+  .card p { margin: 6px 0 0; color: var(--ink-soft); font-size: 13.5px; }
+  .pill { font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 10.5px;
+    padding: 1px 7px; border-radius: 999px; background: var(--chip-ghost); color: var(--ink-soft);
+    white-space: nowrap; margin-left: 6px; }
+  details { margin: 10px 0; border: 1px solid var(--rule-soft); border-radius: 6px; padding: 8px 14px; background: var(--surface); }
+  summary { cursor: pointer; font-weight: 600; }
+  details .cols { columns: 3 240px; margin-top: 8px; font-size: 13px; color: var(--ink-soft); }
+  table { border-collapse: collapse; width: 100%; font-size: 13.5px; margin: 8px 0; }
+  th, td { text-align: left; padding: 5px 10px; border-bottom: 1px solid var(--rule-soft); vertical-align: top; }
+  th { font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 11px; letter-spacing: 0.07em;
+    text-transform: uppercase; color: var(--ink-faint); font-weight: 500; }
+  footer { margin-top: 40px; padding-top: 14px; border-top: 1px solid var(--rule); font-size: 12.5px; color: var(--ink-faint); }
+</style>
+</head>
+<body>
+<nav class="sitenav">
+  <a class="brand" href="./">Project1998</a>
+  <a href="commands.html">Commands</a>
+  <a href="quest-registry.html">Quests</a>
+  <a href="spells.html">Spells</a>
+  <a href="effects.html">Effects</a>
+  <a href="items.html">Items</a>
+  <a href="mobs.html">Mobs</a>
+  <a href="atlas.html">Atlas</a>
+  <a href="map-editor.html">Map Editor</a>
+  <a href="noclip.html">No-Clip</a>
+  <a href="reports.html" aria-current="page">Reports</a>
+  <a href="patch-notes.html">Patch Notes</a>
+</nav>
+<style>
+  .lede2 { max-width: 82ch; }
+  .tree { background: var(--surface); border: 1px solid var(--rule); border-radius: 8px;
+    padding: 14px 16px; overflow-x: auto; font-family: "IBM Plex Mono", ui-monospace, monospace;
+    font-size: 12.5px; line-height: 1.5; }
+  .qs { max-width: 90ch; } .qs li { margin: 7px 0; }
+  .mapgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 14px;
+    margin: 12px 0 28px; }
+  .mapcard { border: 1px solid var(--rule); border-radius: 10px; overflow: hidden; background: var(--surface);
+    display: flex; flex-direction: column; }
+  .mapcard .thumb { background: #14210f; aspect-ratio: 1/1; display: flex; align-items: center;
+    justify-content: center; overflow: hidden; }
+  .mapcard .thumb img { width: 100%; height: 100%; object-fit: contain; image-rendering: pixelated; }
+  .mapcard .noimg { color: #7a8a70; font: 500 12px "IBM Plex Mono", monospace; }
+  .mapcard .body { padding: 9px 11px 11px; }
+  .mapcard .mhead { display: flex; align-items: baseline; gap: 6px; flex-wrap: wrap; }
+  .mapcard .mid { font-family: "IBM Plex Mono", monospace; color: var(--ink-soft); font-size: 12px; }
+  .mapcard .mmeta { font-family: "IBM Plex Mono", monospace; font-size: 11px; color: var(--ink-soft);
+    margin: 2px 0 5px; }
+  .mapcard p { margin: 0; font-size: 13px; line-height: 1.45; }
+  .badge { font: 600 9.5px/1 "IBM Plex Mono", monospace; letter-spacing: .05em; border-radius: 9px;
+    padding: 3px 7px; white-space: nowrap; }
+  .s-hub .badge, .badge.s-hub { background: #7A5CBF; color: #fff; }
+  .s-ok .badge, .badge.s-ok { background: #2E7D62; color: #fff; }
+  .s-warn .badge, .badge.s-warn { background: #A0741F; color: #fff; }
+  .s-no .badge, .badge.s-no { background: #8a8f98; color: #fff; }
+  .mapcard.s-no .thumb { background: #1a1c20; }
+</style>
+
+<div class="wrap">
+  <header class="hero">
+    <p class="kicker">Project1998 · team review</p>
+    <h1>Palace Interiors — layout recovery</h1>
+    <p class="lede lede2">The Buya and Koguryo palace interiors shipped <b>disconnected</b> — no
+      <code>Warps.csv</code> rows, because the RTK/CTK dumps never wired them. We recovered the
+      connectivity from passive live-retail walkthroughs (enter-map self-identification) and filled
+      the tiles from our own map geometry. <b>But the live 7.x palaces are redesigned</b>, so the exact
+      4.95 door order and several tile placements are <b>best-guesses</b>, and a number of rooms have no
+      <code>.map</code> terrain on our side at all.</p>
+    <p class="meta">Each map below shows its rendered image — if a door order looks wrong or you
+      remember a room we’re missing, that’s exactly the feedback this report is fishing for.
+      Colors: <span class="badge s-hub">HUB</span> <span class="badge s-ok">WIRED</span>
+      <span class="badge s-warn">terrain, unwired</span> <span class="badge s-no">no terrain</span></p>
+  </header>
+  
+<h2 id="buya">Buya Palace</h2>
+<p>Recovered from a live-retail walk. The live 7.x Buya palace was <b>rebuilt</b> — it shares the 46xx id space but added a whole Lobby/Treasury/Kitchen/Prison wing and renumbered rooms (live “Army Quarters” 4614 ≠ our “Imperial Army” 4615). We wired the 4.95 rooms era-faithfully from geometry, using the live walk only to confirm the courtyard’s room set.</p>
+<h3>Connectivity (as wired)</h3>
+<pre class="tree">Courtyard (4604)
+├─ Tribunal Hall (4603)          door order best-guess
+├─ Imperial Ministry (4608)      door order best-guess
+├─ Throne Room (4606)  ✓center  ── Secret Garden (4613)  3 doors, top of throne
+├─ Royal Court (4609)            door order best-guess
+└─ Imperial Army (4615) ── Training Hall (4610)  via army&#x27;s top door</pre>
+<h3>Open questions for the team</h3>
+<ul class="qs"><li>Which courtyard door leads to which room? Only the center door → Throne is confirmed; Tribunal / Ministry / Royal Court / Imperial Army order is a guess.</li>
+<li>Where do Lasahn’s Chambers (4611) and Imperial Promenade (4612) connect? They each have one exit with no geometric destination.</li>
+<li>The courtyard’s east opening — dead end in 4.95, or a real room we’re missing?</li>
+<li>Training Hall’s two spare north doors + east opening — where to (probably the terrain-less soldier/officer rooms)?</li></ul>
+<h3>Associated maps</h3>
+<div class="mapgrid"><div class="mapcard s-hub">
+  <div class="thumb"><img loading="lazy" src="img/maps/TK4604.webp" alt="map 4604"></div>
+  <div class="body"><div class="mhead"><span class="mid">4604</span> <b>Buya Courtyard</b>
+    <span class="badge s-hub">HUB</span></div>
+    <div class="mmeta">31×31  → 330, 4603, 4606, 4608, 4609, 4615</div>
+    <p>Courtyard — 5 north vestibule doors + an east opening (east opening likely led to the 7.x-only Eternity Garden; left unwired).</p></div>
+</div>
+<div class="mapcard s-ok">
+  <div class="thumb"><img loading="lazy" src="img/maps/TK4603.webp" alt="map 4603"></div>
+  <div class="body"><div class="mhead"><span class="mid">4603</span> <b>Buya Tribunal Hall</b>
+    <span class="badge s-ok">WIRED</span></div>
+    <div class="mmeta">24×24  → 4604</div>
+    <p>Tribunal Hall — courtyard door (order best-guess).</p></div>
+</div>
+<div class="mapcard s-ok">
+  <div class="thumb"><img loading="lazy" src="img/maps/TK4608.webp" alt="map 4608"></div>
+  <div class="body"><div class="mhead"><span class="mid">4608</span> <b>Imperial Ministry</b>
+    <span class="badge s-ok">WIRED</span></div>
+    <div class="mmeta">12×12  → 4604</div>
+    <p>Imperial Ministry — courtyard door (best-guess); “restricted” room.</p></div>
+</div>
+<div class="mapcard s-ok">
+  <div class="thumb"><img loading="lazy" src="img/maps/TK4606.webp" alt="map 4606"></div>
+  <div class="body"><div class="mhead"><span class="mid">4606</span> <b>Buya Throne Room</b>
+    <span class="badge s-ok">WIRED</span></div>
+    <div class="mmeta">22×40  → 4604, 4613</div>
+    <p>Throne Room — CONFIRMED behind the courtyard’s center/grand door; also connects up to the Secret Garden (3 doors).</p></div>
+</div>
+<div class="mapcard s-ok">
+  <div class="thumb"><img loading="lazy" src="img/maps/TK4609.webp" alt="map 4609"></div>
+  <div class="body"><div class="mhead"><span class="mid">4609</span> <b>Buya Royal Court</b>
+    <span class="badge s-ok">WIRED</span></div>
+    <div class="mmeta">12×12  → 4604</div>
+    <p>Royal Court — courtyard door (best-guess).</p></div>
+</div>
+<div class="mapcard s-ok">
+  <div class="thumb"><img loading="lazy" src="img/maps/TK4615.webp" alt="map 4615"></div>
+  <div class="body"><div class="mhead"><span class="mid">4615</span> <b>Buya Imperial Army</b>
+    <span class="badge s-ok">WIRED</span></div>
+    <div class="mmeta">16×16  → 4604, 4610</div>
+    <p>Imperial Army — courtyard door (best-guess); its top door → Training Hall.</p></div>
+</div>
+<div class="mapcard s-ok">
+  <div class="thumb"><img loading="lazy" src="img/maps/TK4610.webp" alt="map 4610"></div>
+  <div class="body"><div class="mhead"><span class="mid">4610</span> <b>Buya Training Hall</b>
+    <span class="badge s-ok">WIRED</span></div>
+    <div class="mmeta">32×42  → 4615</div>
+    <p>Training Hall — via Imperial Army’s top door. Two other north doors + an east opening still unwired.</p></div>
+</div>
+<div class="mapcard s-ok">
+  <div class="thumb"><img loading="lazy" src="img/maps/TK4613.webp" alt="map 4613"></div>
+  <div class="body"><div class="mhead"><span class="mid">4613</span> <b>Secret Garden</b>
+    <span class="badge s-ok">WIRED</span></div>
+    <div class="mmeta">48×48  → 4606</div>
+    <p>Secret Garden — 3 south doors → top of the Throne Room (left/center/right). Tile placement best-guess.</p></div>
+</div>
+<div class="mapcard s-warn">
+  <div class="thumb"><img loading="lazy" src="img/maps/TK4611.webp" alt="map 4611"></div>
+  <div class="body"><div class="mhead"><span class="mid">4611</span> <b>Lasahn&#x27;s Chambers</b>
+    <span class="badge s-warn">terrain, unwired</span></div>
+    <div class="mmeta">12×10</div>
+    <p>Lasahn’s Chambers — single exit, destination undetermined from geometry.</p></div>
+</div>
+<div class="mapcard s-warn">
+  <div class="thumb"><img loading="lazy" src="img/maps/TK4612.webp" alt="map 4612"></div>
+  <div class="body"><div class="mhead"><span class="mid">4612</span> <b>Imperial Promenade</b>
+    <span class="badge s-warn">terrain, unwired</span></div>
+    <div class="mmeta">8×10</div>
+    <p>Imperial Promenade — single exit, destination undetermined.</p></div>
+</div>
+<div class="mapcard s-no">
+  <div class="thumb"><div class="noimg">no map image</div></div>
+  <div class="body"><div class="mhead"><span class="mid">4607</span> <b>General Quarters</b>
+    <span class="badge s-no">no terrain</span></div>
+    <div class="mmeta">—</div>
+    <p>General Quarters — no .map terrain in our registry.</p></div>
+</div>
+<div class="mapcard s-no">
+  <div class="thumb"><div class="noimg">no map image</div></div>
+  <div class="body"><div class="mhead"><span class="mid">4616</span> <b>Buya Devotion</b>
+    <span class="badge s-no">no terrain</span></div>
+    <div class="mmeta">—</div>
+    <p>Buya Devotion — no .map terrain.</p></div>
+</div>
+<div class="mapcard s-no">
+  <div class="thumb"><div class="noimg">no map image</div></div>
+  <div class="body"><div class="mhead"><span class="mid">4617</span> <b>Imperial Minister Office</b>
+    <span class="badge s-no">no terrain</span></div>
+    <div class="mmeta">—</div>
+    <p>Imperial Minister Office — no .map terrain.</p></div>
+</div>
+<div class="mapcard s-no">
+  <div class="thumb"><div class="noimg">no map image</div></div>
+  <div class="body"><div class="mhead"><span class="mid">4618</span> <b>Buyan Fairgrounds</b>
+    <span class="badge s-no">no terrain</span></div>
+    <div class="mmeta">—</div>
+    <p>Buyan Fairgrounds — no .map terrain.</p></div>
+</div>
+<div class="mapcard s-no">
+  <div class="thumb"><div class="noimg">no map image</div></div>
+  <div class="body"><div class="mhead"><span class="mid">4619</span> <b>Soldier&#x27;s Quarters</b>
+    <span class="badge s-no">no terrain</span></div>
+    <div class="mmeta">—</div>
+    <p>Soldier’s Quarters — no .map terrain.</p></div>
+</div>
+<div class="mapcard s-no">
+  <div class="thumb"><div class="noimg">no map image</div></div>
+  <div class="body"><div class="mhead"><span class="mid">4620</span> <b>Officer&#x27;s Deck</b>
+    <span class="badge s-no">no terrain</span></div>
+    <div class="mmeta">—</div>
+    <p>Officer’s Deck — no .map terrain.</p></div>
+</div></div>
+
+  
+<h2 id="koguryo">Koguryo Palace</h2>
+<p>Recovered from a live-retail walk. Unlike Buya, the Koguryo rooms self-identify to the <b>same ids</b> in our registry (names match) — but several are resized in 7.x (our Mezzanine is 14×15 vs the live 30×20 hub) and a big chunk of the palace (Victory Square, Jeongwon, Treasury, Kitchen, Dining, Army Quarters) has no .map terrain on our side, so those connections are known but unwireable.</p>
+<h3>Connectivity (as wired)</h3>
+<pre class="tree">Courtyard (4504)
+├─ Throne Room (4506) ✓center ─┬─ Stairway (4514) ─┬─ Baths (4513) ✓
+│                              │               ├─ Kitchen (4529)  ✗ no terrain
+│                              │               └─ Dining (4530)   ✗ no terrain
+│                              └─ Treasury (4520)  ✗ no terrain
+├─ Royal Ministry (4509) ✓
+├─ Mezzanine (4505) ─┬─ Royal Court (4508) ✓
+│                    ├─ Victory Square (4518)  ✗ no terrain
+│                    └─ King MuHyul&#x27;s Jeongwon (4519)  ✗ no terrain
+└─ Army Quarters (4546)  ✗ no terrain</pre>
+<h3>Open questions for the team</h3>
+<ul class="qs"><li>Koguryo Tribunal Hall (4503) has terrain but wasn’t reachable on the live walk (a locked courtyard door?) — where does it connect?</li>
+<li>Our Mezzanine (4505) is a small 2-exit room but the live one is a big hub — in 4.95 did it only link Courtyard ↔ Royal Court, or more?</li>
+<li>The Stairway (4514) throne-wing tiles are guesses — does anyone recall the real door→room mapping (throne / baths / kitchen / dining)?</li>
+<li>Six rooms (Army Quarters, Victory Square, Jeongwon, Treasury, Kitchen, Dining) have no .map terrain — were they in 4.95 at all, and can anyone source the maps?</li></ul>
+<h3>Associated maps</h3>
+<div class="mapgrid"><div class="mapcard s-hub">
+  <div class="thumb"><img loading="lazy" src="img/maps/TK4504.webp" alt="map 4504"></div>
+  <div class="body"><div class="mhead"><span class="mid">4504</span> <b>Koguryo Palace Courtyard</b>
+    <span class="badge s-hub">HUB</span></div>
+    <div class="mmeta">30×30  → 0, 4505, 4506, 4509</div>
+    <p>Courtyard — doors to Throne (center), Royal Ministry (top-right), Mezzanine (mid row); other doors locked or → Army Quarters (no terrain).</p></div>
+</div>
+<div class="mapcard s-ok">
+  <div class="thumb"><img loading="lazy" src="img/maps/TK4506.webp" alt="map 4506"></div>
+  <div class="body"><div class="mhead"><span class="mid">4506</span> <b>Koguryo Throne Room</b>
+    <span class="badge s-ok">WIRED</span></div>
+    <div class="mmeta">30×30  → 4504, 4514</div>
+    <p>Throne Room — courtyard center door; top-left → Stairway, center-top → Treasury (no terrain).</p></div>
+</div>
+<div class="mapcard s-ok">
+  <div class="thumb"><img loading="lazy" src="img/maps/TK4509.webp" alt="map 4509"></div>
+  <div class="body"><div class="mhead"><span class="mid">4509</span> <b>Koguryo Royal Ministry</b>
+    <span class="badge s-ok">WIRED</span></div>
+    <div class="mmeta">12×12  → 4504</div>
+    <p>Royal Ministry — courtyard top-right door; “Ministry-members only”.</p></div>
+</div>
+<div class="mapcard s-ok">
+  <div class="thumb"><img loading="lazy" src="img/maps/TK4505.webp" alt="map 4505"></div>
+  <div class="body"><div class="mhead"><span class="mid">4505</span> <b>Royal Palace Mezzanine</b>
+    <span class="badge s-ok">WIRED</span></div>
+    <div class="mmeta">14×15  → 4504, 4508</div>
+    <p>Royal Palace Mezzanine — courtyard mid door → mezzanine; mezzanine → Royal Court. RESIZED in 7.x into a hub; our 4.95 version is small (2 exits).</p></div>
+</div>
+<div class="mapcard s-ok">
+  <div class="thumb"><img loading="lazy" src="img/maps/TK4508.webp" alt="map 4508"></div>
+  <div class="body"><div class="mhead"><span class="mid">4508</span> <b>Koguryo Royal Court</b>
+    <span class="badge s-ok">WIRED</span></div>
+    <div class="mmeta">12×12  → 4505</div>
+    <p>Royal Court — behind the Mezzanine.</p></div>
+</div>
+<div class="mapcard s-ok">
+  <div class="thumb"><img loading="lazy" src="img/maps/TK4514.webp" alt="map 4514"></div>
+  <div class="body"><div class="mhead"><span class="mid">4514</span> <b>Royal Palace Stairway</b>
+    <span class="badge s-ok">WIRED</span></div>
+    <div class="mmeta">16×16  → 4506, 4513</div>
+    <p>Royal Palace Stairway — 7-door hub behind the Throne; wired to Throne + Baths (best-guess tiles).</p></div>
+</div>
+<div class="mapcard s-ok">
+  <div class="thumb"><img loading="lazy" src="img/maps/TK4513.webp" alt="map 4513"></div>
+  <div class="body"><div class="mhead"><span class="mid">4513</span> <b>Kugnae Palace Baths</b>
+    <span class="badge s-ok">WIRED</span></div>
+    <div class="mmeta">40×30  → 4514</div>
+    <p>Kugnae Palace Baths — via the Stairway (best-guess).</p></div>
+</div>
+<div class="mapcard s-warn">
+  <div class="thumb"><img loading="lazy" src="img/maps/TK4503.webp" alt="map 4503"></div>
+  <div class="body"><div class="mhead"><span class="mid">4503</span> <b>Koguryo Tribunal Hall</b>
+    <span class="badge s-warn">terrain, unwired</span></div>
+    <div class="mmeta">22×25</div>
+    <p>Koguryo Tribunal Hall — has terrain but was not reached on the live walk (courtyard door was locked?); connection unknown.</p></div>
+</div>
+<div class="mapcard s-no">
+  <div class="thumb"><div class="noimg">no map image</div></div>
+  <div class="body"><div class="mhead"><span class="mid">4546</span> <b>Koguryo Army Quarters</b>
+    <span class="badge s-no">no terrain</span></div>
+    <div class="mmeta">—</div>
+    <p>Army Quarters — live: bottom-right courtyard door → here (3 sub-doors, mostly locked). No .map terrain.</p></div>
+</div>
+<div class="mapcard s-no">
+  <div class="thumb"><div class="noimg">no map image</div></div>
+  <div class="body"><div class="mhead"><span class="mid">4518</span> <b>Victory Square</b>
+    <span class="badge s-no">no terrain</span></div>
+    <div class="mmeta">—</div>
+    <p>Victory Square — live: off the Mezzanine. No .map terrain (71×70 live).</p></div>
+</div>
+<div class="mapcard s-no">
+  <div class="thumb"><div class="noimg">no map image</div></div>
+  <div class="body"><div class="mhead"><span class="mid">4519</span> <b>King MuHyul&#x27;s Jeongwon</b>
+    <span class="badge s-no">no terrain</span></div>
+    <div class="mmeta">—</div>
+    <p>King MuHyul’s Jeongwon — live: off the Mezzanine (upstairs). No .map terrain (100×100 live).</p></div>
+</div>
+<div class="mapcard s-no">
+  <div class="thumb"><div class="noimg">no map image</div></div>
+  <div class="body"><div class="mhead"><span class="mid">4520</span> <b>Koguryo Treasury</b>
+    <span class="badge s-no">no terrain</span></div>
+    <div class="mmeta">—</div>
+    <p>Koguryo Treasury — live: Throne center-top door. No .map terrain.</p></div>
+</div>
+<div class="mapcard s-no">
+  <div class="thumb"><div class="noimg">no map image</div></div>
+  <div class="body"><div class="mhead"><span class="mid">4529</span> <b>Royal Palace Kitchen</b>
+    <span class="badge s-no">no terrain</span></div>
+    <div class="mmeta">—</div>
+    <p>Royal Palace Kitchen — live: off the Stairway. No .map terrain.</p></div>
+</div>
+<div class="mapcard s-no">
+  <div class="thumb"><div class="noimg">no map image</div></div>
+  <div class="body"><div class="mhead"><span class="mid">4530</span> <b>Royal Dining Room</b>
+    <span class="badge s-no">no terrain</span></div>
+    <div class="mmeta">—</div>
+    <p>Royal Dining Room — live: off the Stairway. No .map terrain.</p></div>
+</div>
+<div class="mapcard s-no">
+  <div class="thumb"><div class="noimg">no map image</div></div>
+  <div class="body"><div class="mhead"><span class="mid">4542</span> <b>Koguryo Palace Hall</b>
+    <span class="badge s-no">no terrain</span></div>
+    <div class="mmeta">—</div>
+    <p>Koguryo Palace Hall — no .map terrain.</p></div>
+</div>
+<div class="mapcard s-no">
+  <div class="thumb"><div class="noimg">no map image</div></div>
+  <div class="body"><div class="mhead"><span class="mid">4543</span> <b>Koguryo Royal Room</b>
+    <span class="badge s-no">no terrain</span></div>
+    <div class="mmeta">—</div>
+    <p>Koguryo Royal Room — no .map terrain.</p></div>
+</div>
+<div class="mapcard s-no">
+  <div class="thumb"><div class="noimg">no map image</div></div>
+  <div class="body"><div class="mhead"><span class="mid">4544</span> <b>Koguryo Guest  Room</b>
+    <span class="badge s-no">no terrain</span></div>
+    <div class="mmeta">—</div>
+    <p>Koguryo Guest Room — no .map terrain.</p></div>
+</div></div>
+
+<footer>Session-generated report — a snapshot for team review, not regenerated nightly.
+The live atlas + database pages are the always-current view; when this report and the site disagree, the site wins.</footer>
+</div>
+</body>
+</html>
