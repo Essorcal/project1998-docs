@@ -99,6 +99,71 @@
   </header>
 
   <article>
+    <h2>Test client: bot console, task layer, Frida observe</h2>
+    <p class="meta">2026-09-04 · Essorcal</p>
+    <h3 class="sec">Bot console: every bot on the real map, with stats, timeline and expect results (test client PR #14, issue #12)</h3>
+    <ul>
+      <li><code>--console [port]</code> serves a loopback-only dashboard from the CLI process; default port 6174, <code>--console 0</code> takes any free port and prints the URL.</li>
+      <li>One tab shows every bot on the real 4.x map art with its tile and movement trail, peers, creatures and ground items; a panel per bot with HP, MP, level, experience, gold, bag and equipment; a filtered timeline of the most recent 2,000 stream lines with <code>ok</code> and <code>FAIL</code> distinguished and a count of trimmed lines.</li>
+      <li>The map renderer is the MapEditor's tile decoder compile-linked read-only from the sibling checkout; a change to its public surface in the main repo breaks this repo's build, which the README says.</li>
+      <li>The stream is the existing <code>--json</code> line writer teed to a WebSocket; with the flag off the output path is unchanged and byte-identical. A 5,000-line ring replays to late tabs; each tab's queue is bounded.</li>
+      <li>A dashboard port that is held, duplicate or out of range exits 2 with one line instead of crashing the process. This was the source of the <code>p1998-test.exe</code> crash dialogs.</li>
+      <li>Tile art is decoded on the first browser request, not at startup; patched map cells are outlined; a reconnect draws a run divider and a page that has failed five retries marks itself stale.</li>
+      <li>The CLI now requires the ASP.NET Core 8 shared runtime on every run, with or without the flag (issue #20).</li>
+      <li>Falls back to a labelled grid when the map data or the 5.33 <code>Tile.dat</code> is unavailable.</li>
+    </ul>
+    <h3 class="sec">Hygiene: melee-kill made deterministic, the build kept out of the server checkout, and the #101 rejection probe (test client PR #15, issues #10, #11)</h3>
+    <ul>
+      <li><code>melee-kill.txt</code> had two flakes: a 58 percent hit rate over 13 swings at a 6 HP dummy, and HP bleeding across runs until the bot died. Now 28 swings and an <code>@rez</code> at the top; 20 of 20 passes; the header derives the count from the measured rate.</li>
+      <li>Building the test client no longer writes into the referenced server checkout (22 files before, including <code>Shared.dll</code>; 0 of 92 after, also against a stale tree and with a live pair), apart from NuGet's restore state on a never-restored checkout.</li>
+      <li>New script forms: <code>attempt &lt;verb&gt;</code> treats a verb's failure as data; <code>expect disconnected</code> asserts the server closed the socket; an <code>expect</code> on a dropped bot answers text and evidence forms from the look-back and fails state forms on the spot.</li>
+      <li><code>scripts/pending/rejection-reaches-the-wire.txt</code> settles upstream #101: on a rejected arrival not one byte reaches the wire, 10 of 10, proved server-side by a read-loop trace; on the newer server build the text arrived 2 of 16 times, so the race is real but not deterministic; the login channel never loses its refusal because it writes synchronously and does not close; the GM-kick path delivers it 4 of 6.</li>
+      <li><code>@mob</code> spawns a level 0, AC 0, 1-damage dummy, so melee numbers against it describe that dummy, not a registry mob.</li>
+      <li>Issues #21 (<code>walk &lt;dir&gt; &lt;n&gt;</code> has no bound) and #22 (<code>cast-heal.txt</code>'s <code>@hp 100</code> rewrites MaxHp) filed.</li>
+    </ul>
+    <h3 class="sec">Task layer, part 1: guards, loops, and navigation by name (test client PR #16, issue #13)</h3>
+    <ul>
+      <li>Scripts can decide: <code>if ... else ... end</code>, <code>until</code> and <code>while</code> with a mandatory bound, <code>rest until</code>, <code>on death ... end</code>.</li>
+      <li><code>goto &lt;x&gt; &lt;y&gt;</code> pathfinds on the current map over the server's own <code>.map</code> terrain and object layers and walks it; <code>goto map &lt;id&gt; [&lt;x&gt; &lt;y&gt;]</code> routes across maps through <code>Warps.csv</code> (4,691 rows, 462 maps reachable from Buya) and reports the route.</li>
+      <li>A refused step is re-planned around: a wanderer is retried, a wall is remembered, a level-gated warp quotes what the server said; a <code>goto</code> onto a warp tile is refused before stepping.</li>
+      <li>Four observations added: <code>LevelChanged</code>, <code>Died</code>, <code>Respawned</code>, <code>MoveBlocked</code>; a transition is emitted before the state write that reveals it, because the reverse order is a race a script cannot recover from.</li>
+      <li>Conditions are snapshots and <code>expect</code> still waits; both come from one implementation, so every existing expect count is unchanged.</li>
+      <li>A missing loop bound, a block inside <code>sync</code>, and an out-of-range <code>goto</code> tile are parse errors naming the line.</li>
+      <li><code>TestClient/Tasks/</code> holds the map reader, the warp graph, the pathfinder and the navigator, with provenance; <code>ObjectFlagOverrides.csv</code> is read positionally, as the server does, and the note says how many overrides applied.</li>
+      <li>Six new scripts, including two pathfinder falsifications against the real map and a one-way ledge no ground flag can express.</li>
+      <li>Acceptance is now run in both plain and <code>--json</code> modes: a race was invisible in plain text and reproduced 8 of 8 under <code>--json</code>.</li>
+      <li>Issue #24 filed (the no-route message blames the warp rule for an occupant on the approach).</li>
+    </ul>
+    <h3 class="sec">Frida backend F1: attach to the real client and observe (test client PR #23, issue #17)</h3>
+    <ul>
+      <li><code>--backend frida</code> attaches to or spawns the real NexusTK 4.95 client and emits the same observations as the wire backend; F1 injects no input, and every input verb is refused with an explicit F2 boundary.</li>
+      <li>Six Winsock exports are tapped through a Python sidecar that validates the client by size and hash and verifies the attached process's path; the traffic is decrypted with the test client's own cipher, so the client's crypt functions are never touched.</li>
+      <li>Every connect to the client's baked-in <code>127.100.10.1:2000</code> is rewritten in memory to the selected test server; every other destination, including the game handoff, is left alone. No binary or hosts-file change.</li>
+      <li>Frame assembly, cipher handling, protocol state and typed decoding are shared by both backends through one decoder; the wire backend's sixteen scripts are unchanged in outcome. Plaintext is direction-aware: the client's login opcode is encrypted, the server's reply with the same opcode is not.</li>
+      <li>Raw frames are emitted in both directions; typed observations and state derive from server frames only; player looks are ignored until the entry-only self id is seen.</li>
+      <li>A framing error resyncs one socket direction and no longer disconnects the session; every sidecar precondition failure reaches the CLI as one line naming the reason; a malformed sidecar line is noted and skipped.</li>
+      <li><code>--timeout-ms</code> governs the wait for a human login; <code>P1998_CLIENT</code> accepts the executable or its directory.</li>
+      <li>Two real-client scripts (<code>scripts/frida/observe-smoke.txt</code>, <code>scripts/frida/yuri-garden-observe.txt</code>) and setup documentation; the eight verified self-walk addresses are recorded by client version for F2.</li>
+    </ul>
+    <h3 class="sec">Tooling (coordination, not in either repo)</h3>
+    <ul>
+      <li>One server pair per checkout: every concurrent test client worker and reviewer runs its pair from its own run-only server checkout (NexusTK-tc1 to tc4), never from the coordinator's.</li>
+      <li>Reviewers kill processes by path-checked PID only, never by name.</li>
+    </ul>
+    <h3 class="sec">Issues filed</h3>
+    <ul>
+      <li>#10, #11, #12, #13, #17: closed by the PRs above</li>
+      <li>#18 <code>ScriptRunner.DisposeAsync</code> throws an <code>AggregateException</code> nothing catches</li>
+      <li>#19 <code>StatsSeen</code> decoded HP 0 for a healthy character (seen once, not reproduced)</li>
+      <li>#20 the CLI requires the ASP.NET Core shared runtime even with <code>--console</code> absent</li>
+      <li>#21 <code>walk &lt;dir&gt; &lt;n&gt;</code> has no literal bound</li>
+      <li>#22 <code>cast-heal.txt</code>'s <code>@hp 100</code> permanently rewrites MaxHp</li>
+      <li>#24 <code>Navigator.NoRoute</code> blames the warp rule for an occupant on the approach</li>
+      <li>Relayed to the server repo, not filed: <code>Serve.ps1 -Status</code> reports the default base after a stop on another base; <code>ObjectFlagOverrides.csv</code>'s commented-out header; quoted comment rows in <code>MapCells.csv</code>; <code>Protocol.md</code>'s "baram" counts the opcode byte (the body decrypts to "aram")</li>
+    </ul>
+  </article>
+
+  <article>
     <h2>Sprint 5: tick isolation, atomic content reload, a real two-sender sync</h2>
     <p class="meta">2026-09-03 · Essorcal</p>
     <h3 class="sec">World.Tick: per-mob AI in MobAiTick.Step, one mob throwing no longer abandons the beat (PR #108, issue #36)</h3>
