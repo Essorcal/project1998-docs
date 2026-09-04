@@ -99,6 +99,150 @@
   </header>
 
   <article>
+    <h2>Sprint 5: tick isolation, atomic content reload, a real two-sender sync</h2>
+    <p class="meta">2026-09-03 · Essorcal</p>
+    <h3 class="sec">World.Tick: per-mob AI in MobAiTick.Step, one mob throwing no longer abandons the beat (PR #108, issue #36)</h3>
+    <ul>
+      <li>The per-mob half of the world tick (buffs, timers, pet, prey, targeting, spellcasting, Sute, chase, retaliation, wander) lives in <code>MobAiTick.Step</code> in <code>Server/World.MobAiTick.cs</code>; <code>World.Tick</code> is the orchestration around it.</li>
+      <li>A creature whose AI step throws is logged with its key, id and map and skipped for that beat; the other creatures, the other maps and every queued packet still go out; the skipped creature is left where the throw found it, nothing is unwound. Before, one throw dropped the whole beat.</li>
+      <li>A map whose AI sweep throws outside any single step is logged and skipped for that beat; the other maps continue.</li>
+      <li>The body moved verbatim: 640 lines, 605 identical, 35 changed in place (26 <code>continue</code> to <code>return</code>, 9 helper prefixes), same order, same <code>Random.Shared</code> draw sequence; tick cost measured unchanged.</li>
+      <li><code>MobAiTick.Step</code> asserts it runs under the world lock in Debug builds; <code>docs/common/Locking.md</code> lists it with its test.</li>
+      <li><code>World.MapState</code> is internal instead of private; the tick context does not hand it out.</li>
+      <li>Test seams <code>World.TickOnceForTest</code> (one heartbeat, no thread) and <code>MobTickContextForTest</code> (a per-map context with fresh queues).</li>
+      <li>Six tests in <code>Tests/MobAiTickTests.cs</code>: the poison tick, the blind swing and the walk-home step each queue from a direct-driven step; a step propagates a throw; a step off the lock asserts (Debug); one throwing creature does not cost the others their packets.</li>
+    </ul>
+    <h3 class="sec">Content: one immutable snapshot published with one write (PR #110, issue #33)</h3>
+    <ul>
+      <li><code>Content.Load</code> fills a thread-local <code>ContentSnapshotBuilder</code> and publishes one immutable 88-member <code>ContentSnapshot</code> with a single <code>Volatile.Write</code>; every <code>Content.X</code> API is a facade over it, so no call site changed.</li>
+      <li>No window in which a registry and its lookup index disagree: 10 paused reloads and 100,000 reads see 0 mismatches.</li>
+      <li>A failed reload keeps the previous registries, era calendar, door configuration and all four Lua hosts; <code>Reload failed (previous content kept)</code> is now true. Before, a load error could leave a mixed generation live.</li>
+      <li>The era calendar, <code>Doors</code> config and the four Lua hosts (<code>spell_verbs</code>, <code>item_verbs</code>, <code>npc_dialog</code>, <code>mob_ai</code>) prepare candidates during the load and commit at the publish boundary under the Lua gate, after the registry snapshot; reloaded verbs never run against the previous rows.</li>
+      <li>Reload failure tests cover a real data error partway through the load and the final publication boundary; the snapshot member count is derived by reflection.</li>
+      <li>The <code>@reload</code> failure log says the previous content publication remains live; the old "public tables replaced before failure" list is gone; a nested load or a registry write outside a load reports itself as a programming error.</li>
+      <li>On the loading thread, a facade read before its registry is assigned returns the builder's empty default, not the previous load's value; #35 replaces those implicit dependencies with parameters.</li>
+      <li>Migration in eight commits, one per content domain, each building clean; <code>Server/Content.Snapshot.cs</code> is new.</li>
+      <li>Startup load time and heap unchanged (about 205 versus 215 ms medians, 18 MB either way).</li>
+      <li><code>docs/common/Locking.md</code>: the content publisher now holds the Lua gate; <code>@reload</code> from a GM session takes the gate's slow path.</li>
+    </ul>
+    <h3 class="sec">Test client: a real two-sender <code>sync</code> (Essorcal/project1998-testclient PR #9, issue #7)</h3>
+    <ul>
+      <li><code>sync … end</code> and <code>all:</code> build and encrypt every bot's first frame, park it, and release the socket writes together on a barrier from one thread per bot.</li>
+      <li>A block reports the gap it achieved between the writes: <code>sync: released 2 sends on a barrier, gap 3.0 us [two +0.0, main +3.0]</code>.</li>
+      <li>New assertion <code>expect gap &lt;us&gt;</code>; a block that cannot be a race says why and fails the assertion instead of passing on an older block's number; a timed-out barrier reports the timeout and fails it too.</li>
+      <li>Measured on the local server: two contending steps now leave a few microseconds apart (median about 3) where they used to leave about 560 apart; <code>two-bots-one-tile.txt</code> now sees the winner vary run to run instead of the first-declared bot winning every time.</li>
+      <li>The winner is not the earlier writer about half the time: at this gap the server's socket read order decides the tile, not the client's write order.</li>
+      <li>New contract member <code>IGameBackend.ArmSendGate</code>, implemented once in <code>GameBackendBase</code>; nothing else in the contract changed shape.</li>
+      <li>New scripts <code>two-bots-all-together.txt</code> and <code>two-bots-nested-all.txt</code> (<code>all:</code> inside <code>sync</code>, the regression guard for a 2 s stall the review found and the round fixed).</li>
+      <li>The barrier's spin rendezvous no longer sleeps, so two writes cannot be split by milliseconds while the gate reports a clean release; the gate is disposed with its block, and the login arrival frame cannot be mistaken for a gated one.</li>
+      <li><code>README.md</code> and <code>docs/DESIGN.md</code> say what the barrier is worth (independence from what each bot had to do, not the small number on a symmetric block), which frame is gated for verbs like <code>attack &lt;id&gt;</code> that turn first, and that every line of a gated block runs on its own thread.</li>
+      <li><code>melee-kill.txt</code> is flaky independently of this change (13 swings at a 6 HP mob with a real miss chance); a follow-up.</li>
+    </ul>
+    <h3 class="sec">Tooling (local, not on upstream)</h3>
+    <ul>
+      <li><code>worker_guard.py</code>: the coordinator profile now judges git aimed at another clone (<code>git -C &lt;clone&gt;</code> or <code>cd</code> into it) by that clone's own guard mode, so subagents launched from the coordination session are held by the same rules as a desktop session in the clone.</li>
+      <li><code>worker_guard.py</code>: Windows backslash paths and Git Bash <code>/c/</code> paths resolve correctly; both shapes previously slipped past the "never another checkout" rule in every profile. Self-test is 68 cases.</li>
+    </ul>
+    <h3 class="sec">Issues filed</h3>
+    <ul>
+      <li>#106 <code>World.Tick</code>: the pre-loop phases (1)-(1.7) still have no exception boundary</li>
+      <li>#107 <code>World.Tick</code>: the fourteen queue lists and the post-lock flush want a type and a method of their own</li>
+      <li>#109 <code>World.Tick</code>: a creature that throws on every beat logs a full stack per mob per beat, unthrottled, under the lock</li>
+      <li>#111 Narrow mutable collection types in the content snapshot</li>
+      <li>#112 Make EraCalendar loading observable and remove its duplicate tuning read</li>
+      <li>#113 Report rejected Lua reloads when the previous host stays live</li>
+      <li>Closed by this sprint: #33, #36, test client #7</li>
+    </ul>
+  </article>
+
+  <article>
+    <h2>Sprint 4: persistence, movement and mob state under the lock, the launcher</h2>
+    <p class="meta">2026-09-03 · Essorcal</p>
+    <h3 class="sec">Character records upgrade explicitly and unreadable rows are protected (PR #96, issue #32)</h3>
+    <ul>
+      <li>Character saves carry a schema version; a blob with none is schema 0 and reaches schema 1 only through the upgrader.</li>
+      <li>Renaming or removing a character field without an upgrader step fails a test instead of silently dropping player state.</li>
+      <li>An unreadable character record refuses login with its own message, is marked on that failed load, and no save path can overwrite it afterwards.</li>
+      <li>A temporary database error at login says storage is unavailable rather than calling the record corrupt.</li>
+      <li>SQLite migrations run in order under <code>PRAGMA user_version</code> and are idempotent against the deployed schema.</li>
+      <li>Persistence warnings reach the server and login log files, not only the console.</li>
+      <li>Save cost: the never-overwrite check is one integer inside the transaction, not a parse of the stored record.</li>
+    </ul>
+    <h3 class="sec">Two players can no longer land on one tile at once (PR #97, issue #30)</h3>
+    <ul>
+      <li>The occupancy check and the position write for a step happen inside one world-lock acquisition (<code>World.TryMovePlayer</code>).</li>
+      <li>Walk snap-backs write position through the world lock.</li>
+      <li>The viewport reconcile reads peer positions from a snapshot taken under the lock, so a torn coordinate pair cannot be seen.</li>
+      <li><code>World.PlayerAt</code> and <code>World.PvpGhostAt</code> removed; their predicates live in <code>TryMovePlayer</code>.</li>
+      <li>New race test: 400 barrier-released rounds, exactly one winner each; the old shape fails 15 to 57 rounds.</li>
+    </ul>
+    <h3 class="sec">Warp arrivals write position under the world lock (PR #102, issue #99, part 1)</h3>
+    <ul>
+      <li>Every arrival (doorway warps, scripted entrances, world map, Gateway, GM teleports) resolves its tile and writes it inside one lock acquisition (<code>World.PlacePlayer</code>).</li>
+      <li><code>@approach</code>, <code>@bring</code> and <code>@npc</code> pick their free tile inside the same acquisition that writes it; <code>Session.ApproachTile</code> removed.</li>
+      <li>An <code>ArrivalPolicy</code> switch exists with two members that reproduce current behaviour; whether an occupied arrival tile should refuse or step aside waits on a source check (#99 stays open for that).</li>
+    </ul>
+    <h3 class="sec">Lock hygiene (PR #100)</h3>
+    <ul>
+      <li>A Lua mob heal and the Lua status read now go through the world lock; the heal's arithmetic is unchanged.</li>
+      <li>The mob-AI lock guard scans <code>MobScript.cs</code> and <code>SuteAi.cs</code> and matches bare, prefixed and member-chain forms.</li>
+      <li>The autosave race test runs a fixed number of barrier-released rounds instead of a wall clock.</li>
+    </ul>
+    <h3 class="sec">Mob state under the world lock, part 2 (PR #105, issue #103)</h3>
+    <ul>
+      <li>Handing an item to a mob and claiming a harvest node go through lock-owning World methods.</li>
+      <li>The harvest claim is one acquisition; the split form double-claims under a race.</li>
+      <li>The Lua hook entry asserts the world lock is not held (Debug builds).</li>
+      <li><code>on_healed</code> removed from the mob script hooks: it was advertised, resolved at load, and never fired; which heal would fire it is unsourced.</li>
+      <li>Guard patterns cover the handed list, harvest claim fields, and <code>node</code>-named receivers.</li>
+    </ul>
+    <h3 class="sec">Content.cs split by domain (PR #104, issue #34)</h3>
+    <ul>
+      <li><code>Server/Content.cs</code> (5,108 lines) is now <code>Content.cs</code> (496) plus <code>Content.Csv.cs</code>, <code>Content.Maps.cs</code>, <code>Content.Mobs.cs</code>, <code>Content.Items.cs</code>, <code>Content.Spells.cs</code>, <code>Content.Quests.cs</code>, <code>Content.Music.cs</code>, <code>Content.Tuning.cs</code>.</li>
+      <li>Pure file moves, one commit per file; 395 declarations audited identical; loaded content identical before and after.</li>
+    </ul>
+    <h3 class="sec">Dev launcher: Test-Branch.ps1 (PR #98, issue #95)</h3>
+    <ul>
+      <li><code>Scripts\Test-Branch.ps1 -Checkout &lt;path&gt;</code> starts a server pair, runs every test client script, stops the pair, prints a per-script table; exit 0 only when all pass.</li>
+      <li>Default port base 3000; refuses when ports are held, when the checkout's own pair is running, or when the server or test client fails to build, each with its own exit code.</li>
+      <li>Ctrl+C and Ctrl+Break stop the pair cleanly; the handler is installed after validation and removed on exit.</li>
+      <li><code>-Bots</code> grants tester and GM tier to every named account (default <code>botone,bottwo</code>).</li>
+      <li><code>Scripts\Serve.ps1</code> fix: its start path returned exit 0 after a failed build; it now returns the build's failure.</li>
+    </ul>
+    <h3 class="sec">Test client PR 4: two bots in one script, melee, and the exchange window (Essorcal/project1998-testclient #4)</h3>
+    <ul>
+      <li><code>bot &lt;alias&gt; &lt;user&gt; &lt;pass&gt;</code>, <code>&lt;alias&gt;:</code> prefixes, <code>all:</code>, <code>sync … end</code>; peers tracked through the move packet; <code>attack</code>, <code>trade</code>, <code>offer</code>, <code>confirm</code>, <code>cancel</code>; <code>expect peer</code>, <code>expect hit</code>, <code>expect dead</code>, <code>expect trade</code>, <code>expect exp</code>.</li>
+      <li>Four new scripts pass; <code>pending/trade-walkaway.txt</code> fails on purpose as the acceptance test for #57.</li>
+      <li><code>sync</code> starts lines in declaration order about 0.7 to 4 ms apart; it is not simultaneity, and the docs say so. A real two-sender race is test client #7.</li>
+    </ul>
+    <h3 class="sec">Test client PR 8: script guards (Essorcal/project1998-testclient #8, issues #5, #6)</h3>
+    <ul>
+      <li>Every literal the runner narrows to a wire type is range-checked when the script is read: map and position, slots, hit percent, offer amount and gold, menu reply, HP, price.</li>
+      <li><code># requires bots: botone bottwo</code> lets a script name the accounts it needs; a harness reads it before starting the server.</li>
+    </ul>
+    <h3 class="sec">Issues filed</h3>
+    <ul>
+      <li>#99 warp arrivals outside the lock, no destination check (part 1 landed as #102; policy half open)</li>
+      <li>#101 <code>TcpOutbound.Close</code> closes without draining; a rejection message may never reach the client</li>
+      <li>#103 mob state outside the lock, part 2 (closed by #105)</li>
+      <li>test client #5, #6 (closed by #8), #7 (sync race mechanism, open)</li>
+    </ul>
+    <h3 class="sec">Tooling (local, not upstream)</h3>
+    <ul>
+      <li>Coordinator scripts on local-run: <code>Board-Claim.ps1</code>, <code>Prep-WorkerClone.ps1</code> (with <code>-Switch</code>), <code>issue_overlap.py</code>; a worker guard hook; <code>/brief</code>, <code>/xreview</code>, <code>/sprint-notes</code> skills.</li>
+    </ul>
+    <h3 class="sec">Sprint 3 wrap-up (early 2026-09-03)</h3>
+    <ul>
+      <li>PR #85: Harden Body stops a mythic's Stormstrike (#79).</li>
+      <li>PR #86: <code>Scripts\Serve.ps1</code> starts, inspects and stops a stamped local server pair (#83).</li>
+      <li>PR #91: GM commands use one reply channel and one argument parser (#43).</li>
+      <li>PR #92: a second local server pair derives the game port from the login port (#84).</li>
+      <li>PR #94: <code>-PortBase</code> honoured; all four ports recorded in the session file (#93).</li>
+      <li>Test client PRs 2 and 3: items, dialog, <code>expect text</code>, stats decode; cast, equipment, shop, bank, profile card.</li>
+    </ul>
+  </article>
+
+  <article>
     <h2>Ops &amp; testing commands</h2>
     <p class="meta">2026-08-31 · Essorcal</p>
     <h3 class="sec">GM &amp; tester commands</h3>
