@@ -38,6 +38,7 @@ NAV = """<nav class="sitenav">
   <a class="brand" href="./">Project1998</a>
   <a href="commands.html">Commands</a>
   <a href="quest-registry.html">Quests</a>
+  <a href="legend-marks.html">Legend Marks</a>
   <a href="spells.html"{sp}>Spells</a>
   <a href="effects.html">Effects</a>
   <a href="items.html"{it}>Items</a>

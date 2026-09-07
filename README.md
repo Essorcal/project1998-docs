@@ -9,6 +9,7 @@ published at **https://p1998.essorcal.com/**.
 |---|---|---|
 | `commands.html` | The @Command Scroll — every `@` chat command | **generated** from `Server/Commands.cs` |
 | `quest-registry.html` | Quest keys + legend marks | hand-ported from the tester sheet |
+| `legend-marks.html` | Legend Mark Chronology — every mark on a real-world timeline | one-off import from the users.nexustk.com archive study |
 | `spells.html` | Spells & skills DB | **generated** from game-data CSVs |
 | `items.html` | Items DB (real icons) | **generated** from game-data CSVs |
 | `mobs.html` | Mobs DB (spawns, drops, casts) | **generated** from game-data CSVs |
