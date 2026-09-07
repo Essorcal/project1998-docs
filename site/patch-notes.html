@@ -99,6 +99,77 @@
     content-only changes hot-reload with no restart.</p>
   </header>
 
+  <article id="testclient-2026-09-07">
+    <h2>Test client: bug batch, console commands and run control, persisted-state headers, task layer part 2</h2>
+    <p class="meta">2026-09-07 · Essorcal · test client PRs <a href="https://github.com/Essorcal/project1998-testclient/pull/26">#26</a>, <a href="https://github.com/Essorcal/project1998-testclient/pull/29">#29</a>, <a href="https://github.com/Essorcal/project1998-testclient/pull/33">#33</a>, <a href="https://github.com/Essorcal/project1998-testclient/pull/39">#39</a>, <a href="https://github.com/Essorcal/project1998-testclient/pull/37">#37</a>, <a href="https://github.com/Essorcal/project1998-testclient/pull/36">#36</a></p>
+    <h3 class="sec">Console builds against current server master, clone-layout fallback, peers labelled by nameplate (test client PR #26)</h3>
+    <ul>
+      <li>The console project references <code>Shared</code> from the server checkout, so it builds against a server master where <code>MapEditor/Assets.cs</code> reads its CSV through <code>Shared.Csv</code>; the output lands in the test client's own <code>build\external\</code>, never in the server checkout.</li>
+      <li><code>Directory.Build.props</code> finds the server repo at <code>..\NexusTK</code> or, for a clone under <code>C:\Repo\Project1998\</code>, at <code>..\..\NexusTK</code>; <code>P1998_REPO</code> and <code>-p:P1998Repo</code> still win.</li>
+      <li><code>CreatureSeen</code> gains an optional <code>Name</code>; the bot card labels another player by nameplate instead of <code>peer 1</code>.</li>
+      <li>Server side: <code>Test-Branch.ps1</code> stages every test client project it builds, including the console and <code>build\</code>.</li>
+    </ul>
+    <h3 class="sec">Bug batch: disposal verdict, walk bound, cast-heal MaxHp, blocked-route text (test client PR #29, issues #18, #21, #22, #24; #19 investigated and closed)</h3>
+    <ul>
+      <li>A backend that fails to close no longer ends the process with an unhandled exception; the run keeps its own exit code and one stderr line names the bot and the inner cause.</li>
+      <li><code>walk &lt;dir&gt; &lt;n&gt;</code> is bounded to 1..255 at parse time, including under <code>attempt</code>; trailing tokens and signed counts are refused with the line and the text.</li>
+      <li><code>expect hp max</code> and <code>expect hp below max</code> added, usable in <code>if</code>, <code>until</code> and <code>rest until</code> (written <code>until hp max max &lt;n&gt;</code>); a bare <code>hp</code> condition is a parse error.</li>
+      <li><code>cast-heal.txt</code> heals relative to the character's maximum and no longer writes MaxHp; it says what persisted state it still changes.</li>
+      <li>A no-route message names the tile that cut the last successful route (<code>the route was cut at (17,78): occupied</code>) instead of blaming the warp rule; the first-plan case keeps the old sentence, which is honest there.</li>
+      <li>#19 (HP decoded as 0 for a healthy character) closed: the decoder was right. A character that ends a run dead is persisted dead and logs in with HP 0; a <code>Died</code> observation right after <code>login</code> is the tell, and <code>on death</code> fires immediately for a persisted ghost.</li>
+    </ul>
+    <h3 class="sec">Console slice 1: a command box, typed lines, and a REPL (test client PR #33, issue #25)</h3>
+    <ul>
+      <li>The bot console takes commands: a box under the timeline sends one script line at a time through the existing stream socket.</li>
+      <li>A typed line is a script line: same grammar, same range checks, same <code>&lt;alias&gt;:</code> prefix, <code>all:</code> included; a refused line is answered with the parser's own words and nothing runs.</li>
+      <li>Typed lines run between statements only: the statement boundary, a top-level <code>wait</code>, a REPL's idle loop; never inside a <code>sync</code>/<code>all:</code> block, whose lines run concurrently (found in review: a typed walk had interleaved a scripted one inside a block).</li>
+      <li>Every typed line is echoed to the stream as <code>{"kind":"injected",...}</code> before its results; a failing typed <code>expect</code> is answered at once and still counted at the end; a line typed after the run's summary is answered <code>not run</code>.</li>
+      <li><code>--console</code> with no script path is a REPL: it logs in, waits for typed lines, and <code>quit</code> ends it (refused during a scripted run).</li>
+      <li>Messages are decoded once per whole frame and the size cap is counted in bytes (a character split across two socket reads used to come back as two replacement characters).</li>
+      <li>The bot card draws the server's over-head health bar above a creature it has seen hit.</li>
+      <li><code>--json</code> with <code>--console</code> absent is byte-identical to <code>main</code>, verified against a build of <code>main</code>; suite 21/21; the four two-bot scripts pass with the flag on and off.</li>
+      <li>Known: <code>--console</code> forces JSON-line stdout (PR 14 behaviour), so there is no plain-text mode for a run with a console attached.</li>
+    </ul>
+    <h3 class="sec">Suite scripts declare the persisted state they change; relative <code>expect hp</code> (test client PR #39, issue #31)</h3>
+    <ul>
+      <li>Every script under <code>scripts/</code>, <code>scripts/pending/</code> and <code>scripts/frida/</code> carries a <code>PERSISTED STATE:</code> header line naming what it leaves on the account (items, coins, cleared bags, taught spells, Will, exp, saved position, items it removes on entry).</li>
+      <li><code>@hp 100</code> is gone from the suite: <code>death-handler.txt</code> and <code>item-roundtrip.txt</code> use <code>@rez</code> and the <code>hp max</code> forms; MaxHp is the same before and after a whole suite run (151 before, 151 after, with the gold and exp deltas matching the headers).</li>
+      <li><code>expect hp +&lt;n&gt;|-&lt;n&gt;</code> added in the shape of <code>expect gold +n</code>: the change since the last command started; the drink is asserted as <code>-25</code> and the apple as <code>+5</code>. Relative HP expects assume no regeneration tick lands between the command and its report (a character wounded for 25 s or more can see one 2% tick; the accumulator is per login session, so the suite scripts cannot).</li>
+    </ul>
+    <h3 class="sec">Console slice 2: pause, resume, step, abort, and a per-run token (test client PR #37, issue #25)</h3>
+    <ul>
+      <li>Four buttons above the command box pause, resume, step and abort a run. Pause lands at the next statement boundary, never inside a verb waiting on the server, and the run says which line it is parked on; the page lights that line. A pause the run ends before it can land says so.</li>
+      <li>Step runs exactly one statement and parks again. A parked run still takes typed lines, and a death that arrives while parked runs its handler on the way out, before the statement it was parked on.</li>
+      <li>Abort ends a run the way a failed <code>expect</code> does: exit 1 with <code>aborted at line N</code> in the failure list, the program's last statement included (<code>aborted after line N</code>), so a harness cannot read a stopped run as a passed one.</li>
+      <li>Every run mints a token and prints it in the fragment of the URL on stderr; the command channel refuses any message without it (<code>console: refused, no run token</code>); a tab without the token sees everything and can send nothing; a token from another run is refused the same way; adding the token to an open tab's URL is enough, no reload.</li>
+      <li>Every message is a JSON envelope; a script line and a control action are told apart by which field they arrive in, so nothing typed at the box can become a control action.</li>
+      <li>Refused commands reach the run's stdout log as well as the page; a connection refused twenty times is closed and told why.</li>
+      <li>Suite 21/21 with 195 expects; <code>--json</code> with <code>--console</code> absent still byte-identical to <code>main</code>.</li>
+    </ul>
+    <h3 class="sec">Task layer, part 2: fight, hunt, level-up, checkpoints (test client PR #36, issue #30)</h3>
+    <ul>
+      <li><code>fight [nearest|&lt;id&gt;] [heal &lt;pct&gt; "&lt;spell or item&gt;"] [flee &lt;pct&gt;]</code>: swing until the target's bar empties and it despawns, healing off your own HP and giving up when told to; one note per fight (<code>killed</code>, <code>fled</code>, <code>gone</code>, <code>defeated</code>, <code>spent</code>).</li>
+      <li><code>hunt [&lt;name&gt;|any] until &lt;cond&gt; max &lt;n&gt;|&lt;n&gt;ms [heal] [flee] [loot]</code>: pick, approach, fight, loot, repeat until the condition holds. The bound is mandatory, there is no unbounded form, and after review it reaches inside the fight and the approach: a 20 s bound ended at 20.1 s where it had run 148 s.</li>
+      <li>A death inside a hunt runs the script's <code>on death</code> handler and the hunt carries on. A creature the bot cannot reach is reported once per creature, not once per 100 ms poll (1,118 lines in a minute became 16).</li>
+      <li><code>LevelUp</code> observation, the narrower half of <code>LevelChanged</code>, for a level gained; <code>expect level &lt;n&gt;|+&lt;n&gt;|-&lt;n&gt;</code>; <code>expect killed &lt;n&gt;|+&lt;n&gt;</code> (at least n, counted from the server's own "You defeated" line).</li>
+      <li><code>--checkpoint &lt;file&gt; [--checkpoint-ms N]</code> rewrites one JSON document of state, counters and recent notes while a long run is going, from a scripted run or a REPL; the replace is retried so a reader holding the file cannot lose an interval; <code>--json</code> output is unchanged with or without the flag.</li>
+      <li>Five scripts: <code>fight-one</code>, <code>fight-heal</code>, <code>hunt-level</code>, <code>hunt-death</code>, <code>level-up-observed</code>. <code>hunt-level</code> reaches level 2 from twelve real kills, no <code>@exp</code>, six runs for six.</li>
+      <li>Measured: a bare-handed level-1 character cannot reach level 2 in Dirt Cave at all (3 kills and 11 deaths in 198 s; each death costs 60 exp against 25 a kill, so the bar goes backwards), which is why the script arms the bot with one weapon. Armed: 12 kills, 0 deaths, 31 to 474 s of hunting depending on the cave's respawn timer.</li>
+      <li>Measured: melee hit rate re-checked at 58.0% (360 landed of 621 swings), the same figure PR 16 measured.</li>
+      <li>Measured: kill experience inside the character's six-hour totem window is multiplied by 1.05, so the run reads +312 instead of +300 about a quarter of the time. Neither is a defect; the script asserts the level, not the number.</li>
+      <li>Only the player look (0x33) carries a name with an entity; creatures come through the creature list with none, so a named hunt matches nothing on this server and says so. Every script uses <code>hunt any</code>.</li>
+      <li>The suite now has 26 scripts and needs <code>-Bots botone,bottwo,botgrind -Passes bot1pass,bot2pass,bot3pass -ScriptTimeoutSec 900</code>: the harness's 120 s per-script backstop is shorter than a hunt (upstream #146, #147).</li>
+    </ul>
+    <h3 class="sec">Process, tooling, and findings</h3>
+    <ul>
+      <li>Review tiers adopted 2026-09-06: A (two reviewers, negative controls, merged-tree build) only for locks, persistence, wire framing, process lifecycle and credentials; B (one bounded review: the acceptance list plus at most three named items); C (no reviewer; the coordinator's verification record is the gate). Written into the workflow repo, the assignment and review templates, and the brief and review skills; the open items on both repos are triaged.</li>
+      <li>Five test client clones and five run-only server checkouts (<code>NexusTK-tc1</code> to <code>tc5</code>) so implementation, review and re-check pairs run concurrently.</li>
+      <li>Frida F2 (PR #38, issue #28: login, walk, turn and say through injected input on the real client) is in review. The first review found two blockers: the client's login screen pre-fills the name it remembers in the registry, shared with the retail client, so an unattended run can submit the wrong name; and a client spawned by the run inherits the CLI's output pipe and outlives the run, so a piped capture hangs until it is killed. Fix round pending. Never capture the Frida CLI through a pipe; redirect to files.</li>
+      <li>#20 (the CLI needs the ASP.NET Core runtime even without <code>--console</code>) is in progress with Codex.</li>
+      <li>Issues filed on the test client: #32 (Buya hunt: mobs respawn onto the corridor within 20 s of <code>@kill</code>), #34 (a script that stops with exit 3 reports its disconnect as an object-disposed exception), #35 (see #145). Upstream: <a href="https://github.com/project1998/Project1998/issues/145">#145</a> (<code>@kill</code> sends a player despawn to other views for entities it does not remove), <a href="https://github.com/project1998/Project1998/issues/146">#146</a> (a script should declare its own time budget to the harness), <a href="https://github.com/project1998/Project1998/issues/147">#147</a> (the harness should read the <code># requires bots:</code> header).</li>
+      <li>Server observations, none needing a fix here: the death experience penalty is a flat fifth of the level band, clamped at zero; a world mob's HP is authoritative and does not regenerate, so a fight interrupted by the attacker's own death resumes where it left off; <code>@exp &lt;n&gt; kill</code> is eligible for the totem bonus (300 lands as 315); <code>TK370.map</code> has no solid cells and no objects at all; Dirt Cave's sixteen spawns are emptied by one hunt and refill on the server's timer, which is where a back-to-back run's 474 s of hunting comes from.</li>
+    </ul>
+  </article>
   <article id="server-maintenance-2026-09-06">
     <h2>Server maintenance: disconnect messages and packet handling</h2>
     <p class="meta">2026-09-06 · Server PRs <a href="https://github.com/project1998/Project1998/pull/142">#142</a>, <a href="https://github.com/project1998/Project1998/pull/143">#143</a> and <a href="https://github.com/project1998/Project1998/pull/144">#144</a></p>
