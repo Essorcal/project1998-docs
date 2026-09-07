@@ -98,6 +98,17 @@
     content-only changes hot-reload with no restart.</p>
   </header>
 
+  <article id="server-maintenance-2026-09-06">
+    <h2>Server maintenance: disconnect messages and packet handling</h2>
+    <p class="meta">2026-09-06 · Server PRs <a href="https://github.com/project1998/Project1998/pull/142">#142</a>, <a href="https://github.com/project1998/Project1998/pull/143">#143</a> and <a href="https://github.com/project1998/Project1998/pull/144">#144</a></p>
+    <ul>
+      <li><strong>Fix:</strong> Game-connection rejection and GM-disconnect messages can finish sending before the connection closes.</li>
+      <li>Boards, mail, action animations and inventory-removal packets now use shared packet-writing helpers and named protocol values, preserving their existing wire behavior.</li>
+      <li>Protocol documentation now reflects the verified 4.95 client mappings for item-removal messages and the Respect/Triumph emote bytes.</li>
+      <li>Removed five test cases that did not exercise server behavior; retained the packet and public API regression guards.</li>
+    </ul>
+    <p class="known">Alongside the disconnect-message fix, protocol maintenance preserves existing behavior. No intended changes to combat balance, items, quests or emotes.</p>
+  </article>
   <article>
     <h2>Test client: bot console, task layer, Frida observe</h2>
     <p class="meta">2026-09-04 · Essorcal</p>
