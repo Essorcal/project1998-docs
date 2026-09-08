@@ -99,6 +99,90 @@
     content-only changes hot-reload with no restart.</p>
   </header>
 
+  <article id="server-2026-09-08">
+    <h2>Server: four Nagnang quests, the crypts, World sections 3 and 4, group payouts, trade teardown, and a dead-code sweep</h2>
+    <p class="meta">2026-09-07 to 2026-09-08 · project1998 and Essorcal · Server PRs <a href="https://github.com/project1998/Project1998/pull/137">#137</a>, <a href="https://github.com/project1998/Project1998/pull/138">#138</a>, <a href="https://github.com/project1998/Project1998/pull/139">#139</a>, <a href="https://github.com/project1998/Project1998/pull/140">#140</a>, <a href="https://github.com/project1998/Project1998/pull/148">#148</a>, <a href="https://github.com/project1998/Project1998/pull/151">#151</a>, <a href="https://github.com/project1998/Project1998/pull/153">#153</a>, <a href="https://github.com/project1998/Project1998/pull/162">#162</a>, <a href="https://github.com/project1998/Project1998/pull/163">#163</a>, <a href="https://github.com/project1998/Project1998/pull/164">#164</a>, <a href="https://github.com/project1998/Project1998/pull/165">#165</a>, <a href="https://github.com/project1998/Project1998/pull/166">#166</a>, <a href="https://github.com/project1998/Project1998/pull/171">#171</a>, <a href="https://github.com/project1998/Project1998/pull/172">#172</a>, <a href="https://github.com/project1998/Project1998/pull/178">#178</a>, <a href="https://github.com/project1998/Project1998/pull/181">#181</a>, <a href="https://github.com/project1998/Project1998/pull/182">#182</a></p>
+    <h3 class="sec">Nagnang: Mage's Spirit Stone quest (PR #137, closes #133, project1998)</h3>
+    <ul>
+      <li>Wand offers "Mage Stone" at level 55; the three prophets talk once their mouse is zapped while Vexed; the crypt spirit speaks in Oh-mudum; Wand gives the Spirit stone and the "Family to the Nangen Mages" mark.</li>
+    </ul>
+    <h3 class="sec">Nagnang: Poet whip quest (PR #138, closes #134, project1998)</h3>
+    <ul>
+      <li>Staff runs the "Welcome Stranger" chain: Forever branch, Path of Choice, Sacred water dropped beside The Infected, then the Poet whip and "Destroyed Nangen Evil".</li>
+      <li>Staff moved from an unrenderable map into the Poet guild.</li>
+    </ul>
+    <h3 class="sec">Nagnang: Warrior's Nagnang Shield quest (PR #139, closes #136, project1998)</h3>
+    <ul>
+      <li>Sword takes a green squirrel pelt and opens the Gauntlet caves by level; touching Chung Ryong's statue with nothing red or blue killed gives the Nagnang shield and the legend; "shield" to Chul forges the bonded Tall shield.</li>
+      <li>Sword moved to a reachable map.</li>
+    </ul>
+    <h3 class="sec">Nagnang: Rogue's Dagger Uniform quest (PR #140, closes #135, project1998)</h3>
+    <ul>
+      <li>Master Dagger's full chain: the assassins, the Blue Rooster, Maro's pocket, the crow to Dae Shore, the Stardrop, Maso's scroll, then the Dagger Uniform secret and the Daggers Guild legend.</li>
+      <li>Master Dagger moved from an unrenderable map into Nagnang.</li>
+    </ul>
+    <h3 class="sec">Cemetery: all nine crypts open (PR #153, closes #152, project1998)</h3>
+    <ul>
+      <li>Eight mudum crypts had no warps at all; the nine doorways are wired from the period Atlas map.</li>
+    </ul>
+    <h3 class="sec">Warps: arrivals stack on an occupied tile (PR #148, closes #99)</h3>
+    <ul>
+      <li>Confirmed from play that the original game stacked arrivals; the default policy stays and the source is recorded in <code>Sources.csv</code>.</li>
+    </ul>
+    <h3 class="sec">World: MobMovement owns the mob step primitives (PR #151, #37 section 2)</h3>
+    <ul>
+      <li>The chase, retreat, straight hop, dart, step commit and collision gate move into <code>World.MobMovement</code>; the tick calls them at the same eight places. Six tests.</li>
+    </ul>
+    <h3 class="sec">World: WorldClock and WeatherService own the calendar and the weather (PR #165, #37 section 3)</h3>
+    <ul>
+      <li>The calendar, the <code>@clock</code> pin and the hour rollover move into <code>WorldClock</code>; zone overrides, per-map weather and the period sweep into <code>WeatherService</code>; sessions use <code>World.Clock</code> and <code>World.Weather</code>.</li>
+      <li>The lock-requiring methods assert the world lock; seven tests including the <code>@clock</code> and <code>@weather</code> reply text. <code>World.cs</code> is 2,702 lines, from 2,811.</li>
+    </ul>
+    <h3 class="sec">World: OnlineRegistry and AutoSaveLoop own the online slots and the sweep (PR #182, #37 section 4)</h3>
+    <ul>
+      <li>The duplicate-login table and the player lookups move into <code>OnlineRegistry</code>; the autosave sweep, its per-player fence and the shutdown flush into <code>AutoSaveLoop</code>; 53 call sites use <code>World.Online</code> and <code>World.AutoSave</code>.</li>
+      <li>The sweep asserts it is not under the world lock; without that a sweep under the lock failed silently. Seven tests. <code>World.cs</code> is 2,542 lines.</li>
+    </ul>
+    <h3 class="sec">Group kill payouts run under each member's session monitor (PR #166, closes #154)</h3>
+    <ul>
+      <li>A shared kill no longer terminates a Debug server: each member's tally and payout run under that member's monitor, and the killer's own monitor is taken for the trap and pet callers. Six tests.</li>
+    </ul>
+    <h3 class="sec">@exp kill splits across the group (PR #178, closes #155)</h3>
+    <ul>
+      <li><code>@exp &lt;n&gt; kill</code> goes through <code>AwardKillExp</code>: the group in range gets its share with the group totem rule; no quest credit; bare <code>@exp</code> is unchanged.</li>
+    </ul>
+    <h3 class="sec">Trade ends when either party leaves the map or dies (PR #172, #57 part 1)</h3>
+    <ul>
+      <li>Any relocation (door, warp, <code>@go</code>, Leap, Ambush, <code>@bring</code>, revive, Resurrect on a living target) or death ends an open exchange on both sides; a confirm after that refuses instead of finalizing.</li>
+      <li><code>EndTrade</code> runs under both sessions' monitors and the finalizer re-checks under the pair. Four tests.</li>
+    </ul>
+    <h3 class="sec">Mob tick: wander step commits through StepMobTo; detour fields dropped (PR #181, closes #149 and #150)</h3>
+    <ul>
+      <li>The wander step uses the same commit as every other step, so an Ice Beast that wanders onto its lava now melts.</li>
+      <li>The write-only detour fields and their seven resets are gone; four stale doc references fixed.</li>
+    </ul>
+    <h3 class="sec">Dead code sweep (PR #164, closes #56)</h3>
+    <ul>
+      <li>Four unreached cast handlers, the orphaned <code>@ignore</code>/<code>@friend</code> handlers, the unreachable "level" stat arm and two unused NPC abilities removed; seven stale "kept as fallback" comments and the "~90 commands" count corrected.</li>
+      <li>The NPC-speech gate tests for the real <code>@</code> prefix, with a test.</li>
+    </ul>
+    <h3 class="sec">Csv: a quoted "# ..." first field is a comment (PR #163, closes #131 and #157)</h3>
+    <ul>
+      <li><code>MapCells.csv</code>'s three quoted comment rows load as comments instead of dropped rows; the README census regenerated.</li>
+    </ul>
+    <h3 class="sec">Serve.ps1: -Status remembers the last stopped pair (PR #162, closes #130)</h3>
+    <ul>
+      <li>After a <code>-Stop</code> on any base, <code>-Status</code> reports that base's ports; an explicit <code>-PortBase</code> still wins.</li>
+    </ul>
+    <h3 class="sec">Test-Branch.ps1 reads script headers (PR #171, closes #146 and #147)</h3>
+    <ul>
+      <li>Each script's <code># budget:</code> is its timeout and its <code># requires bots:</code> names join the roster; <code>-Plan</code> prints the run without starting anything.</li>
+    </ul>
+    <h3 class="sec">Issues filed</h3>
+    <ul>
+      <li><a href="https://github.com/project1998/Project1998/issues/145">#145</a> <code>@kill</code> despawn for entities it does not remove · <a href="https://github.com/project1998/Project1998/issues/156">#156</a> Geomancer orbs unobtainable (project1998) · <a href="https://github.com/project1998/Project1998/issues/158">#158</a> Protocol.md names old World clock/weather members · <a href="https://github.com/project1998/Project1998/issues/159">#159</a> WrapForPane collapses double spaces · <a href="https://github.com/project1998/Project1998/issues/161">#161</a> stale CastGateway/CastPropose comments · <a href="https://github.com/project1998/Project1998/issues/167">#167</a> party member list mutated across threads during a payout · <a href="https://github.com/project1998/Project1998/issues/168">#168</a> late payout write after teardown · <a href="https://github.com/project1998/Project1998/issues/169">#169</a> CSV-open census test races a parallel collection · <a href="https://github.com/project1998/Project1998/issues/170">#170</a> trade survives walking out of range · <a href="https://github.com/project1998/Project1998/issues/173">#173</a> TryStartTrade writes the target's trade unlocked · <a href="https://github.com/project1998/Project1998/issues/174">#174</a> MarkPvpFoe drops the victim's monitor before Die() · <a href="https://github.com/project1998/Project1998/issues/175">#175</a> <code>ctx:setHp(0)</code> leaves Hp 0 with no death · <a href="https://github.com/project1998/Project1998/issues/176">#176</a> <code>@help</code> pane test renders page 1 only · <a href="https://github.com/project1998/Project1998/issues/177">#177</a> Die() drops the victim's monitor at ResyncPeers · <a href="https://github.com/project1998/Project1998/issues/179">#179</a> a throwing flush clears the dirty flag · <a href="https://github.com/project1998/Project1998/issues/180">#180</a> stale World registry names in comments and docs · <a href="https://github.com/project1998/Project1998/issues/183">#183</a> FindPlayer can return the kicked session during a re-login.</li>
+    </ul>
+  </article>
   <article id="testclient-2026-09-07">
     <h2>Test client: bug batch, console commands and run control, persisted-state headers, task layer part 2</h2>
     <p class="meta">2026-09-07 · Essorcal · test client PRs <a href="https://github.com/Essorcal/project1998-testclient/pull/26">#26</a>, <a href="https://github.com/Essorcal/project1998-testclient/pull/29">#29</a>, <a href="https://github.com/Essorcal/project1998-testclient/pull/33">#33</a>, <a href="https://github.com/Essorcal/project1998-testclient/pull/39">#39</a>, <a href="https://github.com/Essorcal/project1998-testclient/pull/37">#37</a>, <a href="https://github.com/Essorcal/project1998-testclient/pull/36">#36</a></p>
