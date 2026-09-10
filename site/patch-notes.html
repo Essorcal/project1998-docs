@@ -99,6 +99,69 @@
     content-only changes hot-reload with no restart.</p>
   </header>
 
+  <article id="server-2026-09-09">
+    <h2>Server: the death sequence closed, log headroom for warnings, World section 5, stale names, the self-test, MapEditor's package graph</h2>
+    <p class="meta">2026-09-09 · Essorcal · Server PRs <a href="https://github.com/project1998/Project1998/pull/184">#184</a>, <a href="https://github.com/project1998/Project1998/pull/185">#185</a>, <a href="https://github.com/project1998/Project1998/pull/186">#186</a>, <a href="https://github.com/project1998/Project1998/pull/190">#190</a>, <a href="https://github.com/project1998/Project1998/pull/191">#191</a>, <a href="https://github.com/project1998/Project1998/pull/192">#192</a>, <a href="https://github.com/project1998/Project1998/pull/193">#193</a></p>
+    <h3 class="sec">Die() reconciles peers after the save, so a revive cannot land mid-death (PR #184, closes #177)</h3>
+    <ul>
+      <li>A revive that arrives while a dying player's death sequence is still running can no longer leave the death penalty charged to a living player.</li>
+      <li>The viewport reconcile at death now runs after the save, next to the trade teardown, so the two calls that can drop the dying player's monitor are the last things <code>Die()</code> does.</li>
+      <li>On the dying player's own client the peer redraws now arrive after the penalty texts and the "You have been defeated" line instead of before them.</li>
+      <li>New test: a five-thread race proving the death completes before the reconcile lets another thread in.</li>
+    </ul>
+    <h3 class="sec">Log keeps headroom for Warn and Error under backpressure and counts drops by level (PR #190, closes #73)</h3>
+    <ul>
+      <li>When the log queue backs up (a stuck console, a slow disk), Info lines are refused at 61,440 queued lines while Warn and Error lines are admitted up to the 65,536 hard capacity.</li>
+      <li>Lines whose text starts with the hand-written <code>!!</code> or <code>!!!</code> prefix are admitted at that level whichever entry point wrote them, so the fatal-exception and slow-tick lines keep their headroom.</li>
+      <li>The overflow notice reads <code>dropped N info, N warn, N error</code> instead of one total.</li>
+      <li>The file-open control line is never refused by the drop policy.</li>
+      <li>Nothing blocks the caller; the no-wait add and the hard capacity are unchanged, and the output text of every line is byte-identical.</li>
+      <li>New tests cover the admission policy, the prefix rule, the notice text and the control line, in a serialised test collection.</li>
+    </ul>
+    <h3 class="sec">TkListener starts the world's threads; World keeps what they run (PR #185, #37 section 5, the last section)</h3>
+    <ul>
+      <li>The tick and autosave threads, the watchdog, the restart ladder and the status writer are started by the process host in <code>Net.cs</code> instead of by a method on <code>World</code>.</li>
+      <li><code>World.Start</code> is gone; <code>World</code> keeps the tick body, the restart schedule and a one-shot <code>MarkStarted</code> guard, so a second start is still a no-op and a test can still assert a constructed World has no threads.</li>
+      <li>The source-text pin on the thread wiring moved with the threads and got stricter: <code>World.cs</code> must contain no thread start at all.</li>
+      <li>New test: the start guard is one-shot under a four-thread race.</li>
+      <li><code>World.cs</code> is 2,520 lines; all five #37 extractions are done, the epic's ~1,500-line target is not.</li>
+    </ul>
+    <h3 class="sec">Stale member names in comments, doc crefs and Protocol.md (PR #186, closes #125, #180, #158, #161)</h3>
+    <ul>
+      <li>Nine unresolved and six ambiguous XML doc references in Server point at the member that exists now.</li>
+      <li>Comments and Protocol.md lines naming <code>World.PlayerById</code>, <code>AllPlayers</code>, <code>RegisterOnline</code>, <code>SaveAllPlayers</code>, <code>GetWeather</code>, <code>SetWeather</code> and <code>SyncClock</code> now name the <code>OnlineRegistry</code>, <code>AutoSaveLoop</code>, <code>WeatherService</code> and <code>WorldClock</code> members.</li>
+      <li>The Protocol.md paragraph on the blocked-chaser shuffle now describes the stateless one-step random walk the server has used since 2026-08-24.</li>
+      <li>Four stale "core (see CastX)" comment headers reworded.</li>
+      <li><code>Server.csproj</code> now generates XML docs with the missing-comment and missing-param families suppressed, so a dangling cref is a build error from now on; fifteen doc-XML warnings that surfaced were fixed in the same commit.</li>
+    </ul>
+    <h3 class="sec">Self-test expectations reconciled with the sourced formulas; FAIL now exits nonzero (PR #191, closes #116)</h3>
+    <ul>
+      <li><code>--selftest</code> passes on the current content; each expected number carries its RTK source in a comment.</li>
+      <li>A failing self-test names every failed section and exits 1 after flushing the log.</li>
+      <li>The Spark-family damage rows in <code>spell_effects.csv</code> match neither the RTK Lua nor the documented live probe; filed as #200 for a data decision, no row changed.</li>
+    </ul>
+    <h3 class="sec">Failed-reload identity test covers every snapshot member, public or not (PR #192, closes #120)</h3>
+    <ul>
+      <li>The failed-reload test now checks all 88 content snapshot members through their facades, 24 of them non-public and previously unchecked; a member without a facade fails by name.</li>
+    </ul>
+    <h3 class="sec">MapEditor no longer carries BCrypt and SQLite through Shared (PR #193, closes #126)</h3>
+    <ul>
+      <li>The CSV reader moved to a package-free <code>Shared.Core</code> leaf project that <code>Shared</code> and MapEditor both reference; namespaces unchanged.</li>
+      <li>MapEditor's Release output drops 25 files and 25.6 MB of BCrypt and SQLite assets; the server and login server outputs keep them.</li>
+      <li><code>Shared.Core</code> is listed in the solution and the server build filter.</li>
+    </ul>
+    <h3 class="sec">Process, this session</h3>
+    <ul>
+      <li>Every branch cut before PR #186 must build its merge tree with master before its check can be trusted; the doc-XML check caught one such branch (#190) after its fork CI was green.</li>
+      <li>The #169 CSV-count test flaked once on an upstream check and cost a rerun; its fix is in progress.</li>
+      <li>Tier A reviews found a HIGH on the party-roster PR (#189, not merged) and one MEDIUM on the logger PR; both fixed in rounds, the party one awaiting its second-session re-check.</li>
+      <li>Review metrics over all records to date: tier A 10 merged, median 1.5 review rounds; tier B 14 merged, median 2.0; tier C 10 merged, median 1.0; recorded escaped defects 0 in every tier.</li>
+    </ul>
+    <h3 class="sec">Issues filed</h3>
+    <ul>
+      <li><a href="https://github.com/project1998/Project1998/issues/187">#187</a> TileTranslationTests can fail a Release run on a healthy tree · <a href="https://github.com/project1998/Project1998/issues/188">#188</a> RecordingOutbound is not thread-safe · <a href="https://github.com/project1998/Project1998/issues/194">#194</a> the autosave sweep is silent on success · <a href="https://github.com/project1998/Project1998/issues/195">#195</a> the thread-wiring source pin's blind spots · <a href="https://github.com/project1998/Project1998/issues/196">#196</a> revive paths only mark dirty, the death row stays in the store until the next autosave · <a href="https://github.com/project1998/Project1998/issues/197">#197</a> ResyncPeers orphans a peer loitering in the drawn band · <a href="https://github.com/project1998/Project1998/issues/198">#198</a> the party kick pre-check and removal read another session's party outside its monitor · <a href="https://github.com/project1998/Project1998/issues/199">#199</a> 25 hand-prefixed diagnostic lines to route onto Warn and Error · <a href="https://github.com/project1998/Project1998/issues/200">#200</a> Spark-family damage formula matches neither the RTK Lua nor the live probe · <a href="https://github.com/project1998/Project1998/issues/201">#201</a> CI actions on the deprecated Node 20 runtime · test client <a href="https://github.com/Essorcal/project1998-testclient/issues/54">#54</a> no suite script forms a party · <a href="https://github.com/Essorcal/project1998-testclient/issues/55">#55</a> hunt-death.txt's <code>@clearinv</code> leaves worn gear on · <a href="https://github.com/Essorcal/project1998-testclient/issues/56">#56</a> hunt-level.txt's route is severed when Buya's roster materializes.</li>
+    </ul>
+  </article>
   <article id="server-2026-09-08">
     <h2>Server: four Nagnang quests, the crypts, World sections 3 and 4, group payouts, trade teardown, and a dead-code sweep</h2>
     <p class="meta">2026-09-07 to 2026-09-08 · project1998 and Essorcal · Server PRs <a href="https://github.com/project1998/Project1998/pull/137">#137</a>, <a href="https://github.com/project1998/Project1998/pull/138">#138</a>, <a href="https://github.com/project1998/Project1998/pull/139">#139</a>, <a href="https://github.com/project1998/Project1998/pull/140">#140</a>, <a href="https://github.com/project1998/Project1998/pull/148">#148</a>, <a href="https://github.com/project1998/Project1998/pull/151">#151</a>, <a href="https://github.com/project1998/Project1998/pull/153">#153</a>, <a href="https://github.com/project1998/Project1998/pull/162">#162</a>, <a href="https://github.com/project1998/Project1998/pull/163">#163</a>, <a href="https://github.com/project1998/Project1998/pull/164">#164</a>, <a href="https://github.com/project1998/Project1998/pull/165">#165</a>, <a href="https://github.com/project1998/Project1998/pull/166">#166</a>, <a href="https://github.com/project1998/Project1998/pull/171">#171</a>, <a href="https://github.com/project1998/Project1998/pull/172">#172</a>, <a href="https://github.com/project1998/Project1998/pull/178">#178</a>, <a href="https://github.com/project1998/Project1998/pull/181">#181</a>, <a href="https://github.com/project1998/Project1998/pull/182">#182</a></p>
