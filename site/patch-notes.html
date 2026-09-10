@@ -99,6 +99,81 @@
     content-only changes hot-reload with no restart.</p>
   </header>
 
+  <article id="server-2026-09-10">
+    <h2>Server: one listener and one frame reader for both processes (#41 closed), party kicks under the member's monitor, two test flakes fixed</h2>
+    <p class="meta">2026-09-10 · Essorcal · Server PRs <a href="https://github.com/project1998/Project1998/pull/210">#210</a>, <a href="https://github.com/project1998/Project1998/pull/209">#209</a>, <a href="https://github.com/project1998/Project1998/pull/213">#213</a>, <a href="https://github.com/project1998/Project1998/pull/211">#211</a>, <a href="https://github.com/project1998/Project1998/pull/212">#212</a>, <a href="https://github.com/project1998/Project1998/pull/217">#217</a>, <a href="https://github.com/project1998/Project1998/pull/214">#214</a>, <a href="https://github.com/project1998/Project1998/pull/216">#216</a>, <a href="https://github.com/project1998/Project1998/pull/218">#218</a>, <a href="https://github.com/project1998/Project1998/pull/215">#215</a></p>
+    <h3 class="sec">The party kick pre-check and the removal's party read run under the member's monitor (PR #210, closes #198)</h3>
+    <ul>
+      <li>A leader's kick reads the target's party inside the target's monitor and hands that party to the removal; the removal never re-reads the field.</li>
+      <li>A kick that lands after the member has left, or left and joined another group, is a no-op instead of removing them from the other group.</li>
+      <li>The roster swap and the member's field write are one critical section on the member; the straggler's disband and the broadcast stay outside it.</li>
+      <li>The un-raced paths are unchanged: same refusals in the same order, "You have left the group." and "Your group has disbanded." once each.</li>
+      <li>Three new facts: a removal handed a party the member already left does nothing, a kick racing the member's leave-and-join strands nobody, a plain kick tells the member once and the straggler once.</li>
+      <li>One #189 fact was renamed to what it now pins (nobody is kicked in it), and Party.cs's doc no longer describes the closed window as reachable.</li>
+    </ul>
+    <h3 class="sec">One listener for both processes: the accept loop, NoDelay, PROXY and ConnGuard move to Shared (PR #209, #41 part 2)</h3>
+    <ul>
+      <li>The login and game servers run one shared accept loop, <code>Shared.TkAcceptor</code>: bind, guarded accept, TCP_NODELAY, the two-stage PROXY admission and ConnGuard, with the slot released exactly once per connection.</li>
+      <li>Each process passes its ports, its own ConnGuard and a delegate that runs one session; <code>Server.TkListener</code> keeps the world, the thread start-up and the shutdown flush.</li>
+      <li>The login server's accept-failure, PROXY-header and session-fault lines take the game's shape and log the exception; the session-fault line moves from Warn to Error.</li>
+      <li><code>login.log</code> gets a <code>=== shutdown signal (&lt;reason&gt;) ===</code> line on Ctrl+C, SIGTERM and ProcessExit; it had none.</li>
+      <li><code>Log.Shutdown</code> runs once per process behind a real guard; the two comments that credited one are now true.</li>
+      <li>Three socket facts over real loopback ports cover NoDelay on the accepted socket, the global cap closing a second connection, and a throwing session still releasing its slot; the ports are ephemeral.</li>
+    </ul>
+    <h3 class="sec">One frame reader for both processes: Protocol.Tk495.FrameReader with the handshake timeout, and one welcome and host parser (PR #213, closes #41)</h3>
+    <ul>
+      <li>Both read loops run on <code>Protocol.Tk495.FrameReader</code>: the handshake watchdog, the 4 KB read, the frame assembly and the two wire dumps exist once.</li>
+      <li>The game's per-read work (the silence stamp, the HTTP status probe, the throttled autosave) and its per-frame work stay at the same points through hooks; the login channel passes none.</li>
+      <li>The connect greeting and the redirect host parser are <code>Protocol.Tk495.Welcome</code> and <code>HostAddress</code>; both servers use the one copy.</li>
+      <li>The handshake timeout line and the login read-loop error line go through <code>Log.Warn</code>; the text on disk is unchanged.</li>
+      <li>Nine new stream facts pin the framing, the retained partial frame, the never-re-sync rule and the watchdog's one-shot gate.</li>
+      <li>With parts 1 and 2, #41 is closed: one logger, one listener, one frame reader across both processes.</li>
+    </ul>
+    <h3 class="sec">Hand-prefixed diagnostics route through Log.Warn and Log.Error; the fatal handlers carry the exception (PR #211, refs #199)</h3>
+    <ul>
+      <li>Twenty diagnostic lines that wrote their <code>!!</code> prefix by hand now call <code>Log.Warn</code> or <code>Log.Error</code> with the same text and level.</li>
+      <li>The fatal unhandled-exception and unobserved-task handlers in both processes log the exception object, so the stack reaches the file.</li>
+      <li>Three exception-free <code>!!!</code> lines stay hand-prefixed on purpose; fourteen sites in the accept and read loops moved with #41 parts 2 and 3, and four REJECT lines in TkAcceptor remain for #199.</li>
+    </ul>
+    <h3 class="sec">The world-autosave thread logs one line at start-up (PR #212, closes #194)</h3>
+    <ul>
+      <li>The autosave sweep writes one Info line when its thread starts, naming the thread and the cadence, and the source-pin fact checks the text.</li>
+    </ul>
+    <h3 class="sec">A mob-sourced poison no longer marks the creature's id as the PvP foe (PR #217, closes #208)</h3>
+    <ul>
+      <li>A creature's venom passes no attacker id, so a poisoned player's PvP foe is never a mob id; a player's venom still marks its caster.</li>
+      <li>Player ids start at 1 and each session's creature pool at 5,000, so the two id spaces can overlap in a long-running server; the guard is the fix, not an id check.</li>
+    </ul>
+    <h3 class="sec">The foe-mark note, comment and test doc say the monitor drop is unreachable from shipped callers (PR #214, closes #207)</h3>
+    <ul>
+      <li>The note above the deferred foe mark, the comment above <code>MarkPvpFoe</code> and the <code>PvpDeathOrderingTests</code> doc now say all six shipped PvP intake sites already hold the attacker's monitor, so the entry is re-entrant and the last-statement ordering is a hardening for a future caller.</li>
+      <li>Issue #174's title and body were rewritten to match. No code changed.</li>
+    </ul>
+    <h3 class="sec">The three deadlock facts in SessionActorTests fail on a stall, not on a slow machine (PR #216)</h3>
+    <ul>
+      <li>The three lock-cycle facts count completed rounds and fail only after ten seconds with no progress, with a ten-minute cap, instead of a fixed thirty-second join; two workers hit the old budget on a loaded laptop with nothing wrong in the server.</li>
+      <li>A real deadlock probe fails in ten seconds through the same helper; a slow pair that takes eighteen seconds passes.</li>
+    </ul>
+    <h3 class="sec">The drop-count facts read a tally the writer's overflow notice cannot zero (PR #218)</h3>
+    <ul>
+      <li>The logger's dropped-line counters are never zeroed by the writer thread; each overflow notice reports the refusals since the previous one through a writer-private high-water mark, and says exactly what it said before.</li>
+      <li>The two drop-policy facts that read those counters no longer race the notice; the race failed one upstream run on a busy runner.</li>
+    </ul>
+    <h3 class="sec">CI actions pinned to their Node.js 24 majors (PR #215, closes #201)</h3>
+    <ul>
+      <li>checkout v7, setup-dotnet v6, upload-artifact v7 and download-artifact v8; no Node.js 20 deprecation annotation on the run.</li>
+      <li>download-artifact v8 fails instead of warning on a corrupt download; nothing else in the pipeline changes.</li>
+    </ul>
+    <h3 class="sec">Issues closed without a PR</h3>
+    <ul>
+      <li>#37 (World as a god object) is closed: the five extractions are merged; the "World.cs under ~1,500 lines" line was a proxy and is dropped. The mobs block is queued under #38.</li>
+    </ul>
+    <h3 class="sec">Review metrics at sprint close</h3>
+    <ul>
+      <li>Merged with a record: 16 tier A, 16 tier B, 19 tier C; median review rounds 1.5, 2.0, 1.0; escaped defects recorded: 0, 0, 0.</li>
+    </ul>
+  </article>
+
   <article id="server-2026-09-09-b">
     <h2>Server: party roster as a snapshot, revives that save, the death sequence as one critical section, one logger for both processes</h2>
     <p class="meta">2026-09-09 · Essorcal · Server PRs <a href="https://github.com/project1998/Project1998/pull/189">#189</a>, <a href="https://github.com/project1998/Project1998/pull/203">#203</a>, <a href="https://github.com/project1998/Project1998/pull/205">#205</a>, <a href="https://github.com/project1998/Project1998/pull/204">#204</a>, <a href="https://github.com/project1998/Project1998/pull/202">#202</a></p>
