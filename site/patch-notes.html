@@ -99,6 +99,58 @@
     content-only changes hot-reload with no restart.</p>
   </header>
 
+  <article id="server-2026-09-09-b">
+    <h2>Server: party roster as a snapshot, revives that save, the death sequence as one critical section, one logger for both processes</h2>
+    <p class="meta">2026-09-09 · Essorcal · Server PRs <a href="https://github.com/project1998/Project1998/pull/189">#189</a>, <a href="https://github.com/project1998/Project1998/pull/203">#203</a>, <a href="https://github.com/project1998/Project1998/pull/205">#205</a>, <a href="https://github.com/project1998/Project1998/pull/204">#204</a>, <a href="https://github.com/project1998/Project1998/pull/202">#202</a></p>
+    <h3 class="sec">Party membership is an immutable snapshot swapped under a leaf lock; the invite writes the target under its monitor (PR #189, closes #167)</h3>
+    <ul>
+      <li>A member who is kicked, leaves or disconnects at the instant of a group kill is now either in that kill's payout or not; before, the kill could throw inside the exp split and pay nobody.</li>
+      <li>Two players inviting the same person in the same instant: exactly one succeeds and the other gets "They refuse to join this group." Before, both could seat them.</li>
+      <li>An invite that arrives while its own party is being disbanded forms a new party instead of being seated into the old one.</li>
+      <li>A leader's kick that lands after the member already left says nothing a second time; before, the straggler was told the group disbanded twice.</li>
+      <li>The party roster is now a read-only array replaced whole under a small leaf lock that calls into nothing, so no lock order against the world lock or a session monitor can form.</li>
+      <li>The invite handler now enters the target's session monitor, so an inviter waits while the target is inside its own packet or a disconnect flush.</li>
+      <li>Texts, exp split, cap, leader rule and wire bytes unchanged.</li>
+      <li>Ten new facts: the group-kill race, the two invite races (202/1000 and 939/1000 rounds stranded before, 0 after), the double-disband, the kicked member's own packet inside the retire window, the inviter the roster no longer holds.</li>
+    </ul>
+    <h3 class="sec">Revive paths persist the restored character, so a crash after a revive does not load a ghost (PR #203, closes #196)</h3>
+    <ul>
+      <li>A revive by <code>@rez</code>, the Shaman or Priest revive, the NPC Rebirth, the poet Resurrect family or the Hyun Moo self-revive now writes the restored character to the store before returning; before, the row on disk stayed the corpse for up to 15 seconds.</li>
+      <li><code>@rez</code> and the mythic Rebirth used on a living player as a full heal now save that heal too.</li>
+      <li>The Resurrect landing on a map that is not loaded now saves; that branch reached no save at all before.</li>
+      <li>Three store-backed facts, one per revive path.</li>
+    </ul>
+    <h3 class="sec">TakeDamage marks the PvP foe after the death sequence, so the Hp write and Die() are one critical section (PR #205, closes #174)</h3>
+    <ul>
+      <li>The death sequence is now one critical section however the blow arrives: the attacker-side foe mark, which enters the attacker's monitor, moved from between the Hp write and <code>Die()</code> to the last statement of <code>TakeDamage</code>.</li>
+      <li>On every shipped path the attacker's own thread already holds its monitor, so the old position never actually dropped the victim's monitor; the move is a hardening for any future caller that does not, and the new fact pins it.</li>
+      <li>When the attacker is recorded as the victim's foe shifts by the length of the death sequence; the pet AI is the only reader and the mark lasts 15 seconds, so nothing observable changes.</li>
+      <li>Two new facts: the five-thread ordering race and the survived-hit control, both on real PvP arenas.</li>
+    </ul>
+    <h3 class="sec">One logger for both processes: Shared.Core.Log, with the login channel's wire dump still off by default (PR #204, #41 part 1)</h3>
+    <ul>
+      <li>The game server's bounded-queue logger moved to <code>Shared.Core</code> and the login server's lock-and-console copy is deleted; both processes share one class, one format, one rotation and the non-blocking guarantee.</li>
+      <li><code>P1998_LOG_WIRE</code> has one parse rule with a per-process default: on for the game server, off for the login server because its packets carry passwords. <code>0</code> is off and <code>1</code> is on in both; any other value takes the process default and warns at startup.</li>
+      <li><code>login.log</code> now stamps milliseconds, opens with the same header as <code>server.log</code>, and its <code>!!</code> and <code>!!!</code> lines carry Warn and Error severity so they keep the queue headroom from PR #190.</li>
+      <li>The login log is flushed on Ctrl+C, SIGTERM, process exit and inside the fatal handler; a line logged after shutdown is dropped instead of throwing.</li>
+      <li>A process that never configures the logger gets the wire dump off; both entry points configure it as their first statement.</li>
+      <li><code>P1998_LOG_MAX_BYTES</code> keeps both defaults, 64 MB game and 32 MB login.</li>
+      <li>Protocol.md states the one <code>P1998_LOG_WIRE</code> rule.</li>
+      <li>Parts 2 (shared listener) and 3 (shared frame reader) of #41 are separate PRs.</li>
+    </ul>
+    <h3 class="sec">The CSV open-count fact measures the content load only, so parallel collections cannot fail it (PR #202, closes #169)</h3>
+    <ul>
+      <li>The test that proves every content CSV is opened exactly once now counts only paths under the content root, so another test class opening a temporary CSV in parallel no longer fails it. Test only.</li>
+    </ul>
+    <h3 class="sec">Process, this session</h3>
+    <ul>
+      <li>Review metrics over all records to date: tier A 12 merged, median 1.5 review rounds; tier B 15 merged, median 2.0; tier C 12 merged, median 1.0; recorded escaped defects 0 in every tier.</li>
+    </ul>
+    <h3 class="sec">Issues filed</h3>
+    <ul>
+      <li><a href="https://github.com/project1998/Project1998/issues/206">#206</a> <code>@clearinv</code> clears worn items but preserves cached equipment bonuses · <a href="https://github.com/project1998/Project1998/issues/207">#207</a> PR #205's note, <code>MarkPvpFoe</code>'s comment, the test doc and #174 describe a monitor drop no shipped caller can make · <a href="https://github.com/project1998/Project1998/issues/208">#208</a> the poison tick marks a mob id as the PvP foe.</li>
+    </ul>
+  </article>
   <article id="server-2026-09-09">
     <h2>Server: the death sequence closed, log headroom for warnings, World section 5, stale names, the self-test, MapEditor's package graph</h2>
     <p class="meta">2026-09-09 · Essorcal · Server PRs <a href="https://github.com/project1998/Project1998/pull/184">#184</a>, <a href="https://github.com/project1998/Project1998/pull/185">#185</a>, <a href="https://github.com/project1998/Project1998/pull/186">#186</a>, <a href="https://github.com/project1998/Project1998/pull/190">#190</a>, <a href="https://github.com/project1998/Project1998/pull/191">#191</a>, <a href="https://github.com/project1998/Project1998/pull/192">#192</a>, <a href="https://github.com/project1998/Project1998/pull/193">#193</a></p>
