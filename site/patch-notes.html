@@ -99,6 +99,118 @@
     content-only changes hot-reload with no restart.</p>
   </header>
 
+  <article id="server-2026-09-11">
+    <h2>Server: four more slices from the queue: peer sends under the recipient's lock, the login channel's outbound queue, Shared's doc XML and the bind line, the split status probe</h2>
+    <p class="meta">2026-09-11 · Essorcal · Server PRs <a href="https://github.com/project1998/Project1998/pull/225">#225</a>, <a href="https://github.com/project1998/Project1998/pull/226">#226</a>, <a href="https://github.com/project1998/Project1998/pull/227">#227</a>, <a href="https://github.com/project1998/Project1998/pull/228">#228</a></p>
+    <h3 class="sec">Nine more cross-session status-text sends run under the recipient's monitor (PR #225, follow-up of PR #219)</h3>
+    <ul>
+      <li>Clan chat, subpath chat, the parcel notice, <code>@carnage</code>, <code>@bring</code>, the mentorship culmination, the Sage world shout, spell flavour lines and <code>@kick</code> now take the receiving player's session lock before speaking to them, with the reads that decide whether they hear it inside the same section.</li>
+      <li><code>@carnage</code> could lose a win when two staff scored the same player in the same instant; it cannot now.</li>
+      <li><code>@kick</code> saves, tells and drops the target in one section on that target.</li>
+      <li>The two chat loops read each recipient's toggles a moment later than before, so a player flipping clan or subpath chat inside that window is answered against the fresher read.</li>
+      <li>Nine new facts, one per site, each proved to fail with its fix removed.</li>
+      <li>Still to convert, one later slice: the 1:1 whisper delivery, the <code>@ban</code> kick, and the server announcements including the restart ladder.</li>
+    </ul>
+    <h3 class="sec">The login channel sends through a bounded queue and drops a peer that stops reading (PR #226, follow-up of the PR #213 review)</h3>
+    <ul>
+      <li>The login server no longer writes to the socket under a lock on the session's own thread; sends go through a queue of 64 frames drained by one writer task, so a client that stops reading can no longer hold the login session's read loop.</li>
+      <li>A queue that fills, or a single write that stalls past ten seconds (<code>P1998_LOGIN_WRITE_MS</code>), drops the connection with one warning line naming which bound tripped.</li>
+      <li>The game handoff packet is drained for up to one second before the login connection closes, so a login cannot complete halfway.</li>
+      <li>The welcome goes through the same queue; its log line now says "queued welcome".</li>
+      <li>Five new tests over real loopback sockets; the test project now references LoginServer.</li>
+      <li>Moving the game's outbound and this one into Shared as a single outbound for both processes is the stated end state, a later tier A slice.</li>
+    </ul>
+    <h3 class="sec">Shared generates its doc XML, and a listener that cannot bind names the port (PR #227, PR #224 follow-up and the PR #209 review)</h3>
+    <ul>
+      <li>Shared now builds its XML documentation, so a dangling or ambiguous cref there is a build error; one ambiguous cref in the era calendar now names its overload.</li>
+      <li>A server that cannot claim its listening port logs one error naming the bind address, the port and the socket error before exiting as before.</li>
+      <li>One new fact occupies an ephemeral port first and checks the line.</li>
+    </ul>
+    <h3 class="sec">A status probe split inside GET is answered, not dropped; the Parse length doc names the non-0xAA case (PR #228, PR #220 review probe (e), PR #222 review F2)</h3>
+    <ul>
+      <li>A game-port status probe whose first read delivers only part of <code>GET </code> now waits for the rest under the existing handshake budget and is answered, instead of being dropped by the head-byte rule added in #220. One-write probes, broken prefixes and never-completing prefixes behave as before.</li>
+      <li>The frame reader's hook contract now says the one legal mutation is appending bytes the hook itself read from the stream, which is what the probe wait does.</li>
+      <li>The <code>TkPacket.Parse</code> docs now say the length output is zero unless the head byte is 0xAA and three bytes are present.</li>
+      <li>Four new loopback facts through the real read loop.</li>
+    </ul>
+    <h3 class="sec">Reviews and process</h3>
+    <ul>
+      <li>Tier B reviews of #225 and #228 (Opus) approved with LOW findings only; #225's review also caught a false comment about the kick's lock nesting and a title that overclaimed, both corrected in a text-only fix round.</li>
+      <li>The tier B review of #226 (Opus) found the PR's own new tests flaky (one red on the upstream Linux runner, one red on any run narrower than the full suite) and promoted it to tier A; a fix round made both deterministic, and a fresh re-check session ran the class twenty times green before the merge. The production code held on every probe in both rounds.</li>
+      <li>#228 was briefed as tier C and promoted to tier B by the coordinator on sight because its change reads the socket inside a reader hook.</li>
+    </ul>
+    <h3 class="sec">Still queued</h3>
+    <ul>
+      <li>The bot load run with its 25-bot gate, waiting for an idle-machine window.</li>
+      <li>One outbound for both processes in Shared (tier A).</li>
+      <li>The whisper delivery, the <code>@ban</code> kick and the announcements under the recipient's monitor (tier B).</li>
+      <li>A half-close before Close on the status-probe path so a request tail arriving after exactly the fourth byte still gets its answer (low).</li>
+    </ul>
+    <h3 class="sec">Review metrics at close</h3>
+    <ul>
+      <li>Merged with a record: 19 tier A, 19 tier B, 25 tier C; median review rounds 1, 2, 1; escaped defects recorded: 0, 0, 0.</li>
+    </ul>
+  </article>
+
+  <article id="server-2026-09-10-b">
+    <h2>Server: the shared frame reader drops peers that stop framing, party notifications under the member's lock, the concurrency tests wait on progress</h2>
+    <p class="meta">2026-09-10 · Essorcal · Server PRs <a href="https://github.com/project1998/Project1998/pull/219">#219</a>, <a href="https://github.com/project1998/Project1998/pull/220">#220</a>, <a href="https://github.com/project1998/Project1998/pull/221">#221</a>, <a href="https://github.com/project1998/Project1998/pull/222">#222</a>, <a href="https://github.com/project1998/Project1998/pull/223">#223</a>, <a href="https://github.com/project1998/Project1998/pull/224">#224</a></p>
+    <h3 class="sec">Party notifications and the invite's dead-target check run under the member's monitor (PR #219, follow-up of the PR #210 review)</h3>
+    <ul>
+      <li>Party join, leave, kick and disband notices are delivered inside the receiving player's own session lock.</li>
+      <li>Group chat ("!!") reads each recipient's ignore list and delivers the line in one locked step on that recipient.</li>
+      <li>Inviting a dead player is decided under that player's session lock; the refusal wording and the order the refusals are tried in (full, then dead, then refuse) are unchanged.</li>
+      <li>Inside the invite's race window a target who dies or revives between the old check and the new one is now answered against the fresher read.</li>
+      <li>The party roster gate stays a leaf lock; broadcasts never hold it.</li>
+      <li>Seven new facts, including two 300-round races (leave against kick, broadcast against leave) that fail on a stall rather than a clock.</li>
+    </ul>
+    <h3 class="sec">FrameReader drops a connection whose unframed buffer exceeds one maximum frame or whose head byte is not 0xAA (PR #220, follow-up 1 of the PR #213 review)</h3>
+    <ul>
+      <li>A connection whose head byte is not 0xAA after framing is dropped with one warning line naming the peer and the byte; it used to stall its inbound half forever. Frames parsed from the same read are delivered first.</li>
+      <li>The unframed buffer is capped at one maximum legal frame (65,538 bytes) before and after the handshake; it had no bound.</li>
+      <li>Both front doors get both rules through the one shared read loop; the session files did not change.</li>
+      <li>An HTTP request to the login port is now dropped on its first read instead of holding a slot for the 15 s handshake timeout. The game port's status probe is unaffected.</li>
+      <li>Drop was chosen over re-sync: the framing has no checksum or trailer and bodies are ciphered, so a forward scan can lock onto a false header.</li>
+      <li>While the head-byte rule stands the byte cap cannot fire; the cap states the bound in one place for the day re-sync is ever added. Stated in the code and the PR.</li>
+      <li>Six facts, one of them the boundary case that a maximum-length frame in 4 KB reads never trips the cap.</li>
+      <li>Protocol.md's hardening section records the two bounds.</li>
+    </ul>
+    <h3 class="sec">A frame whose length field is under 2 is malformed: TryParse never throws and the reader drops the peer (PR #222, follow-up of PR #220)</h3>
+    <ul>
+      <li>A peer sending a frame whose length field is 0 or 1 is dropped with one warning line; it used to throw out of the read loop and log an error with a stack trace on the game side, one per connection.</li>
+      <li><code>TkPacket</code> gains a minimum length of 2, a <code>Parse</code> that reports frame, need-more or malformed and never throws, and <code>TryParse</code> stays as a wrapper for its ten existing callers.</li>
+      <li>Frames ahead of the malformed one in the same read are delivered first; the status probe still wins.</li>
+      <li>With wire logging on, the "buffered/unframed" line prints the first 256 bytes and the total size instead of the whole buffer each read; one bad connection used to write over 2 MB of hex for a 65 KB stream.</li>
+      <li>Eleven new facts; the review ran an exhaustive parser probe over every u16 length value with no throw.</li>
+      <li>Protocol.md's framing section records the length floor.</li>
+    </ul>
+    <h3 class="sec">The concurrency tests wait on progress, not on a fixed join (PR #221, follow-up of PR #216)</h3>
+    <ul>
+      <li>The progress watch from PR #216 moves to <code>Tests/Support/StallWatch.cs</code> and every concurrency fact uses it: 37 fixed-deadline thread joins across eight test files now fail when nothing has moved for ten seconds, not when a busy laptop runs slow.</li>
+      <li>The watch returns the instant the threads exit (bounded joins, no sleep between polls); the four per-round party races keep a 100 ms fast path.</li>
+      <li>The two barrier-paced session-actor facts get their own quiet windows (5 s and 2 s) sized from measured round times.</li>
+      <li>The two "still parked" probes in the party tests stay as they are.</li>
+      <li>Seventeen facts timed on base and head, no median slower; whole-suite wall time fell about 8 s in Debug and 12 s in Release.</li>
+    </ul>
+    <h3 class="sec">The tile translation facts and the content reload fact run in one collection (PR #223)</h3>
+    <ul>
+      <li><code>TileTranslationTests</code> and <code>ContentReloadTests</code> share one xUnit collection, so the tile facts can no longer read the one-row stub table the reload fact publishes through the process-wide tile-map environment variable.</li>
+      <li>The race was reproduced on the base with forced parallelism and is gone on the head; no other test class needed the collection.</li>
+    </ul>
+    <h3 class="sec">Protocol.Tk495 generates its doc XML so the compiler checks its crefs (PR #224, PR #220 review F2)</h3>
+    <ul>
+      <li>Protocol.Tk495 now builds its XML documentation, so a dangling or ambiguous cref in the protocol project is a build error, as it already was in Server.</li>
+      <li>A deliberately broken cref went red as the proof; the XML carries 19 crefs.</li>
+      <li>Shared had one ambiguous cref (<code>EraCalendar.PrepareReload</code>) that would surface if Shared followed; done in PR #227.</li>
+    </ul>
+    <h3 class="sec">Reviews and process</h3>
+    <ul>
+      <li>Tier A reviews of #220 (Fable) and #222 (Codex) each built and ran the trial merge, re-broke the author's falsifications, ran their own loopback socket controls and live probes against a pair, and ran the test client suite (27/27 both times, zero handshake timeouts, zero drop-rule lines).</li>
+      <li>The tier B review of #219 (Opus) found the PR's stated rationale wrong: a lost per-packet increment is a duplicate nonce the code already documents as harmless, not a torn byte. The code stood; the comments and PR body were corrected in a text-only fix round.</li>
+      <li>Two sightings of an unreproduced master Release flake (two unnamed failures once, green on rerun); neither reviewer reproduced it on a merge tree. The next red Release run keeps its transcript.</li>
+    </ul>
+  </article>
+
   <article id="server-2026-09-10">
     <h2>Server: one listener and one frame reader for both processes (#41 closed), party kicks under the member's monitor, two test flakes fixed</h2>
     <p class="meta">2026-09-10 · Essorcal · Server PRs <a href="https://github.com/project1998/Project1998/pull/210">#210</a>, <a href="https://github.com/project1998/Project1998/pull/209">#209</a>, <a href="https://github.com/project1998/Project1998/pull/213">#213</a>, <a href="https://github.com/project1998/Project1998/pull/211">#211</a>, <a href="https://github.com/project1998/Project1998/pull/212">#212</a>, <a href="https://github.com/project1998/Project1998/pull/217">#217</a>, <a href="https://github.com/project1998/Project1998/pull/214">#214</a>, <a href="https://github.com/project1998/Project1998/pull/216">#216</a>, <a href="https://github.com/project1998/Project1998/pull/218">#218</a>, <a href="https://github.com/project1998/Project1998/pull/215">#215</a></p>
