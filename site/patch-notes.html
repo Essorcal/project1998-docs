@@ -99,6 +99,56 @@
     content-only changes hot-reload with no restart.</p>
   </header>
 
+  <article id="server-2026-09-11-b">
+    <h2>Server: one outbound for both processes, the last four peer sends under the recipient's lock, the status probe's polite close</h2>
+    <p class="meta">2026-09-11 · Essorcal and brian · Server PRs <a href="https://github.com/project1998/Project1998/pull/231">#231</a>, <a href="https://github.com/project1998/Project1998/pull/230">#230</a>, <a href="https://github.com/project1998/Project1998/pull/232">#232</a>; direct pushes 9e9e170, 3ffb44d</p>
+    <h3 class="sec">The Geomancers' five elemental orbs are obtainable (direct push 9e9e170, brian)</h3>
+    <ul>
+      <li>The Forgotten Past quest line is in: five NPC abilities, the quest script, its registry entry and tests, with the deferred-work and quest-registry docs updated.</li>
+    </ul>
+    <h3 class="sec">The Rogue's White Moon Axe can be earned at Buya's Maso (direct push 3ffb44d, brian)</h3>
+    <ul>
+      <li>The White Moon Axe armour quest is in with its NPC ability rows, quest script and tests; the Armor-Quests doc and the NpcAbilities table gain its rows.</li>
+    </ul>
+    <h3 class="sec">The whisper, the ban's kick and the two announcements run under the recipient's monitor (PR #231, follow-up of PR #225)</h3>
+    <ul>
+      <li>The 1:1 whisper, <code>@ban</code>'s kick, <code>@announce</code> and the restart countdown now take the receiving player's session lock first, with the reads that decide whether they hear it inside the same section. Same lines, same people.</li>
+      <li>A ban now saves the player at the moment it lands, the way a kick already did.</li>
+      <li>The restart schedule's own lock is never held while it speaks to players, on any of its paths; deliberately moving the announcements inside that lock deadlocks the new race test in ten seconds.</li>
+      <li>The whisper's echo can no longer carry the click-marker text a GM parks in a player's name for one packet.</li>
+      <li>Five new tests, including six hundred rounds of the restart countdown against a GM booking and cancelling restarts.</li>
+      <li>Fix round: the ban notice text, which opens the moderation database, is computed before the section rather than inside it.</li>
+    </ul>
+    <h3 class="sec">One outbound for both processes: TcpOutbound moves to Shared and the login copy is retired (PR #230, follow-up of PR #226)</h3>
+    <ul>
+      <li>The game server and the login server share one outbound queue type in Shared; the login-only copy from #226 is deleted and the test project no longer references the login executable.</li>
+      <li>Each channel keeps its own numbers through an options record: the game's 2048-frame queue with no per-write bound and a fire-and-forget drain, the login's 64 frames, ten-second write bound and awaited drain.</li>
+      <li>The login server now logs the same <code>SLOW SEND</code> warning the game always had, well before it drops a slow connection; that is the only behaviour change on either channel.</li>
+      <li>The game's writer runs the same statements it ran before; the review diffed the no-bound path against the old loop statement by statement.</li>
+      <li>Twelve existing outbound tests run against the one type; one new test covers the login warning.</li>
+      <li>Review: the live suite lost five scripts, all traced to the shared test client sitting on its team's in-flight fixture changes, with zero outbound lines on either channel and every login redirect paired.</li>
+    </ul>
+    <h3 class="sec">The status probe half-closes and drains before the socket closes (PR #232, PR #228 review F2)</h3>
+    <ul>
+      <li>A status probe whose request arrived in pieces over a slow link used to get the connection reset instead of the status JSON even though the server log said it had answered. The send side is now shut down after the write and the rest of the request is read off before the socket closes.</li>
+      <li>The handshake watchdog still bounds a caller that never hangs up; no new timer.</li>
+      <li>Two new loopback tests: the split request now receives the answer, and a never-closing caller ends at the watchdog. Removing the drain alone reproduces the reset, so the drain is the load-bearing half.</li>
+    </ul>
+    <h3 class="sec">Reviews and process</h3>
+    <ul>
+      <li>The tier A review of #230 ran on Opus (Fable usage exhausted for the week); it built and ran the merge tree, re-broke four falsifications, ran its own loopback controls with both profiles and a live silent-peer probe against a pair, and approved with five LOWs and no code change.</li>
+      <li>The tier B review of #231 (Opus) caught a database read inside the banned player's lock; fixed in one hoisted line.</li>
+      <li>The probe half-close slice was handed from Codex to Opus after the Codex session never started; the same packet was used unchanged.</li>
+      <li>Review metrics to date: 20 tier A PRs merged at a median of one review round, 20 tier B at two, 26 tier C at one; no escaped defects recorded.</li>
+    </ul>
+    <h3 class="sec">Still queued</h3>
+    <ul>
+      <li>The bot load run with its 25-bot gate, waiting for an idle-machine window.</li>
+      <li>A fact for the outbound's one-shot drain gate; a log sink seam for tests instead of the process-global console tap; the login read loop's single-clause catch (all low).</li>
+      <li>For the test client team: pin the suite's test-client ref for server reviews; the five #230 suite failures are theirs to confirm on their branch.</li>
+    </ul>
+  </article>
+
   <article id="server-2026-09-11">
     <h2>Server: four more slices from the queue: peer sends under the recipient's lock, the login channel's outbound queue, Shared's doc XML and the bind line, the split status probe</h2>
     <p class="meta">2026-09-11 · Essorcal · Server PRs <a href="https://github.com/project1998/Project1998/pull/225">#225</a>, <a href="https://github.com/project1998/Project1998/pull/226">#226</a>, <a href="https://github.com/project1998/Project1998/pull/227">#227</a>, <a href="https://github.com/project1998/Project1998/pull/228">#228</a></p>
