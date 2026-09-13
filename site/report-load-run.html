@@ -1,0 +1,254 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Load run 1 — where the server stalls · Project1998</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+  :root {
+    --ground: #F4F6F1; --surface: #FCFDFB; --ink: #1F2A26; --ink-soft: #55645D;
+    --ink-faint: #8A978F; --rule: #DDE4DD; --rule-soft: #E8EDE7;
+    --accent: #2E7D62; --accent-ink: #1E5A46; --focus: #2E7D62; --chip-ghost: #F0F3EE;
+    --warn: #B5462F; --warn-ink: #8E3423; --warn-ghost: #F7ECE8;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --ground: #141B18; --surface: #1B2420; --ink: #D8E2DA; --ink-soft: #93A49A;
+      --ink-faint: #66766D; --rule: #2A3630; --rule-soft: #222D28;
+      --accent: #6FBF9F; --accent-ink: #8FD4B8; --focus: #6FBF9F; --chip-ghost: #202A25;
+      --warn: #E08A6E; --warn-ink: #EFA98F; --warn-ghost: #2B211D;
+    }
+  }
+  :root[data-theme="dark"] {
+    --ground: #141B18; --surface: #1B2420; --ink: #D8E2DA; --ink-soft: #93A49A;
+    --ink-faint: #66766D; --rule: #2A3630; --rule-soft: #222D28;
+    --accent: #6FBF9F; --accent-ink: #8FD4B8; --focus: #6FBF9F; --chip-ghost: #202A25;
+    --warn: #E08A6E; --warn-ink: #EFA98F; --warn-ghost: #2B211D;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--ground); color: var(--ink);
+    font-family: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif; font-size: 14.5px; line-height: 1.55; }
+  a { color: var(--accent-ink); text-underline-offset: 2px; }
+  code { font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 0.92em; color: var(--accent-ink); }
+  .sitenav { max-width: min(1680px, 96vw); margin: 0 auto; padding: 14px 24px 0;
+    display: flex; gap: 16px; align-items: baseline; font-size: 14px; flex-wrap: wrap; }
+  .sitenav a { color: var(--ink-soft); text-decoration: none; }
+  .sitenav a:hover { color: var(--accent-ink); text-decoration: underline; }
+  .sitenav .brand { font-family: "Gowun Batang", Georgia, serif; font-weight: 700;
+    color: var(--ink); margin-right: auto; font-size: 16px; }
+  .sitenav a[aria-current="page"] { color: var(--accent-ink); font-weight: 600; }
+  .wrap { max-width: min(1100px, 96vw); margin: 0 auto; padding: 0 24px 96px; }
+  header.hero { padding: 34px 0 6px; }
+  .kicker { font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 12px;
+    letter-spacing: 0.14em; text-transform: uppercase; color: var(--accent); margin: 0 0 8px; }
+  h1 { font-family: "Gowun Batang", Georgia, serif; font-weight: 700;
+    font-size: clamp(28px, 4.5vw, 38px); line-height: 1.15; margin: 0 0 8px; text-wrap: balance; }
+  h2 { font-family: "Gowun Batang", Georgia, serif; font-size: 21px; margin: 34px 0 8px; }
+  h3 { font-size: 15.5px; margin: 22px 0 6px; }
+  .lede { max-width: 72ch; color: var(--ink-soft); margin: 0 0 8px; }
+  .meta { font-size: 12.5px; color: var(--ink-faint); margin: 4px 0 0;
+    font-family: "IBM Plex Mono", ui-monospace, monospace; }
+  p { max-width: 78ch; }
+  ul { padding-left: 22px; } li { margin: 3px 0; max-width: 76ch; }
+  .figs { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 12px; margin: 18px 0 6px; }
+  .fig { background: var(--surface); border: 1px solid var(--rule); border-radius: 8px; padding: 14px 16px; }
+  .fig .lab { font-size: 12.5px; color: var(--ink-soft); }
+  .fig .val { font-family: "Gowun Batang", Georgia, serif; font-size: 27px; line-height: 1.2; margin: 2px 0 0; }
+  .fig .sub { font-size: 12px; color: var(--ink-faint); margin-top: 2px; }
+  .chartcard { background: var(--surface); border: 1px solid var(--rule); border-radius: 8px;
+    padding: 16px 18px 10px; margin: 14px 0; }
+  .chartcard .ct { font-size: 13.5px; color: var(--ink-soft); margin: 0 0 4px; }
+  .chartcard svg { width: 100%; height: auto; display: block; }
+  .note { font-size: 12.5px; color: var(--ink-faint); margin: 2px 0 0; max-width: 78ch; }
+  .gl { stroke: var(--rule-soft); stroke-width: 1; }
+  .axis { stroke: var(--rule); stroke-width: 1; }
+  .bar { fill: var(--accent); }
+  .bar-warn { fill: var(--warn); }
+  .tk { font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 12px; fill: var(--ink-faint); }
+  .vl { font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 12.5px; fill: var(--ink-soft); }
+  .vl-warn { font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 12.5px; fill: var(--warn-ink); font-weight: 600; }
+  table { border-collapse: collapse; width: 100%; font-size: 13.5px; margin: 8px 0; }
+  th, td { text-align: left; padding: 5px 10px; border-bottom: 1px solid var(--rule-soft); vertical-align: top; }
+  th { font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 11px; letter-spacing: 0.07em;
+    text-transform: uppercase; color: var(--ink-faint); font-weight: 500; }
+  td.num { font-family: "IBM Plex Mono", ui-monospace, monospace; }
+  .tag { font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 10.5px;
+    padding: 1px 8px; border-radius: 999px; white-space: nowrap; }
+  .tag-ok { background: var(--chip-ghost); color: var(--accent-ink); }
+  .tag-no { background: var(--warn-ghost); color: var(--warn-ink); }
+  .tag-na { background: var(--chip-ghost); color: var(--ink-faint); }
+  .callout { background: var(--surface); border: 1px solid var(--rule); border-left: 3px solid var(--accent);
+    border-radius: 0 8px 8px 0; padding: 12px 16px; margin: 14px 0; }
+  footer { margin-top: 40px; padding-top: 14px; border-top: 1px solid var(--rule); font-size: 12.5px; color: var(--ink-faint); }
+</style>
+</head>
+<body>
+<nav class="sitenav">
+  <a class="brand" href="./">Project1998</a>
+  <a href="commands.html">Commands</a>
+  <a href="quest-registry.html">Quests</a>
+  <a href="legend-marks.html">Legend Marks</a>
+  <a href="spells.html">Spells</a>
+  <a href="effects.html">Effects</a>
+  <a href="items.html">Items</a>
+  <a href="mobs.html">Mobs</a>
+  <a href="atlas.html">Atlas</a>
+  <a href="map-editor.html">Map Editor</a>
+  <a href="noclip.html">No-Clip</a>
+  <a href="reports.html" aria-current="page">Reports</a>
+  <a href="patch-notes.html">Patch Notes</a>
+</nav>
+<div class="wrap">
+  <header class="hero">
+    <p class="kicker">Project1998 · server performance</p>
+    <h1>Load run 1 — where the server stalls</h1>
+    <p class="lede">The first bot load test against the server. Twenty-five clients up to four hundred, on one map,
+    on the laptop. The server holds to two hundred players without missing a tick; the first stall is at four
+    hundred, and below that the thing that gives out is the test client, not the server.</p>
+    <p class="meta">2026-09-12 · server master b5bb486 (Debug) · test client main 101b679 · loopback</p>
+  </header>
+
+  <div class="figs">
+    <div class="fig"><div class="lab">First server stall</div><p class="val">400 players</p>
+      <div class="sub">clean at 25, 50, 100, 200</div></div>
+    <div class="fig"><div class="lab">Tick work at 400</div><p class="val">132 ms</p>
+      <div class="sub">median, of a 333 ms period</div></div>
+    <div class="fig"><div class="lab">Lock-wait</div><p class="val">0 ms</p>
+      <div class="sub">in all 26 slow ticks</div></div>
+  </div>
+
+  <div class="chartcard">
+    <p class="ct">Server CPU, percent of one core — the machine has sixteen</p>
+    <svg viewBox="0 0 720 216" role="img" aria-labelledby="cpuT cpuD">
+      <title id="cpuT">Server CPU against player count</title>
+      <desc id="cpuD">Server CPU as a percent of one core: 3.0 at 25 players, 4.0 at 50, 6.2 at 100, 19.0 at 200, and 61.4 at 400.</desc>
+      <line class="gl" x1="66" y1="190" x2="700" y2="190"></line>
+      <line class="gl" x1="66" y1="141.4" x2="700" y2="141.4"></line>
+      <line class="gl" x1="66" y1="92.9" x2="700" y2="92.9"></line>
+      <line class="gl" x1="66" y1="44.3" x2="700" y2="44.3"></line>
+      <text class="tk" x="58" y="194" text-anchor="end">0%</text>
+      <text class="tk" x="58" y="145.4" text-anchor="end">20%</text>
+      <text class="tk" x="58" y="96.9" text-anchor="end">40%</text>
+      <text class="tk" x="58" y="48.3" text-anchor="end">60%</text>
+      <line class="axis" x1="66" y1="190" x2="700" y2="190"></line>
+      <rect class="bar" x="116" y="182.7" width="34" height="7.3" rx="3"></rect>
+      <rect class="bar" x="242" y="180.3" width="34" height="9.7" rx="3"></rect>
+      <rect class="bar" x="368" y="174.9" width="34" height="15.1" rx="4"></rect>
+      <rect class="bar" x="494" y="143.9" width="34" height="46.1" rx="4"></rect>
+      <rect class="bar-warn" x="620" y="40.9" width="34" height="149.1" rx="4"></rect>
+      <text class="vl" x="133" y="175" text-anchor="middle">3.0</text>
+      <text class="vl" x="259" y="172" text-anchor="middle">4.0</text>
+      <text class="vl" x="385" y="167" text-anchor="middle">6.2</text>
+      <text class="vl" x="511" y="136" text-anchor="middle">19.0</text>
+      <text class="vl-warn" x="637" y="33" text-anchor="middle">61.4</text>
+      <text class="tk" x="133" y="208" text-anchor="middle">25</text>
+      <text class="tk" x="259" y="208" text-anchor="middle">50</text>
+      <text class="tk" x="385" y="208" text-anchor="middle">100</text>
+      <text class="tk" x="511" y="208" text-anchor="middle">200</text>
+      <text class="tk" x="637" y="208" text-anchor="middle">400</text>
+    </svg>
+    <p class="note">The 200 and 400 figures come from the runs with the client's event stream off — the only way
+    those counts were reachable. 400 is measured over the hold window.</p>
+  </div>
+
+  <div class="chartcard">
+    <p class="ct">Slow ticks recorded in the log window</p>
+    <svg viewBox="0 0 720 216" role="img" aria-labelledby="tkT tkD">
+      <title id="tkT">Slow tick count against player count</title>
+      <desc id="tkD">Slow ticks: zero at 25, 50, 100 and 200 players; twenty-six at 400 players.</desc>
+      <line class="gl" x1="66" y1="190" x2="700" y2="190"></line>
+      <line class="gl" x1="66" y1="133.3" x2="700" y2="133.3"></line>
+      <line class="gl" x1="66" y1="76.7" x2="700" y2="76.7"></line>
+      <line class="gl" x1="66" y1="20" x2="700" y2="20"></line>
+      <text class="tk" x="58" y="194" text-anchor="end">0</text>
+      <text class="tk" x="58" y="137.3" text-anchor="end">10</text>
+      <text class="tk" x="58" y="80.7" text-anchor="end">20</text>
+      <text class="tk" x="58" y="24" text-anchor="end">30</text>
+      <line class="axis" x1="66" y1="190" x2="700" y2="190"></line>
+      <rect class="bar-warn" x="620" y="42.7" width="34" height="147.3" rx="4"></rect>
+      <text class="vl" x="133" y="183" text-anchor="middle">0</text>
+      <text class="vl" x="259" y="183" text-anchor="middle">0</text>
+      <text class="vl" x="385" y="183" text-anchor="middle">0</text>
+      <text class="vl" x="511" y="183" text-anchor="middle">0</text>
+      <text class="vl-warn" x="637" y="35" text-anchor="middle">26</text>
+      <text class="tk" x="133" y="208" text-anchor="middle">25</text>
+      <text class="tk" x="259" y="208" text-anchor="middle">50</text>
+      <text class="tk" x="385" y="208" text-anchor="middle">100</text>
+      <text class="tk" x="511" y="208" text-anchor="middle">200</text>
+      <text class="tk" x="637" y="208" text-anchor="middle">400</text>
+    </svg>
+    <p class="note">A zero means the log window was read and held no slow tick, not that it went unchecked.
+    Slow sends follow the same shape: none below 400, then 58,208.</p>
+  </div>
+
+  <h2>What actually failed</h2>
+  <p>Below four hundred players the limit was the test client. The run below is the same script against the
+  same server, differing only in whether the client was serialising every frame to its JSON event stream.</p>
+
+  <table>
+    <tr><th>Players</th><th>Client event stream on</th><th>Client event stream off</th><th>Server said</th></tr>
+    <tr><td class="num">25</td><td><span class="tag tag-ok">passed</span></td><td><span class="tag tag-na">not run</span></td><td>nothing</td></tr>
+    <tr><td class="num">50</td><td><span class="tag tag-ok">passed</span></td><td><span class="tag tag-na">not run</span></td><td>nothing</td></tr>
+    <tr><td class="num">100</td><td><span class="tag tag-no">1 of 2 aborted</span></td><td><span class="tag tag-na">not run</span></td><td>nothing</td></tr>
+    <tr><td class="num">200</td><td><span class="tag tag-no">client aborted</span></td><td><span class="tag tag-ok">passed</span></td><td>nothing</td></tr>
+    <tr><td class="num">400</td><td><span class="tag tag-na">not run</span></td><td><span class="tag tag-ok">passed</span></td><td>26 slow ticks</td></tr>
+  </table>
+
+  <p>With the stream on, the client aborts at two hundred players because bots stop seeing their own chat echo
+  inside its five-second deadline. With it off, the same script and the same server carry two hundred players in
+  ninety seconds and four hundred in a hundred and seventy-one. At one hundred the client sits right on that
+  deadline — one of the two runs passed and one aborted — while the server showed nothing wrong in either.</p>
+
+  <h2>The stall at four hundred</h2>
+  <div class="callout">
+    <p style="margin:0"><code>SLOW TICK: work 297ms (lock-wait 0ms), late 25ms, gc 62ms — 400 player(s), 305 mob(s) on 1 active map(s)</code></p>
+  </div>
+  <p>Twenty-six slow ticks, work at 83 ms minimum, 132 ms median and 297 ms worst against a 333 ms heartbeat and an
+  83 ms threshold. The lock-wait figure was zero in every one of them and garbage collection never exceeded 62 ms.
+  Read the way the server's own instrumentation asks to be read, that means the tick body is too big for the
+  population it is driving — not lock contention, not GC, not the OS failing to schedule the thread. Outbound
+  queues reached 326 frames per client at the median. Server CPU over the hold was 61% of one core out of sixteen,
+  and the working set peaked at 713 MB.</p>
+
+  <h2>The wire dump is not behind its own switch</h2>
+  <p>Turning the game's wire dump off (<code>P1998_LOG_WIRE=0</code>) saved 14–31% of the log volume and no
+  measurable CPU. That is less than expected, and the reason is that the outbound half of the dump is not actually
+  behind that switch: <code>SendMap</code> in <code>Server/Session.Dialog.cs</code> logs a hex dump of every packet
+  it sends regardless, while the inbound side in <code>Server/Session.cs</code> is properly guarded. At four hundred
+  players the logger dropped 663,928 lines and rolled a 64 MB file twice in under three minutes. It is a one-line
+  fix.</p>
+
+  <h2>What these numbers do not cover</h2>
+  <ul>
+    <li>Every server figure is a <b>Debug</b> build — the launcher runs <code>--no-build</code> against
+    <code>bin/Debug</code>. Treat four hundred players as a floor, not a ceiling.</li>
+    <li>Every bot spawns on the same tile of a 16×16 map, and the server refuses a step onto an occupied tile, so
+    97.5% of walks at twenty-five players and 100% at fifty and above were refused. Chat broadcast was exercised
+    hard; <b>movement broadcast essentially was not</b>. The next run needs a script that spreads the bots out.</li>
+    <li>Three of the twelve runs had their server log rotated away before it could be read. Those are reported as
+    unread, never as clean.</li>
+    <li>No GM account was on the bot roster, so nothing was fought. The optional combat block stayed off.</li>
+    <li>Nothing on the server was changed for this run.</li>
+  </ul>
+
+  <h2>What follows from it</h2>
+  <ul>
+    <li>Gate the outbound packet hex behind the wire switch — one <code>if</code>.</li>
+    <li>Cut the tick body at high population on one map. This is the one standing between the current server and
+    hundreds of concurrent players.</li>
+    <li>Bound and measure the per-session outbound queue under chat fan-out: <code>say</code> from N players on one
+    map is N² frames, and at four hundred that is 160,000 a cycle.</li>
+    <li>A thread-pool floor sized to the connection count.</li>
+    <li>For the test client: make the event stream affordable at scale, put per-bot timings in the checkpoint file
+    so the numbers survive turning it off, and make the five-second verb deadline a measurement rather than an
+    abort.</li>
+  </ul>
+
+<footer>Session-generated report — a snapshot for team review, not regenerated nightly.
+Every number here was measured on one laptop (Ryzen 9 5900HS, 16 GB) on 2026-09-12; the full report with the
+per-step ramp table lives with the team's briefs.</footer>
+</div>
+</body>
+</html>

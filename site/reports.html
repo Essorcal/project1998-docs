@@ -86,10 +86,13 @@
   <header class="hero">
     <p class="kicker">Project1998 · team review</p>
     <h1>Reports</h1>
-    <p class="lede">Session-generated reports from the content-completeness pass — snapshots for the team to review. The database pages stay the always-current truth; these capture what was found along the way and what still needs fixing or deciding.</p>
+    <p class="lede">Session-generated reports — snapshots for the team to review, from the content-completeness pass and from server measurement runs. The database pages stay the always-current truth; these capture what was found along the way and what still needs fixing or deciding.</p>
     <p class="meta">reports are static snapshots · the nightly regen never rewrites them</p>
   </header>
 
+<a class="card" href="report-load-run.html"><b>Load run 1 — where the server stalls</b><span class="pill">performance</span>
+<p>The first bot load test: 25 to 400 clients on one map. The server holds 200 players without missing a
+tick and first stalls at 400 — in the tick body, not the lock. Below that the test client is what gives out.</p></a>
 <a class="card" href="report-discoveries.html"><b>Discoveries register</b><span class="pill">start here</span>
 <p>The master list: what the completeness pass surfaced, split into game-repo fixes, docs-repo fixes,
 and calls that need a human decision first.</p></a>
