@@ -99,6 +99,50 @@
     content-only changes hot-reload with no restart.</p>
   </header>
 
+  <article id="server-2026-09-13">
+    <h2>Server: the first bot load run, wire logs that obey their switch, and a slow tick that names its phase</h2>
+    <p class="meta">2026-09-13 · Essorcal · Server PRs <a href="https://github.com/project1998/Project1998/pull/234">#234</a>, <a href="https://github.com/project1998/Project1998/pull/233">#233</a>; load run of 2026-09-12 against master b5bb486</p>
+    <h3 class="sec">The first bot load run, 25 to 400 players</h3>
+    <ul>
+      <li>Debug build of master on the laptop, loopback, test client at main 101b679; every bot spawns on map 4711 and loops walk east, say "hi", walk west, wait.</li>
+      <li>The 25-player gate passed. 25 to 200 players: zero slow ticks, zero slow sends, server CPU under 8 percent of one core.</li>
+      <li>400 players on one map: the first stall. 26 slow ticks, tick work 132 ms median and 297 ms worst against the 333 ms heartbeat, lock-wait zero every time, so it is the tick body, not contention. Outbound queues hit 326 frames per client; server CPU 61 percent of one core.</li>
+      <li>Below 400 the test client was the limit: with its JSON event stream on it aborts at 200 players on the five-second chat-echo deadline; with it off the same script carries 200 in 90 s and 400 in 171 s.</li>
+      <li>Wire dump off saved 14 to 31 percent of log volume because the outbound hex dump was not behind the switch; at 400 players the logger dropped 663,928 lines and rolled a 64 MB file twice. PR #234 closes that.</li>
+      <li>Every bot spawns on one tile and steps onto occupied tiles are refused, so nearly every walk was refused: chat broadcast was exercised, movement broadcast was not.</li>
+      <li>Nine follow-up slices proposed: server (outbound hex gate, the tick body at 400, bounding the outbound queue, a thread-pool floor), test client (affordable event stream, latency in the checkpoint file, the verb deadline as a knob, a load-shaped script), harness (a log budget).</li>
+    </ul>
+    <h3 class="sec">Wire packet logs honor their switch, and drain facts pin the teardown gate (PR #234)</h3>
+    <ul>
+      <li>The outbound packet dump and the town-list dump are whole-line gated on the wire switch, matching the inbound side; a fact proves OFF emits nothing, ON still does, and the packets are sent either way.</li>
+      <li>All nine <code>Log.Hex</code> sites enumerated and classified.</li>
+      <li>New facts: sixteen concurrent fire-and-forget closes start one drain, and an awaited drain still waits for the bytes.</li>
+      <li>Routine login teardown logs type and message without a stack; unexpected login read failures log with one.</li>
+      <li>Fix round: the login handoff line stays at Info; only the token bytes follow the wire switch.</li>
+      <li>Suite 977/977, 0 warnings.</li>
+    </ul>
+    <h3 class="sec">A slow tick says which phase spent the work (PR #233)</h3>
+    <ul>
+      <li>Every phase of <code>Tick</code> and <code>FlushTick</code> is timed, and a slow beat prints a second line naming the phases most expensive first, with the rest under "other".</li>
+      <li>Emitted only on beats that already print <code>SLOW TICK</code>; that line is unchanged. No phase reordered, nothing moved across the lock, about 600 ns and 0 bytes per healthy beat.</li>
+      <li>Fix round: the phase-sum guard pins the invariant instead of a fixed window.</li>
+      <li>Two new tests: a 4,000-creature beat and a healthy beat.</li>
+      <li>Count slow beats with <code>SLOW TICK: work</code>; a bare <code>SLOW TICK</code> grep now matches two lines per beat.</li>
+      <li>Suite 976/976, 0 warnings.</li>
+    </ul>
+    <h3 class="sec">Reviews and process</h3>
+    <ul>
+      <li>Both PRs were tier C with coordinator records, one fix round each.</li>
+      <li>PR <a href="https://github.com/project1998/Project1998/pull/235">#235</a>, ServerConfig part 1 of #42, is open in a tier A review; promoted from B because it changes how every knob is read and flips whitespace-padded booleans at four call sites.</li>
+      <li>Metrics to date: 21 tier A merged at a median of one round, 21 tier B at two, 29 tier C at one; one escaped defect, tier C.</li>
+    </ul>
+    <h3 class="sec">Still queued</h3>
+    <ul>
+      <li>The load run's slices, starting with the tick body at 400 players; the log sink seam for tests; the login read loop's single-clause catch.</li>
+      <li>Test client team: the event stream, verb deadline and load-shaped script slices; pin the suite's test-client ref for server reviews.</li>
+    </ul>
+  </article>
+
   <article id="server-2026-09-11-b">
     <h2>Server: one outbound for both processes, the last four peer sends under the recipient's lock, the status probe's polite close</h2>
     <p class="meta">2026-09-11 · Essorcal and brian · Server PRs <a href="https://github.com/project1998/Project1998/pull/231">#231</a>, <a href="https://github.com/project1998/Project1998/pull/230">#230</a>, <a href="https://github.com/project1998/Project1998/pull/232">#232</a>; direct pushes 9e9e170, 3ffb44d</p>
