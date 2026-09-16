@@ -101,7 +101,7 @@
 
   <article id="server-2026-09-16">
     <h2>Server: every environment knob declared once, the last hand-prefixed log lines</h2>
-    <p class="meta">2026-09-16 · Essorcal · Server PRs <a href="https://github.com/project1998/Project1998/pull/235">#235</a>, <a href="https://github.com/project1998/Project1998/pull/237">#237</a>, <a href="https://github.com/project1998/Project1998/pull/236">#236</a>, <a href="https://github.com/project1998/Project1998/pull/238">#238</a>; closes #42 and #199</p>
+    <p class="meta">2026-09-16 · Essorcal · Server PRs <a href="https://github.com/project1998/Project1998/pull/235">#235</a>, <a href="https://github.com/project1998/Project1998/pull/237">#237</a>, <a href="https://github.com/project1998/Project1998/pull/236">#236</a>, <a href="https://github.com/project1998/Project1998/pull/238">#238</a>, <a href="https://github.com/project1998/Project1998/pull/239">#239</a>; closes #42, #199 and #57</p>
     <h3 class="sec">ServerConfig, part 1: one declaration per environment knob, a generated reference, and a startup banner (PR #235, #42 part 1)</h3>
     <ul>
       <li><code>Shared/ServerConfig.cs</code> declares every knob once: name, area, type, default and doc string; 43 knobs across twelve files, resolved once per process and immutable after.</li>
@@ -135,6 +135,15 @@
       <li>Live mute state moved next to the <code>@mute</code> and <code>@unmute</code> commands that write it, with the first tests for mute.</li>
       <li>Review fix round: the shared search allocated 240 bytes per spawn placement under the world lock; struct walkers and value-type tile tests bring it back to zero, about ten nanoseconds over the old inline loop.</li>
       <li>Fixed a test map-id collision that made a spawn test fail only in full runs.</li>
+    </ul>
+    <h3 class="sec">A GmOverrides class with a @toggles readout and actor logging, and the RE probes in Session.Probes.cs (PR #239, #57 part 3, closes #57)</h3>
+    <ul>
+      <li>Staff overrides (<code>@clip</code>, <code>@peace</code>, <code>@anywarp</code>, <code>@showwarps</code>, the three melee sfx slots, the mob swing pose and the <code>@wmpos</code> dots) are one <code>GmOverrides</code> class; every read site is still a plain field load.</li>
+      <li>New GM command <code>@toggles</code>: every override you are under in one readout, plus the <code>@clock</code> and weather pins.</li>
+      <li>Every override change now logs who made it, what it was and what it became; the old <code>at map (x,y)</code> suffix and <code>@mobact</code>'s <code>faced=</code> note are gone from those lines. Nothing on the wire changed.</li>
+      <li>The ~25 reverse-engineering probe commands moved into <code>Server/Session.Probes.cs</code>, 42 members verbatim; no command changed name, tier, arguments or help text.</li>
+      <li><code>@where</code>, <code>@bring</code>, <code>@rez</code>, <code>@click</code> and the group invite share the one "not online" gate with the six sites from part 2, wording and channel unchanged.</li>
+      <li>Review fix round: two probe-only helpers that the first move left behind joined the probes file, and a comment that put the mob swing pose reads under the world lock now says where they really run (the unlocked flush half of the heartbeat).</li>
     </ul>
   </article>
 
