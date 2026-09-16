@@ -101,7 +101,7 @@
 
   <article id="server-2026-09-16">
     <h2>Server: every environment knob declared once, the last hand-prefixed log lines</h2>
-    <p class="meta">2026-09-16 · Essorcal · Server PRs <a href="https://github.com/project1998/Project1998/pull/235">#235</a>, <a href="https://github.com/project1998/Project1998/pull/237">#237</a>, <a href="https://github.com/project1998/Project1998/pull/236">#236</a>; closes #42 and #199</p>
+    <p class="meta">2026-09-16 · Essorcal · Server PRs <a href="https://github.com/project1998/Project1998/pull/235">#235</a>, <a href="https://github.com/project1998/Project1998/pull/237">#237</a>, <a href="https://github.com/project1998/Project1998/pull/236">#236</a>, <a href="https://github.com/project1998/Project1998/pull/238">#238</a>; closes #42 and #199</p>
     <h3 class="sec">ServerConfig, part 1: one declaration per environment knob, a generated reference, and a startup banner (PR #235, #42 part 1)</h3>
     <ul>
       <li><code>Shared/ServerConfig.cs</code> declares every knob once: name, area, type, default and doc string; 43 knobs across twelve files, resolved once per process and immutable after.</li>
@@ -127,6 +127,14 @@
       <li><code>HostAddress.FromEnvironment</code> is gone; <code>ConnGuard</code> selects a door's knobs instead of interpolating a prefix, and a typo prefix throws.</li>
       <li>61 new facts pin every converted knob's default and both sides of every clamp edge; the live banner and a real per-IP cap rejection were verified on a pair.</li>
       <li>The only environment reads left outside <code>ServerConfig</code> are the 68 per-table content path overrides, which belong to #35.</li>
+    </ul>
+    <h3 class="sec">One online-player resolver, one free-neighbour search, and the mute state in the moderation file (PR #238, #57 part 2)</h3>
+    <ul>
+      <li>One resolver does the "find this online player or say why not" lookup for six commands; every refusal keeps the exact wording and channel it had.</li>
+      <li>The horse you set down when dismounting and the tile a respawning creature lands on share one free-tile search, with each caller's own walk order, predicates and fallback kept.</li>
+      <li>Live mute state moved next to the <code>@mute</code> and <code>@unmute</code> commands that write it, with the first tests for mute.</li>
+      <li>Review fix round: the shared search allocated 240 bytes per spawn placement under the world lock; struct walkers and value-type tile tests bring it back to zero, about ten nanoseconds over the old inline loop.</li>
+      <li>Fixed a test map-id collision that made a spawn test fail only in full runs.</li>
     </ul>
   </article>
 
