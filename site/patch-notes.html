@@ -99,6 +99,37 @@
     content-only changes hot-reload with no restart.</p>
   </header>
 
+  <article id="server-2026-09-16">
+    <h2>Server: every environment knob declared once, the last hand-prefixed log lines</h2>
+    <p class="meta">2026-09-16 · Essorcal · Server PRs <a href="https://github.com/project1998/Project1998/pull/235">#235</a>, <a href="https://github.com/project1998/Project1998/pull/237">#237</a>, <a href="https://github.com/project1998/Project1998/pull/236">#236</a>; closes #42 and #199</p>
+    <h3 class="sec">ServerConfig, part 1: one declaration per environment knob, a generated reference, and a startup banner (PR #235, #42 part 1)</h3>
+    <ul>
+      <li><code>Shared/ServerConfig.cs</code> declares every knob once: name, area, type, default and doc string; 43 knobs across twelve files, resolved once per process and immutable after.</li>
+      <li>Knob types own the parse rules, so a bad value keeps the declared default and logs a <code>!!</code> line naming the variable, the value and what is in force; nothing becomes 0.</li>
+      <li><code>docs/common/Configuration.md</code> is generated from the declarations and a test fails CI when it drifts or a knob is missing.</li>
+      <li>The four gameplay values that were env vars (<code>P1998_HIT_CRIT</code>, <code>P1998_HEAL_CRIT</code>, <code>P1998_DEATH_DELAY_MS</code>, <code>P1998_SPELLBOOK_CAP</code>) are rows in <code>ServerTuning.csv</code> with their old defaults and rules, and reload without a restart; a retired variable still set warns loudly at startup.</li>
+      <li>Both processes print the effective configuration at startup, grouped by area, each knob tagged environment or default.</li>
+      <li>Booleans have one meaning across nine knobs; four sites that split between <code>== "1"</code> and <code>!= "0"</code> now trim whitespace, and the wire-log knob stays exact-match so a padded <code>" 1"</code> cannot switch password logging on.</li>
+      <li>Review fix round: the wire-log exact match restored with its test, the spellbook and crit-byte rules restored to the old ones, the banner no longer tags a rejected value as environment, and four files dropped from the doc's inline-reads list.</li>
+    </ul>
+    <h3 class="sec">The last nine hand-prefixed diagnostics route through Log.Warn and Log.Error (PR #237, closes #199)</h3>
+    <ul>
+      <li>The four <code>REJECT</code> lines in the shared acceptor go through <code>Log.Warn</code>; a new string-only <code>Log.Error</code> takes the five fatal and startup lines that had no exception to carry.</li>
+      <li>Same text, same level, byte for byte; a grep for hand-written <code>!!</code> prefixes through <code>Log.Info</code> now returns nothing.</li>
+      <li>Two facts pin the exact line text and level for both entry points.</li>
+    </ul>
+    <h3 class="sec">ServerConfig, part 2: the remaining inline reads (PR #236, #42 part 2)</h3>
+    <ul>
+      <li>Every remaining environment read goes through <code>ServerConfig</code>: the world heartbeat, the two health probes, the status document, the staff rosters, the map and SObj path overrides, the bind address, the handshake budget, the two outbound write bounds, the trust-on-first-use switch, and the ten connection-admission caps; 68 knobs declared, up from 43.</li>
+      <li>The ten abuse-control caps (<code>P1998_LOGIN_MAXCONN</code>, <code>P1998_GAME_PERIP</code> and the rest) are documented for the first time; their names used to be built from a prefix at runtime.</li>
+      <li>Numeric values in force are unchanged for every raw value; rejected values now warn. Both loopback exemptions and the trust switch match their old rules row for row.</li>
+      <li>Five knobs that were re-read on every use are resolved once at startup; the staff roster files are still re-read on <code>@reload</code>.</li>
+      <li><code>HostAddress.FromEnvironment</code> is gone; <code>ConnGuard</code> selects a door's knobs instead of interpolating a prefix, and a typo prefix throws.</li>
+      <li>61 new facts pin every converted knob's default and both sides of every clamp edge; the live banner and a real per-IP cap rejection were verified on a pair.</li>
+      <li>The only environment reads left outside <code>ServerConfig</code> are the 68 per-table content path overrides, which belong to #35.</li>
+    </ul>
+  </article>
+
   <article id="server-2026-09-13">
     <h2>Server: the first bot load run, wire logs that obey their switch, and a slow tick that names its phase</h2>
     <p class="meta">2026-09-13 · Essorcal · Server PRs <a href="https://github.com/project1998/Project1998/pull/234">#234</a>, <a href="https://github.com/project1998/Project1998/pull/233">#233</a>; load run of 2026-09-12 against master b5bb486</p>
