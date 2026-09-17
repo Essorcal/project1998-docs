@@ -100,8 +100,8 @@
   </header>
 
   <article id="server-2026-09-17">
-    <h2>Server: the tick body at 400 players, and two CI reds made deterministic</h2>
-    <p class="meta">2026-09-17 · Essorcal · Server PRs <a href="https://github.com/project1998/Project1998/pull/240">#240</a>, <a href="https://github.com/project1998/Project1998/pull/242">#242</a></p>
+    <h2>Server: the tick body at 400 players, two CI reds made deterministic, and one content override</h2>
+    <p class="meta">2026-09-17 · Essorcal · Server PRs <a href="https://github.com/project1998/Project1998/pull/240">#240</a>, <a href="https://github.com/project1998/Project1998/pull/242">#242</a>, <a href="https://github.com/project1998/Project1998/pull/241">#241</a></p>
     <h3 class="sec">The viewport reconcile takes the viewer's rect once a sweep: 66 slow beats to 38 at 400 players (PR #240, load-run slice 2)</h3>
     <ul>
       <li>Ran the 400-player bot load twice, before and after, on the laptop: 400 bots, 305 mobs, one 16x16 map, about 190 seconds at 400 players each time.</li>
@@ -114,6 +114,14 @@
     <ul>
       <li>Fixed a test that could fail claiming the server never logged a slow-send warning when it had: two test classes racing for the process's console could take the capture away from each other. Console capture is now one exclusive helper.</li>
       <li>Fixed a test that could report "@ban refuses a name with no character row" when the real cause was another test holding the database's write lock for 30 seconds; that collection now runs on its own and the setup save checks itself.</li>
+    </ul>
+    <h3 class="sec">Retire the 68 per-table content path overrides; P1998_GAME_DATA is the one content override (PR #241, refs #35 and #42)</h3>
+    <ul>
+      <li>The per-file content variables (<code>P1998_MOBS</code>, <code>P1998_SPELLS</code>, <code>P1998_MAP_CELLS</code> and the rest, 72 names with the four Lua inputs) are no longer honoured; <code>P1998_GAME_DATA</code> relocates the whole content directory. This is a behaviour change.</li>
+      <li>A retired name that is still set is ignored and produces one startup warning naming it and <code>P1998_GAME_DATA</code>; unset names are silent and absent from the banner.</li>
+      <li><code>TableSpec</code> no longer carries an environment-variable name; every content path, including the login server's era files, resolves under the game-data directory.</li>
+      <li>Tests that pointed one table elsewhere through the environment now use in-process seams.</li>
+      <li>The generated <code>game-data/README.md</code> table drops its override column and <code>docs/common/Configuration.md</code> says the per-file names are retired; two hand-written docs that still told readers to set one are corrected.</li>
     </ul>
   </article>
 
