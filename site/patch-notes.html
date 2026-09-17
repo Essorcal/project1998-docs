@@ -110,7 +110,6 @@
       <li>The four gameplay values that were env vars (<code>P1998_HIT_CRIT</code>, <code>P1998_HEAL_CRIT</code>, <code>P1998_DEATH_DELAY_MS</code>, <code>P1998_SPELLBOOK_CAP</code>) are rows in <code>ServerTuning.csv</code> with their old defaults and rules, and reload without a restart; a retired variable still set warns loudly at startup.</li>
       <li>Both processes print the effective configuration at startup, grouped by area, each knob tagged environment or default.</li>
       <li>Booleans have one meaning across nine knobs; four sites that split between <code>== "1"</code> and <code>!= "0"</code> now trim whitespace, and the wire-log knob stays exact-match so a padded <code>" 1"</code> cannot switch password logging on.</li>
-      <li>Review fix round: the wire-log exact match restored with its test, the spellbook and crit-byte rules restored to the old ones, the banner no longer tags a rejected value as environment, and four files dropped from the doc's inline-reads list.</li>
     </ul>
     <h3 class="sec">The last nine hand-prefixed diagnostics route through Log.Warn and Log.Error (PR #237, closes #199)</h3>
     <ul>
@@ -133,7 +132,6 @@
       <li>One resolver does the "find this online player or say why not" lookup for six commands; every refusal keeps the exact wording and channel it had.</li>
       <li>The horse you set down when dismounting and the tile a respawning creature lands on share one free-tile search, with each caller's own walk order, predicates and fallback kept.</li>
       <li>Live mute state moved next to the <code>@mute</code> and <code>@unmute</code> commands that write it, with the first tests for mute.</li>
-      <li>Review fix round: the shared search allocated 240 bytes per spawn placement under the world lock; struct walkers and value-type tile tests bring it back to zero, about ten nanoseconds over the old inline loop.</li>
       <li>Fixed a test map-id collision that made a spawn test fail only in full runs.</li>
     </ul>
     <h3 class="sec">A GmOverrides class with a @toggles readout and actor logging, and the RE probes in Session.Probes.cs (PR #239, #57 part 3, closes #57)</h3>
@@ -143,7 +141,6 @@
       <li>Every override change now logs who made it, what it was and what it became; the old <code>at map (x,y)</code> suffix and <code>@mobact</code>'s <code>faced=</code> note are gone from those lines. Nothing on the wire changed.</li>
       <li>The ~25 reverse-engineering probe commands moved into <code>Server/Session.Probes.cs</code>, 42 members verbatim; no command changed name, tier, arguments or help text.</li>
       <li><code>@where</code>, <code>@bring</code>, <code>@rez</code>, <code>@click</code> and the group invite share the one "not online" gate with the six sites from part 2, wording and channel unchanged.</li>
-      <li>Review fix round: two probe-only helpers that the first move left behind joined the probes file, and a comment that put the mob swing pose reads under the world lock now says where they really run (the unlocked flush half of the heartbeat).</li>
     </ul>
   </article>
 
