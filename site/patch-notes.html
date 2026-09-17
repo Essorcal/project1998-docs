@@ -100,8 +100,8 @@
   </header>
 
   <article id="server-2026-09-17">
-    <h2>Server: the tick body at 400 players, two CI reds made deterministic, one content override, the viewports phase split, and a five-second database timeout</h2>
-    <p class="meta">2026-09-17 · Essorcal · Server PRs <a href="https://github.com/project1998/Project1998/pull/240">#240</a>, <a href="https://github.com/project1998/Project1998/pull/242">#242</a>, <a href="https://github.com/project1998/Project1998/pull/241">#241</a>, <a href="https://github.com/project1998/Project1998/pull/243">#243</a>, <a href="https://github.com/project1998/Project1998/pull/244">#244</a></p>
+    <h2>Server: the tick body at 400 players in three cuts, two CI reds made deterministic, one content override, and a five-second database timeout</h2>
+    <p class="meta">2026-09-17 · Essorcal · Server PRs <a href="https://github.com/project1998/Project1998/pull/240">#240</a>, <a href="https://github.com/project1998/Project1998/pull/242">#242</a>, <a href="https://github.com/project1998/Project1998/pull/241">#241</a>, <a href="https://github.com/project1998/Project1998/pull/243">#243</a>, <a href="https://github.com/project1998/Project1998/pull/244">#244</a>, <a href="https://github.com/project1998/Project1998/pull/245">#245</a></p>
     <h3 class="sec">The viewport reconcile takes the viewer's rect once a sweep: 66 slow beats to 38 at 400 players (PR #240, load-run slice 2)</h3>
     <ul>
       <li>Ran the 400-player bot load twice, before and after, on the laptop: 400 bots, 305 mobs, one 16x16 map, about 190 seconds at 400 players each time.</li>
@@ -136,6 +136,14 @@
       <li>The two timeouts that decide that (SQLite's <code>busy_timeout</code> and the provider's command timeout) come from one constant, so they cannot silently disagree again.</li>
       <li>A failed save now re-dirties the session on every path; unconditional saves (spellbook, legend, profile) used to be lost on failure. The change-profile reply reports whether the write succeeded instead of always saying "saved".</li>
       <li>The test suite is about 28 seconds faster, most of what the CI-flake fix cost.</li>
+    </ul>
+    <h3 class="sec">The peer sweep takes one viewport lock instead of 400: slow beats 5.09% to 1.29% at 400 players (PR #245)</h3>
+    <ul>
+      <li>The viewport reconcile took each player's viewport lock once per peer, so at 400 players on one map the tick made 160,000 lock acquire/release pairs a beat to decide that nothing had changed. It now decides for every peer under one acquisition and sends afterwards, re-checking each deferred frame against the drawn sets just before it goes out.</li>
+      <li>Profiled 400 real sessions and 305 mobs on one map first to pick the cut: the per-peer acquisition was 74% of the peer sweep, and most of that was the thread-local depth counter the lock-order assert needs, which the Debug build the server runs does not inline.</li>
+      <li>400-player load runs on the laptop, same script, about 170 to 180 seconds at 400 players: slow beats went from 26 in 511 (5.09%) to 7 in 541 (1.29%), a slow beat's work from 146 ms to 104 ms at the median against a 333 ms heartbeat, server CPU from 62.5% to 55.6% of one core.</li>
+      <li>No behaviour change on the wire. Two real clients, one standing and one walking across the edge of the other's screen 20 times, produce an identical despawn/redraw sequence on the new code and the old; five new tests pin the packet sequence one sweep produces and that a delayed sweep can never overtake a walk that finished while it waited.</li>
+      <li>Still open in the same phase: the sweep leads 6 of the 7 beats that are still slow, and the reconcile has no way yet to skip a player with nothing to reconcile.</li>
     </ul>
   </article>
 
