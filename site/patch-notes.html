@@ -100,8 +100,8 @@
   </header>
 
   <article id="server-2026-09-17">
-    <h2>Server: the tick body at 400 players, two CI reds made deterministic, one content override, and the viewports phase split</h2>
-    <p class="meta">2026-09-17 · Essorcal · Server PRs <a href="https://github.com/project1998/Project1998/pull/240">#240</a>, <a href="https://github.com/project1998/Project1998/pull/242">#242</a>, <a href="https://github.com/project1998/Project1998/pull/241">#241</a>, <a href="https://github.com/project1998/Project1998/pull/243">#243</a></p>
+    <h2>Server: the tick body at 400 players, two CI reds made deterministic, one content override, the viewports phase split, and a five-second database timeout</h2>
+    <p class="meta">2026-09-17 · Essorcal · Server PRs <a href="https://github.com/project1998/Project1998/pull/240">#240</a>, <a href="https://github.com/project1998/Project1998/pull/242">#242</a>, <a href="https://github.com/project1998/Project1998/pull/241">#241</a>, <a href="https://github.com/project1998/Project1998/pull/243">#243</a>, <a href="https://github.com/project1998/Project1998/pull/244">#244</a></p>
     <h3 class="sec">The viewport reconcile takes the viewer's rect once a sweep: 66 slow beats to 38 at 400 players (PR #240, load-run slice 2)</h3>
     <ul>
       <li>Ran the 400-player bot load twice, before and after, on the laptop: 400 bots, 305 mobs, one 16x16 map, about 190 seconds at 400 players each time.</li>
@@ -129,6 +129,13 @@
       <li><code>run/status.json</code> publishes <code>ticks</code> and <code>slowTicks</code>, so the slow-beat share is counted rather than derived from the wall clock.</li>
       <li>One 400-player hold on the merged head: the lock block was under a millisecond on 52 of 55 slow beats and never above 4 ms; the sweep alone led 50 of 55 at a median 92 ms, 85% of slow-beat work. The next cut is in the sweep's per-viewer bookkeeping, not the lock.</li>
       <li>The counted share (9.15%) matched the derived one (9.13%), confirming every earlier "% of beats" figure.</li>
+    </ul>
+    <h3 class="sec">The database connection's command timeout matches its busy timeout: a contended write fails in five seconds, not thirty (PR #244, refs #242)</h3>
+    <ul>
+      <li>A database write blocked by another writer now gives up after five seconds instead of thirty, so a save that hits contention no longer parks a player's session thread for half a minute before retrying.</li>
+      <li>The two timeouts that decide that (SQLite's <code>busy_timeout</code> and the provider's command timeout) come from one constant, so they cannot silently disagree again.</li>
+      <li>A failed save now re-dirties the session on every path; unconditional saves (spellbook, legend, profile) used to be lost on failure. The change-profile reply reports whether the write succeeded instead of always saying "saved".</li>
+      <li>The test suite is about 28 seconds faster, most of what the CI-flake fix cost.</li>
     </ul>
   </article>
 
