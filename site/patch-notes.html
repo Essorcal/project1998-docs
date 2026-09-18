@@ -158,6 +158,14 @@
       <li>The run reproduced the earlier pair's beat on identical traffic (viewports 45.4 ms/s against 46.0, lock-wait 0 at every percentile), so the memory fields cost nothing on the world tick.</li>
       <li>One flaw found in the new fields: the committed-bytes figure is a snapshot from the last collection, not the current moment, so it reads 0 until the first collection runs. Fix queued.</li>
     </ul>
+    <h3 class="sec">Load run, row B: the working set follows the machine's free memory, so the 1.1 GB was the GC's budget (measurement on master a923f93, same server and client as row A)</h3>
+    <ul>
+      <li>The row A hold repeated with one change: an idle process held 4.7 GB so free memory at launch was 2.3 GB instead of 6.2 GB. The game process peaked at a 482 MB working set instead of 1,163 MB and settled at 400 MB; the GC ran 11 ephemeral collections in the span instead of 2; the heap floor after each collection stayed at 15 to 83 MB and never rose.</li>
+      <li>The server allocated at the same rate either way, 13 MB/s against 12.5, on identical traffic and the same 124,000 completed bot actions. The big working set was the .NET server GC's budget on a laptop with memory to spare, not memory the server was holding. Retention is refuted for this workload.</li>
+      <li>Collecting five times as often cost the world tick nothing measurable: viewports 45.64 ms/s against 45.36, lock-wait 0 ms at every percentile, one 34 ms GC pause on one slow beat. The slow-beat share fell from 4.24% to 1.96%, which one hold each way is not enough to call a gain.</li>
+      <li>The committed-bytes field flaw is confirmed a second time: it read 0 for the first 40 seconds and held one value across five samples while the working set grew 90 MB. The fix is on its own branch.</li>
+      <li>Open for a decision: whether the deployment target should pin the GC with a conserve setting or heap limit, since on this evidence a 480 MB process costs nothing over a 1.16 GB one; and the status phase halved from 7.03 to 3.71 ms/s between the two holds, plausibly the working-set read costing more on a bigger process, untested.</li>
+    </ul>
   </article>
 
   <article id="server-2026-09-17">
