@@ -101,7 +101,7 @@
 
   <article id="server-2026-09-18">
     <h2>Server: the mob and item sweeps send outside the viewport lock, the phase totals become a rate, the tick stops allocating per player, two test seams, the db collection runs in parallel again, and a matched load run</h2>
-    <p class="meta">2026-09-18 · Essorcal · Server PRs <a href="https://github.com/project1998/Project1998/pull/246">#246</a>, <a href="https://github.com/project1998/Project1998/pull/248">#248</a>, <a href="https://github.com/project1998/Project1998/pull/249">#249</a>, <a href="https://github.com/project1998/Project1998/pull/247">#247</a>, <a href="https://github.com/project1998/Project1998/pull/250">#250</a>, <a href="https://github.com/project1998/Project1998/pull/251">#251</a></p>
+    <p class="meta">2026-09-18 · Essorcal · Server PRs <a href="https://github.com/project1998/Project1998/pull/246">#246</a>, <a href="https://github.com/project1998/Project1998/pull/248">#248</a>, <a href="https://github.com/project1998/Project1998/pull/249">#249</a>, <a href="https://github.com/project1998/Project1998/pull/247">#247</a>, <a href="https://github.com/project1998/Project1998/pull/250">#250</a>, <a href="https://github.com/project1998/Project1998/pull/251">#251</a>, <a href="https://github.com/project1998/Project1998/pull/252">#252</a></p>
     <h3 class="sec">The mob, item and peer sweeps decide under one viewport lock and send after releasing it (PR #246, refs #245)</h3>
     <ul>
       <li>The mob viewport sweep built and sent every packet with the player's viewport lock held, so on a beat that sends (walking onto a map, a step that crosses many creatures, a spawn wave) the lock was held for the whole sweep and that player's own walk waited behind it. It now decides under the lock and sends after letting go, the shape the peer sweep got in PR #245.</li>
@@ -165,6 +165,11 @@
       <li>Collecting five times as often cost the world tick nothing measurable: viewports 45.64 ms/s against 45.36, lock-wait 0 ms at every percentile, one 34 ms GC pause on one slow beat. The slow-beat share fell from 4.24% to 1.96%, which one hold each way is not enough to call a gain.</li>
       <li>The committed-bytes field flaw is confirmed a second time: it read 0 for the first 40 seconds and held one value across five samples while the working set grew 90 MB. The fix is on its own branch.</li>
       <li>Open for a decision: whether the deployment target should pin the GC with a conserve setting or heap limit, since on this evidence a 480 MB process costs nothing over a 1.16 GB one; and the status phase halved from 7.03 to 3.71 ms/s between the two holds, plausibly the working-set read costing more on a bigger process, untested.</li>
+    </ul>
+    <h3 class="sec">The committed-bytes status field is named and documented for the last collection (PR #252, refs #251)</h3>
+    <ul>
+      <li>The server's committed-memory status field is renamed `gcCommittedAtLastGcMb`, because that is what it is: the .NET API it comes from reports the last garbage collection, so the number reads 0 until the first collection runs and then holds one value until the next one. It was documented as a live reading, which both load runs showed it is not.</li>
+      <li>The test that guarded those fields asserted two things the runtime does not guarantee, that the heap never exceeds the committed figure and that the committed figure is above zero, both of which the load runs showed false. It now forces a collection first and checks what is true after one, against the counter read directly.</li>
     </ul>
   </article>
 
