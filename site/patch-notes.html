@@ -100,7 +100,7 @@
   </header>
 
   <article id="server-2026-09-18">
-    <h2>Server: the mob and item sweeps send outside the viewport lock, the phase totals become a rate, the tick stops allocating per player, two test seams, and the db collection runs in parallel again</h2>
+    <h2>Server: the mob and item sweeps send outside the viewport lock, the phase totals become a rate, the tick stops allocating per player, two test seams, the db collection runs in parallel again, and a matched load run</h2>
     <p class="meta">2026-09-18 · Essorcal · Server PRs <a href="https://github.com/project1998/Project1998/pull/246">#246</a>, <a href="https://github.com/project1998/Project1998/pull/248">#248</a>, <a href="https://github.com/project1998/Project1998/pull/249">#249</a>, <a href="https://github.com/project1998/Project1998/pull/247">#247</a>, <a href="https://github.com/project1998/Project1998/pull/250">#250</a></p>
     <h3 class="sec">The mob, item and peer sweeps decide under one viewport lock and send after releasing it (PR #246, refs #245)</h3>
     <ul>
@@ -135,6 +135,14 @@
       <li>Profiled 400 real sessions through the real tick before and after, Debug and Release: the back half of a beat went from 459 to 139 bytes per player per beat, and the garbage collector's cheapest generation runs 2.7 fewer times a minute at that load. The viewport reconcile's 104 bytes per viewer per beat is exactly the figure the #245 pass measured and left as a follow-up.</li>
       <li>No behaviour change: same steps, same players, same order, same log line when something throws. Two new tests pin it, one by arming a real player's outbound to throw mid-sweep and checking the players after it are still drawn.</li>
       <li>Found while measuring, not fixed here: the map broadcast helper allocates 45 KB per call with 400 players on the map, one closure per peer, and the tick calls it for every creature that moves.</li>
+    </ul>
+    <h3 class="sec">Load run: a matched pair of 400-player holds, master against PR #245's merge (refs #246, #248, #250)</h3>
+    <ul>
+      <li>Two 400-player holds on the laptop, back to back, same client, same script, same machine state: `b8d776e` (PR #245's merge) and master at `f473152` (with #246, #248 and #250). Both passed with 0 failures, about 180 to 190 seconds at 400 players each, 6 to 7 GB free at launch.</li>
+      <li>Counted slow-beat share over the same 541 ticks at 400 players: 2.96% on `b8d776e` and 3.51% on master, 16 slow beats against 19. That is inside the noise of one pair, so nothing is claimed about the direction; settling it needs repeat pairs.</li>
+      <li>First reading of the new phase totals as a rate: the tick body costs 61.3 ms per second of wall clock at 400 players, of which the viewport sweep is 46.0 ms/s (74.9%) and the status phase 7.8 ms/s (12.7%); lock-wait is 0.08 ms/s. The slow-beat sample on the same run understated the sweep 6.2-fold (7.4 ms/s as a floor against the 46.0 ms/s rate), so the per-phase floors in earlier load notes are not comparable to these rates.</li>
+      <li>The status phase is the baseline for the next slice: 7.8 ms/s, leading a third of the slow beats, worst beat 295 ms.</li>
+      <li>New fact, cause unknown: the server's working set peaked at about 1.15 GB on both sides, against about 400 MB in the three earlier holds from the same 159 MB at launch. It is the same on both sides so it is not a change since `b8d776e`; whether it is server growth since 2026-09-17 or the newer test client's traffic is the next measurement.</li>
     </ul>
   </article>
 
