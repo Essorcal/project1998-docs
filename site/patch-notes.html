@@ -99,6 +99,29 @@
     content-only changes hot-reload with no restart.</p>
   </header>
 
+  <article id="server-2026-09-18">
+    <h2>Server: the phase totals become a rate, two test seams, and the db collection runs in parallel again</h2>
+    <p class="meta">2026-09-18 · Essorcal · Server PRs <a href="https://github.com/project1998/Project1998/pull/248">#248</a>, <a href="https://github.com/project1998/Project1998/pull/249">#249</a>, <a href="https://github.com/project1998/Project1998/pull/247">#247</a></p>
+    <h3 class="sec">Every beat adds its phases to a running total published in run/status.json, and the 1 ms floor flake is closed (PR #248, refs #243 and #245)</h3>
+    <ul>
+      <li><code>run/status.json</code> now carries <code>elapsedMs</code>, <code>beatMs</code> and a <code>phaseMs</code> object with a running total for every phase of the world tick, keyed by the same names the slow-tick log line prints. Two samples give a phase's milliseconds per second of wall clock for every beat, slow or healthy, instead of a floor over the logged beats.</li>
+      <li>The totals are summed in raw stopwatch ticks and converted once at render, so a phase costing a fraction of a millisecond a beat still adds up instead of reading zero forever.</li>
+      <li>Cost on the tick path is one add per phase mark: 0.65 ns in Debug and 0.25 ns in Release per mark, 15 ns and 6 ns a beat. The two SLOW TICK lines and the existing status fields are unchanged.</li>
+      <li>The tick-phase test that went red once on CI now pays for the phase it asserts through a test-only hook, so a fast runner cannot empty the line; with zero creatures seeded it still names its phase on a 3 ms beat.</li>
+    </ul>
+    <h3 class="sec">A test-only in-process hook for the logger's formatted line (PR #249, refs #239)</h3>
+    <ul>
+      <li>The logger gained a test-only hook that hands each formatted line to a test in process, so a log assertion no longer has to attach the log file, shut the logger down and read the file back. In production the hook is null and costs one static null check per line, below what a million-call bench could resolve.</li>
+      <li>The GM override tests moved onto it and out of the log-file test group, so they sit next to the world state they pin and run in parallel with everything else.</li>
+    </ul>
+    <h3 class="sec">The tests that hold SQLite's write lock hold it on their own file, and the db test collection runs in parallel again (PR #247, refs #242 and #244)</h3>
+    <ul>
+      <li>The four tests that deliberately hold the database write lock now do it on a database file of their own, through an additive seam beside the production path: the production connection, path and initialization do exactly what they did.</li>
+      <li>The db test collection no longer runs alone; on a busy laptop the Debug suite went from about 1 m 40 s to about 1 m 32 s. A probe saw 2 of 20 concurrent saves fail with "database is locked" the old way and 0 of 20, three times, the new way.</li>
+      <li>Two stale comments fixed: a failed unconditional save does re-dirty the character, and a contended write gives up in 5 seconds rather than the 30 one doc still described.</li>
+    </ul>
+  </article>
+
   <article id="server-2026-09-17">
     <h2>Server: the tick body at 400 players in three cuts, two CI reds made deterministic, one content override, and a five-second database timeout</h2>
     <p class="meta">2026-09-17 · Essorcal · Server PRs <a href="https://github.com/project1998/Project1998/pull/240">#240</a>, <a href="https://github.com/project1998/Project1998/pull/242">#242</a>, <a href="https://github.com/project1998/Project1998/pull/241">#241</a>, <a href="https://github.com/project1998/Project1998/pull/243">#243</a>, <a href="https://github.com/project1998/Project1998/pull/244">#244</a>, <a href="https://github.com/project1998/Project1998/pull/245">#245</a></p>
