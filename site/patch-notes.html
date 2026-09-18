@@ -100,8 +100,17 @@
   </header>
 
   <article id="server-2026-09-18">
-    <h2>Server: the phase totals become a rate, two test seams, and the db collection runs in parallel again</h2>
-    <p class="meta">2026-09-18 · Essorcal · Server PRs <a href="https://github.com/project1998/Project1998/pull/248">#248</a>, <a href="https://github.com/project1998/Project1998/pull/249">#249</a>, <a href="https://github.com/project1998/Project1998/pull/247">#247</a></p>
+    <h2>Server: the mob and item sweeps send outside the viewport lock, the phase totals become a rate, two test seams, and the db collection runs in parallel again</h2>
+    <p class="meta">2026-09-18 · Essorcal · Server PRs <a href="https://github.com/project1998/Project1998/pull/246">#246</a>, <a href="https://github.com/project1998/Project1998/pull/248">#248</a>, <a href="https://github.com/project1998/Project1998/pull/249">#249</a>, <a href="https://github.com/project1998/Project1998/pull/247">#247</a></p>
+    <h3 class="sec">The mob, item and peer sweeps decide under one viewport lock and send after releasing it (PR #246, refs #245)</h3>
+    <ul>
+      <li>The mob viewport sweep built and sent every packet with the player's viewport lock held, so on a beat that sends (walking onto a map, a step that crosses many creatures, a spawn wave) the lock was held for the whole sweep and that player's own walk waited behind it. It now decides under the lock and sends after letting go, the shape the peer sweep got in PR #245.</li>
+      <li>Profiled 400 real sessions, 305 mobs and 50 floor items on one map, base and head back to back: on a beat where 40 mobs leave and 40 enter, the longest unbroken hold went from 64.7 µs to 14.6 µs per player per beat in Debug and 39.3 µs to 5.4 µs in Release, at 0 bytes added. That beat costs more CPU, since each deferred frame re-takes the lock for a moment to check it is still right; which side wins at 400 players needs a load run, which this slice did not include.</li>
+      <li>The ground-item sweep took the viewport lock once per item; with 50 items on the floor that was 5.5 µs per player per beat and is now 2.0 µs. The load map has no floor items, so no load run has seen this path.</li>
+      <li>A deferred frame is dropped if another reconcile contradicted it while it waited, and a deferred draw is also re-checked against where the player is standing when it goes out: if you stepped while a creature's draw was queued, the draw used to go out for a tile off the edge of the screen, the client discarded it, and the server believed it had drawn something you could not see. When a draw can no longer be sent, the server puts its records back exactly as it found them: a never-drawn creature is forgotten, and a creature already on screen that drifted to the edge stays tracked so it is still removed when it leaves.</li>
+      <li>The same edge-of-screen hole was in the player-to-player sweep from #245, so it is fixed here too.</li>
+      <li>Eight new tests pin the packet sequences both sweeps produce and five parked-send schedules for creatures, players and floor items; every existing viewport test is unchanged and green.</li>
+    </ul>
     <h3 class="sec">Every beat adds its phases to a running total published in run/status.json, and the 1 ms floor flake is closed (PR #248, refs #243 and #245)</h3>
     <ul>
       <li><code>run/status.json</code> now carries <code>elapsedMs</code>, <code>beatMs</code> and a <code>phaseMs</code> object with a running total for every phase of the world tick, keyed by the same names the slow-tick log line prints. Two samples give a phase's milliseconds per second of wall clock for every beat, slow or healthy, instead of a floor over the logged beats.</li>
