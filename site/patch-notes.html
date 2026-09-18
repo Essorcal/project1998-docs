@@ -150,6 +150,14 @@
       <li>The status thread pays about 2.2 ms per 10 s render for the working-set read, none of it on the world tick.</li>
       <li>Why: the 2026-09-18 load run peaked at a 1.14 GB working set against about 400 MB in the three holds before it. The evidence on disk points at the GC's budget under 6 to 7 GB of free memory rather than retention: the growth stops flat under continuing work, the fall shows no pause, the server runs server GC with 16 heaps and no limits, and the test client change between the holds did not execute. One hold with these fields settles it; until then it is a hypothesis.</li>
     </ul>
+    <h3 class="sec">Load run, row A: the 1.1 GB working set is the GC's budget, not the program's memory (measurement on master a923f93; refs #251)</h3>
+    <ul>
+      <li>One 400-player hold on master with the new memory fields, same client and script as the earlier pair, 6.2 GB free at launch. The managed heap is a sawtooth: 36 MB to 1,054 MB and back to 76 MB, then to 701 MB and back to 51 MB. Only three gen0, two gen1 and one gen2 collection ran in 250 seconds while the server allocated 12.5 MB a second.</li>
+      <li>The 200 MB drop the earlier runs saw part-way through is a full gen2 collection, which also returned 209 MB of committed pages to the OS.</li>
+      <li>Reading, the coordinator's after the fact because the pre-decided one assumed a heap level the run does not have: after each collection the process holds 36 to 76 MB of managed bytes against a working set of 870 to 1,160 MB, and that floor never rises. A live set of a fiftieth of the working set is not retention; with 16 server-GC heaps, no limits and 6 GB free, the GC is letting garbage accumulate between collections. No defect. A second hold with 4 GB of memory occupied beforehand is the controlled confirmation and has not run.</li>
+      <li>The run reproduced the earlier pair's beat on identical traffic (viewports 45.4 ms/s against 46.0, lock-wait 0 at every percentile), so the memory fields cost nothing on the world tick.</li>
+      <li>One flaw found in the new fields: the committed-bytes figure is a snapshot from the last collection, not the current moment, so it reads 0 until the first collection runs. Fix queued.</li>
+    </ul>
   </article>
 
   <article id="server-2026-09-17">
