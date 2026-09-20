@@ -136,6 +136,14 @@
       <li>The whole beat came out "in between" by the reading fixed before the runs: 55.4, 63.9 and 59.4 ms/s before against 58.7, 52.8 and 56.9 after. The averages are 59.6 and 56.1, but the ranges overlap and one of the three pairs moved the other way, so nothing is claimed about the tick as a whole; six holds cannot separate a 3 ms/s effect from a 6 to 9 ms/s spread on each side.</li>
       <li>Unchanged and worth recording: the viewport sweep is 47.6 ms/s before and 47.3 after, is now 84% of the beat, and is named on every slow beat on all six holds; the status phase holds at about 0.3 ms/s on both sides; slow beats were 3.14 to 4.49% before and 2.40 to 3.52% after; one gen0 and one gen1 collection and no gen2 on every run; working set peaked at 1,166 to 1,180 MB everywhere; SLOW SEND went from 1,885 to 2,528 on average on identical traffic and is still a threshold count with no rate behind it.</li>
     </ul>
+    <h3 class="sec">Profile: the viewport sweep, 84% of the beat, attributed line by line (refs #245, #246, #255)</h3>
+    <ul>
+      <li>The viewport sweep was profiled offline at 400 players and 305 mobs on one map: 13.9 ms a beat with nothing moving and 15.0 ms with the bots' walk traffic and real frames, against 14.8 to 16.8 ms measured on the twelve live holds this week. The phase is the scan itself, 704 in-view decisions per viewer per beat, not lock contention: 400 threads taking viewport locks at the bots' own walk rate cost the sweep 0.2%, and all the sweep's lock acquisitions together are about 1%.</li>
+      <li>The peer sweep is 65% of it and the mob sweep 31%. Inside the peer sweep, the pass that copies each peer's id and tile out before the lock, touching 399 other sessions' memory per viewer, is 29% of the whole phase on its own; the in-view rectangle tests are 23% and the drawn-set lookups 20%.</li>
+      <li>The sweep is linear in players plus mobs per player, so the phase is quadratic in players: 66.8 ns per extra player and 31.6 ns per extra mob per viewer per beat. Measured points: 400 players with 200 mobs 11.8 ms a beat, 800 players with 305 mobs 50.5 ms a beat, which is 15% of a 333 ms beat on this hardware.</li>
+      <li>The steady sweep's only garbage is two enumerators per viewer per beat, 25.6 KB a beat; the send path allocates about 36 bytes for every byte it puts on the wire.</li>
+      <li>Six cut candidates were priced. By microseconds removed per file touched, first is carrying the peer's id in the snapshot so the copy pass touches no other session (4.1 ms a beat at 400 players, two files, no decision changed), second is a cheaper drawn set (2.8 ms, four files); a spatial grid removes up to 86% only where players are spread over a map, and nothing at all when they stand in one clump, which is what the load script does; a "nothing moved" skip saves nothing while every bot walks every beat.</li>
+    </ul>
   </article>
 
   <article id="server-2026-09-18">
