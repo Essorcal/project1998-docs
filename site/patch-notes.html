@@ -99,6 +99,43 @@
     content-only changes hot-reload with no restart.</p>
   </header>
 
+  <article id="server-2026-09-21">
+    <h2>Server: a fury that lapses while you are logged off still takes its vita, the status tick stops allocating on idle beats, the server publishes where players and mobs stand, and a load script whose bots stand apart</h2>
+    <p class="meta">2026-09-21 · Essorcal · Server PRs <a href="https://github.com/project1998/Project1998/pull/259">#259</a>, <a href="https://github.com/project1998/Project1998/pull/260">#260</a>, <a href="https://github.com/project1998/Project1998/pull/261">#261</a></p>
+    <h3 class="sec">A Chung Ryong fury that lapses while you are logged off still takes its vita (PR #259, refs the PR #255 review)</h3>
+    <ul>
+      <li>Rule change, player-visible: if you log out with Chung Ryong's Rage up and come back after it has lapsed, the tier's vita price is charged on your first beat back, with the usual "Chung Ryong's rage leaves you drained." Until now a fury that ran out while you were offline was never restored and never charged, so the drain could be dodged by logging out, contrary to what the code comment claimed.</li>
+      <li>Nothing else changes: renewing before the fury lapses still costs nothing, a fury that lapses while you are online drains exactly as before, a plain fury is saved and restored as before, and a fury stripped by death, dispel or Cleanse still owes nothing.</li>
+      <li>How: the fury is saved and restored while its tier is set, not only while its deadline is ahead. The drain fires from the same regen-tick line it always fired from, within one world tick of arrival, after the character has been drawn.</li>
+      <li>Five new tests cover both logout windows, the no-double-charge case, a short absence and a plain fury; three were run red against reverts. Debug 1181 and Release 1171 green.</li>
+      <li>Review found nothing above LOW: it checked every reader of the two fury fields for a second visible effect (none), confirmed no save path can persist drained health with an unpaid tier, and confirmed the one-beat window in which death or dispel voids the drain is the same as before.</li>
+    </ul>
+    <h3 class="sec">TickSleep and TickPoison allocate nothing on the beat that does nothing (PR #260, refs PR #254)</h3>
+    <ul>
+      <li>The world tick calls both on every player every beat, and since PR #254 both return on their first line for almost everyone. Each still built a lambda's closure on the way in, before that check could run: 64 bytes per player per beat, 25,600 bytes a beat at 400 players, about 77 KB a second. Now 0, measured in Debug and in Release, with 400 real sessions, median of 7 runs of 200 beats. The only allocation left in that phase is the online roster's list, 3,360 bytes a beat.</li>
+      <li>The three broadcasts moved into two small private methods called from the same lines under the same session lock; same frames, same arguments, same order. No visible change. The rare path (a player actually asleep or venomed) is unchanged to two decimals per frame.</li>
+      <li>A bare block around the captured local is not enough: in Release the compiler merges a lone closure scope back to method entry and the allocation comes back (measured, 12,800 bytes a beat); in Debug it does not. The code comment records the Release case; the review found it should say "Release" and that is queued for the next comment pass.</li>
+      <li>Three new tests: the idle sweep allocates 0 bytes over 8,000 calls (red at 256,000 bytes with one capture restored), and a sleeping or venomed player's beat still sends a watching neighbour the same drowse flash and the same health bar. Release build and test are what CI runs.</li>
+      <li>The 400-session test roster moved to its own map id after a neighbouring 0-byte broadcast test once read 520 bytes with the roster on the shared home map; the figure was not saved and stands as a hypothesis.</li>
+    </ul>
+    <h3 class="sec">run/viewport.json: where players and mobs actually stand, and how much of them a viewer sees (PR #261, refs the viewport profile)</h3>
+    <ul>
+      <li>The viewport sweep is about 80% of the beat at 400 players. A per-map spatial index would cut it by the share of a map's entities outside a viewer's rect, and every number we have for that share comes from the load script, which stands all 400 bots in one 16x16 room where 99.75% of them are in view and an index saves nothing.</li>
+      <li>The server now writes run/viewport.json beside run/status.json on the same 10 second timer: every online player's map and tile, every live mob's tile on maps with players, and per map the mean share of players and mobs inside a viewer's drawn 19x17 and strict 17x15 rects, with the per-viewer min and max. status.json is unchanged. Nothing in the game changes; no packet, no game state, nothing on the tick.</li>
+      <li>Under the world lock the survey only copies positions into arrays, measured at 0.02 ms steady state with 400 players and 365 mobs on the laptop under load (first sample 1.2 ms, JIT); the rect tests and the JSON run outside the lock on the status thread, about 4.7 ms Debug and 1.6 ms Release per document. The review re-measured the lock hold in a quiet window before the merge.</li>
+      <li>Five tests: the published fractions equal hand-computed ones for a fixture with a peer and a mob in each of the three cases (red when the two pads are swapped), a corner viewer gets the clamped camera the client draws, the survey refuses to compute inside the lock (red when moved inside), an empty world renders a valid document, 400 players render on one map.</li>
+      <li>An offline script in the review evidence recomputes the fractions from the raw tiles and prints a 16x16-cell occupancy grid. The number the spatial-index decision waits for comes from running this on the deployment for a day.</li>
+    </ul>
+    <h3 class="sec">A load script whose bots stand apart (tooling, no PR; refs the viewport profile)</h3>
+    <ul>
+      <li>The clump load script's 400 bots log in on map 4711 "Welcome", a 16x16 room smaller than the viewport, which is why every hold so far measured an in-view share of 0.9975. Two generated variants now exist under reviews/load-spread-evidence: 400 bots on a jittered 11-tile grid across Wilderness (1002), and 50 bots on each of eight maps; same accounts, same walk-say-walk loop, same 28 iterations, plus one @warp line per bot.</li>
+      <li>Placement is computed from the server's own pass and wall rules, the warp table and the edge-clamped viewport anchor, all cited to their lines; no two bots share a tile, and rows are spaced so the five-step walks cannot collide.</li>
+      <li>@warp is tester-tier; the launcher's -Testers list grants it to the 400 accounts, so no server change was needed.</li>
+      <li>Smokes of 25 and 100 bots on a Debug pair landed every bot on its map (25/25 and 92/100 on the exact tile); the measured drawn-rect share was 0.0016 and 0.0038 against the clump's 0.9975. The eight off-by-a-tile bots were wandering passive creatures refusing a step (12 refusals in 1,000 east and west steps: ten eastward, two westward).</li>
+      <li>The 400-bot hold with this script is next, once the survey is deployed so the hold can read run/viewport.json too.</li>
+    </ul>
+  </article>
+
   <article id="server-2026-09-19">
     <h2>Server: the map broadcast helpers stop allocating, the tick reads the sleep and poison timers before taking each session lock, natural regen returns to the original game's global clock, and the peer sweep decides straight off the snapshot array</h2>
     <p class="meta">2026-09-19 to 2026-09-21 · Essorcal · Server PRs <a href="https://github.com/project1998/Project1998/pull/253">#253</a>, <a href="https://github.com/project1998/Project1998/pull/254">#254</a>, <a href="https://github.com/project1998/Project1998/pull/255">#255</a>, <a href="https://github.com/project1998/Project1998/pull/256">#256</a>, <a href="https://github.com/project1998/Project1998/pull/257">#257</a>, <a href="https://github.com/project1998/Project1998/pull/258">#258</a></p>
