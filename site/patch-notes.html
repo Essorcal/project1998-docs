@@ -101,7 +101,7 @@
 
   <article id="server-2026-09-19">
     <h2>Server: the map broadcast helpers stop allocating, the tick reads the sleep and poison timers before taking each session lock, natural regen returns to the original game's global clock, and the peer sweep decides straight off the snapshot array</h2>
-    <p class="meta">2026-09-19 to 2026-09-21 · Essorcal · Server PRs <a href="https://github.com/project1998/Project1998/pull/253">#253</a>, <a href="https://github.com/project1998/Project1998/pull/254">#254</a>, <a href="https://github.com/project1998/Project1998/pull/255">#255</a>, <a href="https://github.com/project1998/Project1998/pull/256">#256</a>, <a href="https://github.com/project1998/Project1998/pull/257">#257</a></p>
+    <p class="meta">2026-09-19 to 2026-09-21 · Essorcal · Server PRs <a href="https://github.com/project1998/Project1998/pull/253">#253</a>, <a href="https://github.com/project1998/Project1998/pull/254">#254</a>, <a href="https://github.com/project1998/Project1998/pull/255">#255</a>, <a href="https://github.com/project1998/Project1998/pull/256">#256</a>, <a href="https://github.com/project1998/Project1998/pull/257">#257</a>, <a href="https://github.com/project1998/Project1998/pull/258">#258</a></p>
     <h3 class="sec">The map broadcast helpers stop allocating: one call to 400 players goes from 45,361 bytes to 0 (PR #253, refs #250)</h3>
     <ul>
       <li>The two helpers every mob move, turn, swing, effect and player action goes through to reach the players on a map allocated a closure for every peer on every call, 96 bytes each, plus a LINQ copy of the player list. At 400 players on a map that was 45,361 bytes and 12.9 µs per call. The per-peer send now goes through the same static-lambda isolation the tick got in #250, and the player-list copy is rented from the shared array pool and handed back wiped, so a call allocates nothing of its own and takes 2.7 µs.</li>
@@ -158,6 +158,14 @@
       <li>The time saving is the enumerator alone, measured honestly at about 0.7 µs per player per beat in Release and half a microsecond to a microsecond in Debug, roughly 0.3 ms off a beat at 400 players. There was no copy pass here to remove, unlike the peer sweep in #256.</li>
       <li>No behaviour change: same mobs and items, same order, same frames; a new test pins the decision order against the array. Four stale comments from the previous review are corrected, including two test comments that named a falsification that has done nothing since #245.</li>
       <li>Found on the way: one CI test can fail by reading another test's console output through a shared tap, and a profile can silently measure the wrong clone when two workers share a scratch directory; both are recorded as follow-ups with the fix named.</li>
+    </ul>
+    <h3 class="sec">One drawn-state entry per entity replaces the shown/edge set pair: 17 to 19% off the viewport sweeps in Release (PR #258, refs #256, #257)</h3>
+    <ul>
+      <li>Every player's client kept two hash sets per entity kind to remember what it had drawn and what had drifted into the overdraw band, and the sweep probed both for every entity every beat. The pair was already a three-state machine written across two sets; one dictionary now says which state an entity is in, in one lookup, writing only on a transition. Hash probes per entity per beat go from 1.93 to 1.00.</li>
+      <li>Measured with 400 viewers and 305 mobs, three interleaved before/after runs, each output printing which build it loaded: in Release the peer sweep fell 19%, the mob sweep 17%, and the whole viewport phase 17%, about 0.5 ms a beat at 400 players. In Debug only the mob sweep moved, about 0.6 µs per viewer per beat; the rest is inside run-to-run spread. The deployed server is a Release build; the laptop's load runs are Debug, so no load run was taken for this one.</li>
+      <li>No visible change: the same spawns, despawns and re-draws on the same beats. A new test drives the old two-set representation as a reference oracle and the new store side by side through every transition and fails if they ever disagree; the review added its own walk derived from the old code, including a broadcast landing on a banded entity and a resync, and both agreed.</li>
+      <li>The store's resident size is about 1.7 KB per entity kind per player larger at 400 drawn entities, by layout arithmetic; per-beat allocation is unchanged.</li>
+      <li>Two parallel workers on this and PR #257 briefly measured each other's clone through a shared scratch directory; the affected runs were caught by their own printed paths, discarded and re-taken, and every packet now names a private scratch directory.</li>
     </ul>
   </article>
 
