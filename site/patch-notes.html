@@ -100,8 +100,8 @@
   </header>
 
   <article id="server-2026-09-19">
-    <h2>Server: the map broadcast helpers stop allocating, the tick reads the sleep and poison timers before taking each session lock, and natural regen returns to the original game's global clock</h2>
-    <p class="meta">2026-09-19 to 2026-09-20 · Essorcal · Server PRs <a href="https://github.com/project1998/Project1998/pull/253">#253</a>, <a href="https://github.com/project1998/Project1998/pull/254">#254</a>, <a href="https://github.com/project1998/Project1998/pull/255">#255</a></p>
+    <h2>Server: the map broadcast helpers stop allocating, the tick reads the sleep and poison timers before taking each session lock, natural regen returns to the original game's global clock, and the peer sweep decides straight off the snapshot array</h2>
+    <p class="meta">2026-09-19 to 2026-09-21 · Essorcal · Server PRs <a href="https://github.com/project1998/Project1998/pull/253">#253</a>, <a href="https://github.com/project1998/Project1998/pull/254">#254</a>, <a href="https://github.com/project1998/Project1998/pull/255">#255</a>, <a href="https://github.com/project1998/Project1998/pull/256">#256</a>, <a href="https://github.com/project1998/Project1998/pull/257">#257</a></p>
     <h3 class="sec">The map broadcast helpers stop allocating: one call to 400 players goes from 45,361 bytes to 0 (PR #253, refs #250)</h3>
     <ul>
       <li>The two helpers every mob move, turn, swing, effect and player action goes through to reach the players on a map allocated a closure for every peer on every call, 96 bytes each, plus a LINQ copy of the player list. At 400 players on a map that was 45,361 bytes and 12.9 µs per call. The per-peer send now goes through the same static-lambda isolation the tick got in #250, and the player-list copy is rented from the shared array pool and handed back wiped, so a call allocates nothing of its own and takes 2.7 µs.</li>
@@ -143,6 +143,21 @@
       <li>The sweep is linear in players plus mobs per player, so the phase is quadratic in players: 66.8 ns per extra player and 31.6 ns per extra mob per viewer per beat. Measured points: 400 players with 200 mobs 11.8 ms a beat, 800 players with 305 mobs 50.5 ms a beat, which is 15% of a 333 ms beat on this hardware.</li>
       <li>The steady sweep's only garbage is two enumerators per viewer per beat, 25.6 KB a beat; the send path allocates about 36 bytes for every byte it puts on the wire.</li>
       <li>Six cut candidates were priced. By microseconds removed per file touched, first is carrying the peer's id in the snapshot so the copy pass touches no other session (4.1 ms a beat at 400 players, two files, no decision changed), second is a cheaper drawn set (2.8 ms, four files); a spatial grid removes up to 86% only where players are spread over a map, and nothing at all when they stand in one clump, which is what the load script does; a "nothing moved" skip saves nothing while every bot walks every beat.</li>
+    </ul>
+    <h3 class="sec">The peer sweep decides straight off the snapshot array: the viewports phase goes from 47.6 to 31.9 ms per second at 400 players (PR #256, refs #245, #246, #255)</h3>
+    <ul>
+      <li>The viewport tick's peer sweep used to walk the player list through an interface and copy every player into a scratch buffer before deciding, because an interface enumeration could run arbitrary code and nothing arbitrary may run under a viewport lock. The world-lock snapshot now carries each player's id with their tile, the sweep takes the plain array and decides straight off it under its one lock acquisition, and the copy pass is gone.</li>
+      <li>Profiled with 400 real sessions and 305 mobs: the peer sweep went from 21.4 to 14.4 µs per viewer per beat in Debug and 7.2 to 4.3 in Release, 2.8 ms and 1.2 ms off a beat at 400 players, with the untouched mob sweep drifting the other way as a control. The sweep also stops allocating the 32 bytes per viewer per beat its interface enumerator cost.</li>
+      <li>On one matched pair of 400-player load runs the viewports phase fell from 47.6 to 31.9 ms of every second and the whole beat from 55.1 to 40.6. Slow beats were 16 of 511 before and 18 of 541 after; the review split them by cause and found the two extra were beats the scheduler started late, not beats the sweep made slow, and the work-driven count fell from 11 to 8.</li>
+      <li>No behaviour change: same players, same ids, same tiles, same order, same frames after the same revalidation. The two tests that inject a walk mid-sweep now do it through a named test seam fired at the same moment the enumerator used to fire, and a new test pins the decision order against the array.</li>
+      <li>The earlier step on the same branch, carrying the id in the snapshot on its own, was measured before the sweep change and found to save almost nothing by itself; the profile's attribution had counted the whole copy pass, and the report says so. That correction is in the profile report too.</li>
+    </ul>
+    <h3 class="sec">The mob and floor-item sweeps decide off concrete arrays (PR #257, refs #256)</h3>
+    <ul>
+      <li>The mob sweep walked its list through an interface inside the viewport lock, kept harmless only by every caller happening to pass an array. Both sweeps now take plain arrays, so nothing but the server's own decision runs inside a player's viewport lock, and the 32 bytes per player per beat each enumerator allocated is gone: 12.8 KB a beat at 400 players.</li>
+      <li>The time saving is the enumerator alone, measured honestly at about 0.7 µs per player per beat in Release and half a microsecond to a microsecond in Debug, roughly 0.3 ms off a beat at 400 players. There was no copy pass here to remove, unlike the peer sweep in #256.</li>
+      <li>No behaviour change: same mobs and items, same order, same frames; a new test pins the decision order against the array. Four stale comments from the previous review are corrected, including two test comments that named a falsification that has done nothing since #245.</li>
+      <li>Found on the way: one CI test can fail by reading another test's console output through a shared tap, and a profile can silently measure the wrong clone when two workers share a scratch directory; both are recorded as follow-ups with the fix named.</li>
     </ul>
   </article>
 
