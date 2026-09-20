@@ -129,6 +129,13 @@
       <li>Seven new tests: the no-op path returns while another thread holds the lock, each of the four due conditions still does its job, the expiry hint is exact after every buff writer, and two players below full regenerate on the same beat with the boundary at the 76th beat and every 75th after. The review broke each of them and its own control through the whole tick, and ran the full test client suite, 33 of 33 scripts passing.</li>
       <li>The protocol document's regen paragraph now describes the world clock instead of the deleted per-player timer.</li>
     </ul>
+    <h3 class="sec">Load run: three matched pairs of 400-player holds, PR #254's merge against current master (refs #255)</h3>
+    <ul>
+      <li>Six holds run alternating before/after/before/after/before/after, back to back on an idle laptop with 7.2 to 7.4 GB free at every launch, same client and same script every time, all six passing with at least 170 seconds at 400 players each.</li>
+      <li>The regen fix holds up on every pair: the regen phase read 5.21, 7.25 and 6.07 ms of every second on the three before runs and 1.57, 2.00 and 1.75 on the three after runs, so every after run is below half of every before run. It led 17 of the before runs' 59 slow beats with a 160 ms worst case, and 1 of the after runs' 45 with a 71 ms worst case.</li>
+      <li>The whole beat came out "in between" by the reading fixed before the runs: 55.4, 63.9 and 59.4 ms/s before against 58.7, 52.8 and 56.9 after. The averages are 59.6 and 56.1, but the ranges overlap and one of the three pairs moved the other way, so nothing is claimed about the tick as a whole; six holds cannot separate a 3 ms/s effect from a 6 to 9 ms/s spread on each side.</li>
+      <li>Unchanged and worth recording: the viewport sweep is 47.6 ms/s before and 47.3 after, is now 84% of the beat, and is named on every slow beat on all six holds; the status phase holds at about 0.3 ms/s on both sides; slow beats were 3.14 to 4.49% before and 2.40 to 3.52% after; one gen0 and one gen1 collection and no gen2 on every run; working set peaked at 1,166 to 1,180 MB everywhere; SLOW SEND went from 1,885 to 2,528 on average on identical traffic and is still a threshold count with no rate behind it.</li>
+    </ul>
   </article>
 
   <article id="server-2026-09-18">
