@@ -100,8 +100,8 @@
   </header>
 
   <article id="server-2026-09-21">
-    <h2>Server: a fury that lapses while you are logged off still takes its vita, the status tick stops allocating on idle beats, the server publishes where players and mobs stand, the viewport rect tests go lazy, a load script whose bots stand apart, and a load run that shows the sweep at its worst</h2>
-    <p class="meta">2026-09-21 · Essorcal · Server PRs <a href="https://github.com/project1998/Project1998/pull/259">#259</a>, <a href="https://github.com/project1998/Project1998/pull/260">#260</a>, <a href="https://github.com/project1998/Project1998/pull/261">#261</a>, <a href="https://github.com/project1998/Project1998/pull/262">#262</a></p>
+    <h2>Server: a fury that lapses while you are logged off still takes its vita, the status tick stops allocating on idle beats, the server publishes where players and mobs stand and how fast they walk, the viewport rect tests go lazy, a load script whose bots stand apart, six load holds, and a profile of what one step costs</h2>
+    <p class="meta">2026-09-21 · Essorcal · Server PRs <a href="https://github.com/project1998/Project1998/pull/259">#259</a>, <a href="https://github.com/project1998/Project1998/pull/260">#260</a>, <a href="https://github.com/project1998/Project1998/pull/261">#261</a>, <a href="https://github.com/project1998/Project1998/pull/262">#262</a>, <a href="https://github.com/project1998/Project1998/pull/263">#263</a></p>
     <h3 class="sec">A Chung Ryong fury that lapses while you are logged off still takes its vita (PR #259, refs the PR #255 review)</h3>
     <ul>
       <li>Rule change, player-visible: if you log out with Chung Ryong's Rage up and come back after it has lapsed, the tier's vita price is charged on your first beat back, with the usual "Chung Ryong's rage leaves you drained." Until now a fury that ran out while you were offline was never restored and never charged, so the drain could be dodged by logging out, contrary to what the code comment claimed.</li>
@@ -148,6 +148,26 @@
       <li>The viewport phase read 29.7 and 30.5 ms/s on the two clump holds and 83.5 and 83.4 on the two spread holds; the whole beat 37 to 40 against 132 to 143 ms/s; slow beats 0.2 to 1.9% against 11.6 to 12.7%. The hypothesis that a full scan costs the same wherever the bots stand is refuted.</li>
       <li>Why is not yet attributable: the spread map carries 386 mobs against the clump room's 6, the spread population walks while the clump cannot, and chat reaches 399 listeners on the clump against one on the spread. Two more holds are running to separate those: the same spread standing still, and the same walk on a map with no creatures.</li>
       <li>Found on the way: bot positions persist between runs, so a clump hold run after a spread hold silently measures a spread unless the bots are warped back first. One hold was voided for that and rerun after a reset.</li>
+    </ul>
+    <h3 class="sec">Load run: the same spread standing still, and the same walk on a map with no creatures (Debug, laptop; refs #261)</h3>
+    <ul>
+      <li>Two more 400-bot holds on the same head, each removing one of the previous run's confounds. Standing still on the same spread tiles, the viewport phase read 37.5 ms/s against 83.4 walking, so about 46 of the spread's 53 ms/s over the clump is the walking. On a 100x100 map with no creatures at all, walking, it read 94.6, so removing the 386 mobs did not make the sweep cheaper.</li>
+      <li>Both in-view fractions landed inside their bands (0.0044 on Wilderness, 0.0309 on the smaller map), every bot finished on its exact tile on the creature-free map, and the "moves" phase turned out to be mob movement, not player walking, which corrects a sentence in the previous run's report.</li>
+    </ul>
+    <h3 class="sec">The viewport survey reports each map's accepted step rate beside its in-view fraction (PR #263, refs the walk-path profile)</h3>
+    <ul>
+      <li>run/viewport.json's per-map entries gain steps: the running total of accepted player steps on that map since the process started. Two documents give the rate. A refused step is not counted: it runs no reconcile, and every clump hold on record refused all 112,000 of its steps. status.json is unchanged; nothing a player sees changes.</li>
+      <li>One long per map, incremented on the branch that commits the position inside the world lock the step already holds; read by the survey in the same acquisition it already takes. No new lock.</li>
+      <li>One new test drives real walk packets and reads the published document: five accepted steps count 5, a blocked step and an off-map step still 5, five more 10, a step on another map counts only there; red when the increment moves above the refusal.</li>
+      <li>Review found nothing in the PR; it did find that the drawn-peer set is not re-added after an appearance refresh, a morph or a revert (despawn then redraw, both map-wide), so for up to a beat a client can hold a peer the set does not. That matters to the move-gating slice now in flight, which carries it.</li>
+    </ul>
+    <h3 class="sec">Profile: what one player step costs (400 players, 386 mobs, one map, laptop; refs the six load holds)</h3>
+    <ul>
+      <li>Every accepted step runs on the walker's own thread: a move broadcast to every session on the map, a snapshot of the map under the world lock, then the peer, mob and item sweeps under the walker's view lock. A refused step sends one frame and runs none of it, which is why the clump holds measured a population paying for nothing.</li>
+      <li>Per accepted step: 196 µs Debug, 113 µs Release. The move broadcast alone is 114 / 54 µs, 399 frames, with no viewport test anywhere on its path: at a spread population about 397 of them go to clients that cannot see the walker, 140 KB of a step's 159 KB of allocation, 169 MB/s at 1,200 steps a second. For scale, one player's share of a whole tick sweep is 22 / 6 µs.</li>
+      <li>The tick does not mainly wait on walkers: with 400 sessions stepping three times a second its sweep gets 14% (Debug) to 19% (Release) dearer, and the view-lock wait sampled in it is under 1%. That refutes the earlier reading of the hold's movement share, and the profile says so.</li>
+      <li>The spatial index repriced for both paths: an upper bound of 63 ms/s Debug and 20 ms/s Release at 1,200 steps a second and 0.5% in view, about 60% of it on the walk path the earlier tick-only profile never counted.</li>
+      <li>Next, tier A and running: gate the peer move and turn frames on what the recipient has been drawn, exactly as the mob ones already are. The only frames that may disappear are moves and turns for a peer the client does not hold; anything else visible is a stop.</li>
     </ul>
   </article>
 
