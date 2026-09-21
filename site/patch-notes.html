@@ -100,8 +100,8 @@
   </header>
 
   <article id="server-2026-09-21">
-    <h2>Server: a fury that lapses while you are logged off still takes its vita, the status tick stops allocating on idle beats, the server publishes where players and mobs stand, and a load script whose bots stand apart</h2>
-    <p class="meta">2026-09-21 · Essorcal · Server PRs <a href="https://github.com/project1998/Project1998/pull/259">#259</a>, <a href="https://github.com/project1998/Project1998/pull/260">#260</a>, <a href="https://github.com/project1998/Project1998/pull/261">#261</a></p>
+    <h2>Server: a fury that lapses while you are logged off still takes its vita, the status tick stops allocating on idle beats, the server publishes where players and mobs stand, the viewport rect tests go lazy, a load script whose bots stand apart, and a load run that shows the sweep at its worst</h2>
+    <p class="meta">2026-09-21 · Essorcal · Server PRs <a href="https://github.com/project1998/Project1998/pull/259">#259</a>, <a href="https://github.com/project1998/Project1998/pull/260">#260</a>, <a href="https://github.com/project1998/Project1998/pull/261">#261</a>, <a href="https://github.com/project1998/Project1998/pull/262">#262</a></p>
     <h3 class="sec">A Chung Ryong fury that lapses while you are logged off still takes its vita (PR #259, refs the PR #255 review)</h3>
     <ul>
       <li>Rule change, player-visible: if you log out with Chung Ryong's Rage up and come back after it has lapsed, the tier's vita price is charged on your first beat back, with the usual "Chung Ryong's rage leaves you drained." Until now a fury that ran out while you were offline was never restored and never charged, so the drain could be dodged by logging out, contrary to what the code comment claimed.</li>
@@ -126,6 +126,13 @@
       <li>Five tests: the published fractions equal hand-computed ones for a fixture with a peer and a mob in each of the three cases (red when the two pads are swapped), a corner viewer gets the clamped camera the client draws, the survey refuses to compute inside the lock (red when moved inside), an empty world renders a valid document, 400 players render on one map.</li>
       <li>An offline script in the review evidence recomputes the fractions from the raw tiles and prints a 16x16-cell occupancy grid. The number the spatial-index decision waits for comes from running this on the deployment for a day.</li>
     </ul>
+    <h3 class="sec">The viewport rect tests run only on the branches that read them (PR #262, refs the PR #258 review)</h3>
+    <ul>
+      <li>The peer decision computed both rect tests (strict 17x15 and drawn 19x17) for every entity before it looked at the drawn-state store, though an undrawn entity only ever needs the strict one and a drawn entity that has left only needs the drawn one; the mob sweep did the same with its strict test. Each test now runs only where its answer is read. On the clump fixture that is 0.19 µs per viewer per beat off the peer sweep and 0.12 µs off the mob sweep in Release, about 0.13 ms a beat at 400 players; by exact call count it is worth about ten times more on a map where the viewport actually cuts (0.59 fewer tests per peer and 0.90 per mob, per beat).</li>
+      <li>No visible change: a 36-run decision table drives the new code and a copy of the old one through every combination of drawn state and position for peers and for mobs, and the profile's traffic rows send the same frames and the same bytes in both. Four of the table's branches were broken on purpose and went red; the review broke two of them again itself.</li>
+      <li>One thing the table cannot see: making the undrawn branch read the wide rect is invisible to every test, because the send pass re-checks the strict rect and rolls the store back. It is harmless today and is on the list for any future change that trusts the decide pass.</li>
+      <li>The Release before-and-after was taken in one quiet window with the two arms interleaved and their ranges not overlapping; the Debug in-process A/B agrees in 15 of 16 interleaves; the Release in-process A/B did not settle on a laptop that drifted after the suites, and the PR says so.</li>
+    </ul>
     <h3 class="sec">A load script whose bots stand apart (tooling, no PR; refs the viewport profile)</h3>
     <ul>
       <li>The clump load script's 400 bots log in on map 4711 "Welcome", a 16x16 room smaller than the viewport, which is why every hold so far measured an in-view share of 0.9975. Two generated variants now exist under reviews/load-spread-evidence: 400 bots on a jittered 11-tile grid across Wilderness (1002), and 50 bots on each of eight maps; same accounts, same walk-say-walk loop, same 28 iterations, plus one @warp line per bot.</li>
@@ -133,6 +140,14 @@
       <li>@warp is tester-tier; the launcher's -Testers list grants it to the 400 accounts, so no server change was needed.</li>
       <li>Smokes of 25 and 100 bots on a Debug pair landed every bot on its map (25/25 and 92/100 on the exact tile); the measured drawn-rect share was 0.0016 and 0.0038 against the clump's 0.9975. The eight off-by-a-tile bots were wandering passive creatures refusing a step (12 refusals in 1,000 east and west steps: ten eastward, two westward).</li>
       <li>The 400-bot hold with this script is next, once the survey is deployed so the hold can read run/viewport.json too.</li>
+    </ul>
+    <h3 class="sec">Load run: the clump script against the spread script, four 400-bot holds on one head (Debug, laptop; refs #261, the viewport profile)</h3>
+    <ul>
+      <li>The clump script's bots stand on one 16-tile row of a 16x16 room and cannot move at all: every one of their 112,000 walk steps was refused. The spread script warps the same 400 bots onto an 11-tile grid across Wilderness and they walk every beat. Same head, same accounts, same loop.</li>
+      <li>The new run/viewport.json read exactly what the scripts were built to produce: 1.000 of peers in view on the clump, 0.0045 on the spread, both inside the bands set before the runs. An index would skip 99.6% of the peer tests on the spread map and none on the clump.</li>
+      <li>The viewport phase read 29.7 and 30.5 ms/s on the two clump holds and 83.5 and 83.4 on the two spread holds; the whole beat 37 to 40 against 132 to 143 ms/s; slow beats 0.2 to 1.9% against 11.6 to 12.7%. The hypothesis that a full scan costs the same wherever the bots stand is refuted.</li>
+      <li>Why is not yet attributable: the spread map carries 386 mobs against the clump room's 6, the spread population walks while the clump cannot, and chat reaches 399 listeners on the clump against one on the spread. Two more holds are running to separate those: the same spread standing still, and the same walk on a map with no creatures.</li>
+      <li>Found on the way: bot positions persist between runs, so a clump hold run after a spread hold silently measures a spread unless the bots are warped back first. One hold was voided for that and rerun after a reset.</li>
     </ul>
   </article>
 
