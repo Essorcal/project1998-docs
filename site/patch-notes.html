@@ -101,7 +101,7 @@
 
   <article id="server-2026-09-21">
     <h2>Server: a fury that lapses while you are logged off still takes its vita, the status tick stops allocating on idle beats, the server publishes where players and mobs stand and how fast they walk, the viewport rect tests go lazy, a load script whose bots stand apart, six load holds, and a profile of what one step costs</h2>
-    <p class="meta">2026-09-21 · Essorcal · Server PRs <a href="https://github.com/project1998/Project1998/pull/259">#259</a>, <a href="https://github.com/project1998/Project1998/pull/260">#260</a>, <a href="https://github.com/project1998/Project1998/pull/261">#261</a>, <a href="https://github.com/project1998/Project1998/pull/262">#262</a>, <a href="https://github.com/project1998/Project1998/pull/263">#263</a></p>
+    <p class="meta">2026-09-21 · Essorcal · Server PRs <a href="https://github.com/project1998/Project1998/pull/259">#259</a>, <a href="https://github.com/project1998/Project1998/pull/260">#260</a>, <a href="https://github.com/project1998/Project1998/pull/261">#261</a>, <a href="https://github.com/project1998/Project1998/pull/262">#262</a>, <a href="https://github.com/project1998/Project1998/pull/263">#263</a>, <a href="https://github.com/project1998/Project1998/pull/265">#265</a></p>
     <h3 class="sec">A Chung Ryong fury that lapses while you are logged off still takes its vita (PR #259, refs the PR #255 review)</h3>
     <ul>
       <li>Rule change, player-visible: if you log out with Chung Ryong's Rage up and come back after it has lapsed, the tier's vita price is charged on your first beat back, with the usual "Chung Ryong's rage leaves you drained." Until now a fury that ran out while you were offline was never restored and never charged, so the drain could be dodged by logging out, contrary to what the code comment claimed.</li>
@@ -168,6 +168,14 @@
       <li>The tick does not mainly wait on walkers: with 400 sessions stepping three times a second its sweep gets 14% (Debug) to 19% (Release) dearer, and the view-lock wait sampled in it is under 1%. That refutes the earlier reading of the hold's movement share, and the profile says so.</li>
       <li>The spatial index repriced for both paths: an upper bound of 63 ms/s Debug and 20 ms/s Release at 1,200 steps a second and 0.5% in view, about 60% of it on the walk path the earlier tick-only profile never counted.</li>
       <li>Next, tier A and running: gate the peer move and turn frames on what the recipient has been drawn, exactly as the mob ones already are. The only frames that may disappear are moves and turns for a peer the client does not hold; anything else visible is a stop.</li>
+    </ul>
+    <h3 class="sec">Two order-sensitive tests made honest, one guard order, and four comment corrections (PR #265, refs the PR 260 to 262 reviews)</h3>
+    <ul>
+      <li>The test that guards the broadcast helper's allocation asserted zero bytes, which also asserted that a shared array pool still had a buffer on hand; a big test roster elsewhere in a run empties that pool and took the test red twice on good code, once on PR 261's own check. It now asserts under one byte per call, which a pool re-rent passes and both regressions it exists for miss by three orders of magnitude, re-run red at 3,864 and 1,032 bytes a call.</li>
+      <li>The test suite's console capture gate, which stops two tests fighting over the console and blaming each other, now has a test of its own; it existed already and was only ever discovered through unrelated CI reds. Five call sites use it.</li>
+      <li>The viewport survey refuses a caller that already holds the world lock before it does any work, not after.</li>
+      <li>Three comments corrected: the closure-scope trap in the status tick is a Release behaviour, the test roster's pool mechanism is labelled a hypothesis, and a comment no longer claims the peer move broadcast is unconditional, which PR 264 changes.</li>
+      <li>No behaviour change; the only production edit is the two-line guard reorder.</li>
     </ul>
   </article>
 
