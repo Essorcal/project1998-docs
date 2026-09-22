@@ -99,6 +99,60 @@
     content-only changes hot-reload with no restart.</p>
   </header>
 
+  <article id="server-2026-09-21b">
+    <h2>Server: the tick skips viewers whose map has not changed, the dev launcher regenerates the runtimeconfig per branch and dumps no frames by default, the GC memory budget priced on two Release pairs and closed, a tick snapshot pool dropped on its numbers, and what a hold on the world lock costs</h2>
+    <p class="meta">2026-09-21 · Essorcal · Server PRs <a href="https://github.com/project1998/Project1998/pull/269">#269</a>, <a href="https://github.com/project1998/Project1998/pull/268">#268</a></p>
+    <h3 class="sec">The tick sweeps a viewer's viewport only when something it reads has changed (PR #269, refs the PR #266 pooling report)</h3>
+    <ul>
+      <li>The world tick ran the peer, mob and ground-item sweeps for every player on every populated map every beat, and on a still map every one of those decisions was "send nothing". Each map now counts every write a sweep reads: the player, mob and floor-item rosters, every mob tile through the world's one mob commit, every player tile through the one seam all world writers use. A viewer whose map count and own pending flag are unchanged skips its three sweeps.</li>
+      <li>Release, 400 players and 305 mobs on one map with nobody moving: 2,100,116 ns a beat to 10,062 ns, 208 times less. Debug 7,534,610 to 25,304, 298 times. What is left is the snapshot alone.</li>
+      <li>The key is per map, so one walker anywhere un-skips every viewer of that map. On the walking spread it is worth nothing; it is for standing populations and the many quiet maps a live server has. With 5% of players stepping, or 5% of mobs, the two arms are inside the run spread, so the bookkeeping costs nothing measurable; the head allocates 120 B a beat more, the snapshot tuple growing by two fields.</li>
+      <li>No visible change: one scripted scenario (a peer walking in and out of the rect, a mob crossing it, an item dropped and picked up, a peer joining and leaving the map, the redraw pair every morph and equip change sends, and the viewer itself moving) runs with the switch off and on in one process, and the viewer's two frame streams are identical opcode for opcode, id for id, tile for tile.</li>
+      <li>No new lock, no wider hold, no order change. Every bump is one increment inside an acquisition the write already held; the count is captured inside the reconcile's own acquisition with the roster and compared outside against the captured value, never a live read.</li>
+      <li>P1998_TICK_SWEEP_SKIP=0 restores the per-beat sweep without a rebuild, and a test runs both shapes in one process to show it.</li>
+      <li>Five new tests in Tests/TickSweepSkipTests.cs; fifteen falsifications, nine red and six green. The six green ones are bumps that are redundant with a per-viewer flag; they are kept and the code says why. ViewportRectTests.Move wrote a mob's tile by assignment outside the world lock and now goes through the world's own commit.</li>
+      <li>The tier A hunt (Fable) approved with two LOWs; the fix round's Opus re-check approved with one informational LOW. Suite green both builds on the merged head, Debug 1248 and Release 1238.</li>
+      <li>The fix round lifted the reviewer's two probes into facts: a position written by a second thread mid-sweep is swept on the next beat, and the sweep records the captured count rather than a live read. Follow-up: a per-region key is what would make this pay on a walking spread, and it waits for a hold to say what the map-wide key is worth.</li>
+      <li>The World.cs comments and two earlier packets still say the beat is 600 ms; it is 333 ms. Both translations are in the PR's report.</li>
+    </ul>
+    <h3 class="sec">The launcher builds the runtimeconfig the branch says, and dumps no frames by default (PR #268, tooling)</h3>
+    <ul>
+      <li>Scripts/Serve.ps1 deletes the Server and LoginServer genruntimeconfig cache before the build, so Server.runtimeconfig.json is regenerated for the branch under it. The incremental build regenerated that file when a template was added and not when one was removed, so a hold that switched branches could run the base binary under the head's GC policy with nothing on screen to say so. Reproduced in four builds in the PR evidence, before and after.</li>
+      <li>Both generated batch files now set P1998_LOG_WIRE=0 unless the launching shell sets it or -WireDump asks. The effective value goes into run/session.json as wire_dump and onto the "Started from" line when the dump is on; -Status and -Stop refuse -WireDump. The server itself defaults the dump on, and a clean-shell pair had written 479,110 dump lines in five minutes.</li>
+      <li>A default start differs from before by the cache removal and one set line per batch file. No server source is touched, so run-server.bat and a hand-started pair are unaffected. Nothing about how the game plays changes.</li>
+      <li>Two smokes on port base 9000, default and -WireDump, and a four-case batch-file diff are in the evidence. Tier C, coordinator-verified; fork CI builds and tests the tree and does not exercise the launcher.</li>
+    </ul>
+    <h3 class="sec">Load run: the GC memory budget, two Release pairs (branch pr/gc-conserve-memory, closed on its numbers; laptop)</h3>
+    <ul>
+      <li>System.GC.ConserveMemory=5 pinned through Server/runtimeconfig.template.json, with a -conserve5 suffix on gcMode in status.json so a running server names the level it got. One commit, fork CI green on it.</li>
+      <li>The first pair, four minutes at 400 walkers, collected exactly once per arm during the login ramp and never again, so the setting had nothing to act on; the two memory curves matched to 3 MB. All three of its cost bands fired (CPU, ms per step and slow-beat share), and the same evidence showed the rise was in the regen phase with no collection in either span.</li>
+      <li>The twenty-minute pair, the same script with 200 walk rounds instead of 28, collected 27 times per arm. The setting changed no memory reading by more than 3% in either direction (working-set peak 1.027 of base, heap peak 1.018, committed at last GC 1.019) and cost no tick time (CPU 0.939, ms per accepted step 0.948, slow-beat share +0.55 points). No measured cost, no measured benefit. Caleb closed the branch; it comes back only if the VPS ever runs in a small-memory regime.</li>
+      <li>Standing facts from the long pair: at 400 walkers on this 15.7 GB laptop the working set saw-tooths between about 330 MB and 1.3 GB, and ConserveMemory acts only at a collection.</li>
+      <li>The first run-to-run spread figures for a Release hold. The four-minute pair's base arm beside the earlier Release head run of the same length: 3% on CPU, 10% on ms per step, 31% on working-set peak. The twenty-minute base beside the four-minute base: 0.5% to 16.5% on the non-memory readings (CPU 1.057, ms per step 1.052, beat total 1.153, viewports 1.165); memory readings are not comparable across span lengths. A hold reading inside those bands is noise.</li>
+      <li>Found on the way: the stale-runtimeconfig defect PR #268 fixes. The long pair's first base launch came up with the head's GC policy and was stopped before any client ran.</li>
+    </ul>
+    <h3 class="sec">The tick's map snapshot rents its buffers (branch pr/reconcile-snapshot-pool, dropped on its numbers)</h3>
+    <ul>
+      <li>PR #266's follow-up on the tick side: the reconcile's per-map snapshot allocated 9,313 B a beat at 400 players on one map and now allocates 0. Correct and tested (Debug 1244 and Release 1234 green), fork CI green, merge tree clean.</li>
+      <li>Worth three orders of magnitude less than #266: the tick runs three times a second where the walk step ran about 1,200, so it removes about 28 KB/s at the 333 ms beat (the report's 15.5 KB/s assumes 600 ms). Wall time is a wash at the load shape and slightly slower on many small maps, +9.66% Release on two hundred maps of two players, 0.017 ms/s in absolute terms, because the rent, clear and return are paid per map per beat.</li>
+      <li>Dropped by Caleb without a review spent. The branch stays on the fork at 7d6771e.</li>
+    </ul>
+    <h3 class="sec">Measurement: what a hold on World._lock costs (branch pr/lock-contention, no product change; laptop, harness in the review evidence)</h3>
+    <ul>
+      <li>400 walkers and the real tick on one map, 700 accepted steps a second: the lock is held 1.8% of the time in Release (2.5% Debug), the tick holds 1.5 to 1.8% of that, and the view snapshot is 0.04 ms/s of it. The tick's own wait is 0.0002 ms/s. A walker finds the lock taken on about 7% of steps and waits 0 µs at the median and 35 µs at p99 Release; turning the tick off entirely changes the walkers' wait by 0.11 ms/s Debug and by nothing Release can resolve.</li>
+      <li>The whole snapshot family's ceiling is about 0.06 ms/s of walker wait, 0.05% of the session threads' step time. This answers PR #266's follow-up 4: no more snapshot slices.</li>
+      <li>The durable rule: wait grows with the square of a hold's length, not with the lock's total held time. The tick is 1.8% of the held time but about 40% of the wait, because its hold is one 0.28 ms block where a walker's are about 12 µs each. Tenfolding the tick's hold to 2.7 ms multiplied the walkers' wait by 16 (Debug, 0.28 to 4.40 ms/s). A 0.3 ms hold is free; a 3 ms hold is not.</li>
+      <li>Two laptop artefacts every in-process timing has to control for: CPU idle states (step median 598 µs against 131 µs with one core held awake) and the 15.6 ms Windows timer, which made all 400 walker threads wake on the same boundaries (57% contended fraction against 5% with timeBeginPeriod(1)).</li>
+      <li>The harness drove the tick at 600 ms; at the configured 333 ms its per-second tick figures scale by 1.8, so the tick's hold is about 0.5 ms/s Release rather than 0.29. Fourteen runs with a foreign build starting or finishing inside them were discarded and repeated; the discard compares process identities, not counts.</li>
+      <li>The rule goes into docs/common/Locking.md as the next docs slice.</li>
+    </ul>
+    <h3 class="sec">Dev process (records since the workflow's review records began)</h3>
+    <ul>
+      <li>Workflow.ps1 metrics over the review records: 117 merged PRs with records. Tier A 34 merged, median 2 review rounds, 0 escaped defects. Tier B 43, median 2 rounds, 2 escaped. Tier C 40, median 1 round, 1 escaped.</li>
+      <li>Six artefact reads this window, one per report; the HIGHs filed were an uncaptured environment quote, a one-tick slow-beat count difference, a memory-range transcription error, unsaved suite counts, a spread argument applied to memory readings, and a falsification roll-up count. None moved a conclusion; every correction is appended to its report.</li>
+    </ul>
+  </article>
+
   <article id="server-2026-09-21">
     <h2>Server: a fury that lapses while you are logged off still takes its vita, the status tick stops allocating on idle beats, the server publishes where players and mobs stand and how fast they walk, the viewport rect tests go lazy, a load script whose bots stand apart, six load holds, and a profile of what one step costs</h2>
     <p class="meta">2026-09-21 · Essorcal · Server PRs <a href="https://github.com/project1998/Project1998/pull/259">#259</a>, <a href="https://github.com/project1998/Project1998/pull/260">#260</a>, <a href="https://github.com/project1998/Project1998/pull/261">#261</a>, <a href="https://github.com/project1998/Project1998/pull/262">#262</a>, <a href="https://github.com/project1998/Project1998/pull/263">#263</a>, <a href="https://github.com/project1998/Project1998/pull/265">#265</a>, <a href="https://github.com/project1998/Project1998/pull/266">#266</a>, <a href="https://github.com/project1998/Project1998/pull/264">#264</a>, <a href="https://github.com/project1998/Project1998/pull/267">#267</a></p>
