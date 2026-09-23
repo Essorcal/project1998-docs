@@ -99,6 +99,44 @@
     content-only changes hot-reload with no restart.</p>
   </header>
 
+  <article id="server-2026-09-22">
+    <h2>Server: the status document counts the viewers the tick swept, and four holds measure what the tick sweep skip does under load</h2>
+    <p class="meta">2026-09-22 · Essorcal · Server PR <a href="https://github.com/project1998/Project1998/pull/270">#270</a></p>
+    <h3 class="sec">The status document says how many viewers the tick swept, not just how many beats ran (PR #270)</h3>
+    <ul>
+      <li>run/status.json gains two cumulative counters at the end of the document, sweepViewers and sweepsRun, counted since process start like ticks.</li>
+      <li>sweepViewers counts every viewer-beat the tick considered: one per player on every populated map, every beat, whether or not P1998_TICK_SWEEP_SKIP then skipped it. sweepsRun counts how many of those actually swept.</li>
+      <li>Over a span, the share the skip saved is 1 - Δ sweepsRun / Δ sweepViewers. With the skip off the two deltas are equal.</li>
+      <li>Written by the tick thread alone, with no lock, no new acquisition and no Interlocked. The status thread reads them with Volatile.Read, as it already reads ticks and slow ticks.</li>
+      <li>Documented in Server/StatusFile.cs and in a new section of docs/common/Configuration.md, outside the generated block.</li>
+      <li>Two new facts in Tests/TickSweepSkipTests.cs, and Tests/StatusFileTests.cs checks that the rendered document carries the world's own values. Deleting either increment turns its fact red.</li>
+      <li>Suite green on both builds, Release 1,241 and Debug 1,251. The coordinator's saved Debug run had four timing failures in LoginOutboundTests and LogLineSinkTests that passed when re-run alone. Tier C, coordinator-verified.</li>
+      <li>No behaviour change. It adds two additions per beat on the tick thread and two numbers in a file the game never reads.</li>
+    </ul>
+    <h3 class="sec">Measurement: what the tick sweep skip does under load (four hold assignments, PR #269's switch, no product change; laptop, Release, 400 players, tick 333 ms)</h3>
+    <ul>
+      <li>The skip fires only where viewers stand still. On the standing clump (map 4711, every step refused) the skip-on arm swept 154,800 of 228,400 viewer-beats and skipped 32.2% of them, 73,600 in about three minutes. This was the first clump hold with the counters.</li>
+      <li>On every walking-spread hold the skip share is 0.000 on both arms. Every viewer is dirty every beat, so the two arms do identical work: 190,400 swept of 190,400 considered, exactly 400 a beat.</li>
+      <li>What the clump skip buys: the viewport phase went from 6.67 to 5.94 ms/s (0.891). The two earlier clump pairs, run before the counters existed, read 0.938 and 0.746. A tenth off rather than a third means the sweeps it skips are the cheap ones.</li>
+      <li>Process CPU does not move on the clump. The whole beat is about 11 ms/s against a process at about half a core, and the rest is the chat send path, with over 6,000 SLOW SEND lines per window.</li>
+      <li>That puts a ceiling on a per-region sweep key for this workload: about 10% of a 6.7 ms/s phase. It is deferred on that evidence.</li>
+      <li>Release clump rows now exist: base beat 11.7 to 12.9 ms/s, viewports 6.67 to 7.53 ms/s, CPU 49.7% to 51.2% of one core, over three holds. Debug read 55 to 64, 45 to 50 and 55% to 58%.</li>
+      <li>Holds of 161 s cannot read a phase timing, but 200-round holds (about 1,195 s) can. The base arm's (3) viewports band is 52.8% over the 161 s holds and 11.3% over three 200-round holds on three builds. The (5) regen band goes from 131.5% to 21.3%. Process-level readings (CPU, CPU per step, steps per second) repeat to a few percent at either length.</li>
+      <li>Any hold that reads a phase now uses the 200-round script.</li>
+      <li>Withdrawn as scatter: the first assignment's "the bookkeeping costs tick time on a walking map", which rested on one head hold at 37.77 ms/s, and the second's "the head arm is the noisy one". No walking-map head/base ratio on the phase can be quoted as an effect of #269, because the counter shows the switch does nothing there.</li>
+      <li>The 200-round skip-on hold read 0.76 of its base on the viewport phase with identical sweep counts. That is one hold per arm with no mechanism, and it is reported as scatter.</li>
+      <li>No player-visible difference on any of the fourteen holds. The checkpoint-internal control, the reading of record, found no neighbour held staler with the skip on than off on any arm. Both clump arms were exact, 159,600 of 159,600, including the arm that skipped 73,600 sweeps. Three spread arms, on both settings, had one pair each off by 2 to 4 tiles.</li>
+    </ul>
+    <h3 class="sec">Dev process</h3>
+    <ul>
+      <li>CI: one login test, LoginOutboundTests.TheRedirectsLastFrameReachesASlowButReadingPeerBeforeTheClose, flaked three times in one day: on PR #270's own run (1,259 ms), on the master run after the merge (2,245 ms) and in one local Debug suite (1,506 ms). It fails on its own 1,000 ms drain bound. Both CI runs passed on a rerun, and the master rerun deployed.</li>
+      <li>Three hold workers died mid-hold on API HTTP 500s during a status-page incident (2026-09-22, 00:50 to 02:10 UTC). Resuming the same transcript failed again, and a fresh agent with a state note worked. Every hold packet now keeps a progress.md ledger line per hold, so a relaunch resumes from the ledger.</li>
+      <li>A hold is post-processed before the next machine-window check, so the before-launch snapshot does not catch the worker's own Python.</li>
+      <li>Workflow.ps1 metrics over the review records: 118 merged PRs with records. Tier A 34 merged, median 2 review rounds, 0 escaped defects. Tier B 43, median 2 rounds, 2 escaped. Tier C 41, median 1 round, 1 escaped.</li>
+      <li>Five artefact reads this window, one per report. The first hold report's two HIGHs were an arithmetic slip (38 times, not 3.7) and a sample count that matched neither file set. The third report's MEDIUM was a band width quoted as a distance from the mean (35% below, not 58%). The fourth report came back with no findings. None moved a conclusion, and every correction is appended to its report.</li>
+    </ul>
+  </article>
+
   <article id="server-2026-09-21b">
     <h2>Server: the tick skips viewers whose map has not changed, the dev launcher regenerates the runtimeconfig per branch and dumps no frames by default, the GC memory budget priced on two Release pairs and closed, a tick snapshot pool dropped on its numbers, and what a hold on the world lock costs</h2>
     <p class="meta">2026-09-21 · Essorcal · Server PRs <a href="https://github.com/project1998/Project1998/pull/269">#269</a>, <a href="https://github.com/project1998/Project1998/pull/268">#268</a></p>
