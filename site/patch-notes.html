@@ -99,6 +99,53 @@
     content-only changes hot-reload with no restart.</p>
   </header>
 
+  <article id="server-2026-09-27">
+    <h2>Server: new names stop at 11 letters, faces 1 to 4 create, errors at logout or re-login no longer leave you stuck, NPC abilities can be limited to particular NPCs, and Serve.ps1 stops cleanly from PowerShell 7</h2>
+    <p class="meta">2026-09-27 · Essorcal · Server PRs <a href="https://github.com/project1998/Project1998/pull/300">#300</a>, <a href="https://github.com/project1998/Project1998/pull/301">#301</a>, <a href="https://github.com/project1998/Project1998/pull/302">#302</a>, <a href="https://github.com/project1998/Project1998/pull/303">#303</a>, <a href="https://github.com/project1998/Project1998/pull/304">#304</a>, <a href="https://github.com/project1998/Project1998/pull/305">#305</a></p>
+    <h3 class="sec">New character names stop at 11 letters (PR #301, issue #299)</h3>
+    <ul>
+      <li>New names can be 3 to 11 letters. A 12-letter name used to be created and then could never enter the world. The create screen now refuses it with "Names must be 3 to 11 letters."</li>
+      <li>Every length refusal now says "3 to 11".</li>
+      <li>No existing character is affected: the server has no 12-letter names.</li>
+      <li>The cap is one constant, taken from the 12 bytes the 4.95 client's handoff field carries back.</li>
+    </ul>
+    <h3 class="sec">Picking face 1 to 4 at creation works (PR #304)</h3>
+    <ul>
+      <li>Choosing face 1, 2, 3 or 4 when creating a character no longer refuses your name. The character is created.</li>
+      <li>The 0x04 create packet carries no name. Creation always uses the name the 0x02 check accepted, and the name check still runs on it.</li>
+      <li>On 5.33, a few more face ids may be fixed the same way. That depends on the length of 5.33's create packet, which has not been recorded yet.</li>
+    </ul>
+    <h3 class="sec">Errors at logout or re-login no longer leave you stuck (PR #303)</h3>
+    <ul>
+      <li>If leaving a trade or a group hits an error while you log out, you still leave the map, your character is saved and your login is freed.</li>
+      <li>If your old session cannot be saved when you log in again, you get in with your last good save and the old connection is closed. Before, the re-login failed and the account stayed stuck.</li>
+      <li>A login that fails partway into the world no longer leaves the account marked as online once that connection drops.</li>
+      <li>In that re-login case, an autosave already on its way is dropped, so the save you load is the final one.</li>
+      <li>Normal logout, login, trade and party are unchanged.</li>
+    </ul>
+    <h3 class="sec">Review loose ends (PR #300)</h3>
+    <ul>
+      <li>In the moment between a re-login and the old connection closing, a blind creature no longer swings at the old session. It picks the next adjacent live player, as creatures that can see already do.</li>
+      <li>The spawn-row repeat log line now starts with "world tick phase", like the other tick-phase lines.</li>
+      <li>Comments and Locking.md updated for the replaced-session latch and the Lua gate.</li>
+    </ul>
+    <h3 class="sec">NPC abilities can be limited to particular NPCs or maps (PR #302, issue #50)</h3>
+    <ul>
+      <li>NpcAbilities.csv entries can name the NPC ids or maps they apply to, for example <code>sute@39</code> or <code>alignment@map:324;325;326</code>.</li>
+      <li>Seven quests' private NPC lists moved into the CSV: Sute, Mage Stone, both Nagnang shields, Poet's whip, White Moon Axe and Forgotten Past.</li>
+      <li>Four quest data tables stay in code, each tested against its CSV row.</li>
+      <li>The tutorial quest is now a CSV row, and Quests.cs is gone.</li>
+      <li>A bad id or map in the CSV is logged at load, and the ability stays off instead of reaching every NPC of that type.</li>
+      <li>Nothing changes in game.</li>
+    </ul>
+    <h3 class="sec">Serve.ps1 -Stop works from PowerShell 7 (PR #305)</h3>
+    <ul>
+      <li><code>Serve.ps1 -Stop</code> run from PowerShell 7 now delivers Ctrl+C to the servers, which save connected players and exit. Before, both were killed after 85 s with no save.</li>
+      <li>If the signal cannot be delivered, the script now says so, and the game server's restart_at fallback fires instead of being ignored as stale.</li>
+      <li>Dev tool only. Nothing changes on the live server.</li>
+    </ul>
+  </article>
+
   <article id="server-2026-09-22">
     <h2>Server: the status document counts the viewers the tick swept, and four holds measure what the tick sweep skip does under load</h2>
     <p class="meta">2026-09-22 · Essorcal · Server PR <a href="https://github.com/project1998/Project1998/pull/270">#270</a></p>
