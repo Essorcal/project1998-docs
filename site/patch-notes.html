@@ -146,6 +146,148 @@
     </ul>
   </article>
 
+  <article id="server-2026-09-25b">
+    <h2>Server: an older deploy no longer replaces a newer one, a replaced login's old connection stops acting in the world, and a late group share at logout is kept</h2>
+    <p class="meta">2026-09-25 to 2026-09-27 · Essorcal · Server PRs <a href="https://github.com/project1998/Project1998/pull/296">#296</a>, <a href="https://github.com/project1998/Project1998/pull/297">#297</a>, <a href="https://github.com/project1998/Project1998/pull/298">#298</a></p>
+    <h3 class="sec">A late group share at logout is kept, and a replaced login writes nothing (PR #298, issue #168)</h3>
+    <ul>
+      <li>A group kill share that lands the moment you log out is kept, even if you log straight back in. The new login waits for the old session's last save, normally well under a millisecond.</li>
+      <li>The old connection of a replaced login no longer saves over you, finishes a trade (both sides get "Exchange cancelled." and nothing moves) or takes a party share.</li>
+      <li>A character that can't be saved is disconnected cleanly with "save LOST" in the log, instead of being left on a frozen screen.</li>
+    </ul>
+    <h3 class="sec">The world stops acting on a replaced session (PR #297)</h3>
+    <ul>
+      <li>Logging in again while your old connection is still open: until the old connection finishes closing, a few milliseconds, it can't be clicked, targeted or damaged, and it can't die, so there is no duplicate death pile.</li>
+    </ul>
+    <h3 class="sec">An older deploy no longer replaces a newer one (PR #296)</h3>
+    <ul>
+      <li>When two merges land close together, the older deploy now skips and says so, instead of putting an older build on the server after a newer one has gone up.</li>
+      <li>It did this on its first real race: #297's build went up, and #296's older one skipped five seconds later.</li>
+      <li>CI runs a 61-check test of this guard on every push.</li>
+    </ul>
+  </article>
+
+  <article id="server-2026-09-25">
+    <h2>Server: trades open safely under both players' locks, one bad spawn row costs only itself, a failing heartbeat step no longer loses the beat, and back-to-back merges deploy cleanly</h2>
+    <p class="meta">2026-09-25 · Essorcal · Server PRs <a href="https://github.com/project1998/Project1998/pull/287">#287</a> to <a href="https://github.com/project1998/Project1998/pull/295">#295</a></p>
+    <h3 class="sec">A trade opens under both players' locks and never on one who is leaving (PR #291, issues #173, #188)</h3>
+    <ul>
+      <li>A trade can no longer be opened on a player who is disconnecting.</li>
+      <li>Two players starting a trade with the same person at the same moment no longer both get a window. In that race, the second player sees "That person refuses to exchange with you.", or "You are already trading." if the two were opening on each other.</li>
+      <li>Tests: the test recorder now takes frames from two threads at once, so race tests can check exactly what a player was told.</li>
+    </ul>
+    <h3 class="sec">One bad spawn row costs only itself (PR #292)</h3>
+    <ul>
+      <li>A broken spawn row now stops only its own creature from appearing. The rest of that map's creatures, and other maps', spawn as normal.</li>
+      <li>While a group has a broken member, its other members refill about every second until the content is fixed.</li>
+      <li>The log names the creature and map, and repeats are counted instead of re-logged.</li>
+    </ul>
+    <h3 class="sec">A failing heartbeat step costs only the rest of that step (PR #289, issues #106, #121)</h3>
+    <ul>
+      <li>The world heartbeat no longer loses a whole beat when one of its early steps fails: spawning, refills, morph and trap expiry, forage, the clock or the weather. The failing step is skipped for that beat, and everything else still runs and is sent.</li>
+      <li>Failures are logged once with their stack, then as a one-line count per beat.</li>
+      <li><code>@reload</code> no longer leaves stale entries in the spawn bookkeeping for the creatures it tore down.</li>
+    </ul>
+    <h3 class="sec">@help rows checked against the pane width, and @clock's marker matches the wire (PR #290, issues #176, #159)</h3>
+    <ul>
+      <li>Tests: every <code>@help</code> row is now checked for words too wide for the status pane, not just the first page. <code>@class</code> and <code>@align</code> already have option lists wider than the pane, and are left as they are for now.</li>
+      <li><code>@clock</code>'s pinned-hour marker had a double space in the code that the client never received. The code now matches what is sent.</li>
+    </ul>
+    <h3 class="sec">The Lua gate asserts no world lock is held on the way in (PR #293, issue #90)</h3>
+    <ul>
+      <li>Debug builds now stop loudly if code enters the Lua script gate while holding the world lock. No change to release builds.</li>
+    </ul>
+    <h3 class="sec">Weapon swap and unequip frames pinned (PR #295)</h3>
+    <ul>
+      <li>Tests: weapon swaps and unequips, with and without a weapon enchant, now have a byte-for-byte test of what the client receives. The proposed reordering of the enchant drop was dropped because it would have changed a HUD frame.</li>
+    </ul>
+    <h3 class="sec">The thread-start check scans all of the server (PR #294, issue #195)</h3>
+    <ul>
+      <li>Tests: the thread-start check now scans all of the server code, not two files, and a comment can no longer fool it.</li>
+    </ul>
+    <h3 class="sec">Back-to-back merges no longer turn the deploy red (PR #287)</h3>
+    <ul>
+      <li>A deploy that lands within 3 minutes of the previous one used to fail on the login restart timer, after it had already staged the new build and moved the game restart to it.</li>
+      <li>It now passes with a warning in that case, when the commit is master's newest.</li>
+      <li>Every other failure still fails, including that same collision for a commit that is not master's newest, since it may have put an older build in place.</li>
+      <li>Players see no difference: one warned restart per burst of merges, as before.</li>
+    </ul>
+    <h3 class="sec">Test-Branch.ps1 -Shard k/n (PR #288)</h3>
+    <ul>
+      <li>Runs every n-th script of the test client suite, so the full suite can be split across calls: <code>-Shard 1/2</code>, then <code>-Shard 2/2</code>.</li>
+      <li>A malformed value, or a shard with no scripts, exits 2 instead of passing.</li>
+      <li>Each shard prints "(x of y scripts)". The shards cover the whole suite only if y is the same for every call.</li>
+    </ul>
+  </article>
+
+  <article id="server-2026-09-24">
+    <h2>Server: stripped gear drops its bonuses at once, failed saves are retried, @karma refuses NaN, messages reach a re-logged player, and three flaky tests fixed</h2>
+    <p class="meta">2026-09-24 · Essorcal · Server PRs <a href="https://github.com/project1998/Project1998/pull/278">#278</a>, <a href="https://github.com/project1998/Project1998/pull/280">#280</a> to <a href="https://github.com/project1998/Project1998/pull/286">#286</a></p>
+    <h3 class="sec">Gear taken off by the gender-change NPC or an armor-quest turn-in drops its bonuses at once (PR #286)</h3>
+    <ul>
+      <li>Gear removed by the gender-change NPC, or handed in while worn to an armor-quest guildmaster, now drops its bonuses at once. Before, they stayed until the next equip change or relog.</li>
+      <li>Current HP and MP clamp to the lower maximums at once, as with an ordinary unequip.</li>
+    </ul>
+    <h3 class="sec">A spell script cannot leave a living player at 0 hp, and @clearinv drops the cleared gear's bonuses (PR #281, issues #175, #206)</h3>
+    <ul>
+      <li>The Lua <code>setHp</code> setter now stops at 1 hp for a living player. No shipped spell passes 0.</li>
+      <li><code>@clearinv</code> now drops the cleared gear's bonuses at once, and current HP and MP clamp to the new maximums.</li>
+    </ul>
+    <h3 class="sec">Failed character saves are retried (PR #282, issues #179, #88)</h3>
+    <ul>
+      <li>A save that fails while taking its snapshot is now retried by the next autosave, instead of the character being marked saved.</li>
+      <li>A full character save now counts for the autosave timer, so it is no longer followed straight away by an identical second write.</li>
+    </ul>
+    <h3 class="sec">Messages reach a player who has just logged in again (PR #283, issues #183, #87)</h3>
+    <ul>
+      <li>During a re-login, a whisper or GM command aimed at your name now reaches the new session, instead of the old one that is closing.</li>
+      <li>A stale comment in Session.Resolve.cs corrected.</li>
+    </ul>
+    <h3 class="sec">@karma refuses NaN and Infinity (PR #285)</h3>
+    <ul>
+      <li><code>@karma NaN</code>, <code>Infinity</code> and <code>-Infinity</code> are now refused with a reply. Before, they left the character unable to save until a GM set karma again.</li>
+    </ul>
+    <h3 class="sec">Three flaky tests fixed (PRs #278, #280, #284, issue #187)</h3>
+    <ul>
+      <li>Tests: the broadcast allocation check counts the calls that allocate instead of summing a pass's bytes, so a Windows memory-pressure trim no longer fails it.</li>
+      <li>Tests: the normal-peer login check reads every frame before the connection is torn down, so a slow thread pool at the start of the suite no longer fails it.</li>
+      <li>Tests: every test that swaps content tables now runs in the tile-translation collection, fixing an intermittent Release failure.</li>
+    </ul>
+  </article>
+
+  <article id="server-2026-09-23">
+    <h2>Server: the wire dump defaults off, a throwing creature costs the world lock a queued record, bad Tile533Map rows are refused, the send path gets counters, and the world lock's hold rule is written down</h2>
+    <p class="meta">2026-09-23 · Essorcal · Server PRs <a href="https://github.com/project1998/Project1998/pull/271">#271</a> to <a href="https://github.com/project1998/Project1998/pull/277">#277</a></p>
+    <h3 class="sec">The game process defaults its wire dump off (PR #276)</h3>
+    <ul>
+      <li>The game server no longer dumps every frame's bytes to its log when <code>P1998_LOG_WIRE</code> is unset. The default is now off. Set <code>P1998_LOG_WIRE=1</code> for protocol work, never on a live server.</li>
+    </ul>
+    <h3 class="sec">A throwing creature costs the world lock one queued record, not a stack (PR #274)</h3>
+    <ul>
+      <li>A creature that throws an error is now recorded under the world lock and logged after it. Before, a full stack trace was written under the lock for every creature, every beat.</li>
+      <li>The first throw of each fault is still logged with its stack, and repeats become one count line per beat.</li>
+      <li>Creatures and maps that throw are skipped exactly as before.</li>
+    </ul>
+    <h3 class="sec">Tile533Map rows are checked whole before they are expanded (PR #273, issue #128)</h3>
+    <ul>
+      <li>A Tile533Map.csv row whose range falls outside the tile ids is skipped and logged, instead of being able to spin the loader. All 1,200 current rows pass, so the 5.33 tile table is unchanged.</li>
+    </ul>
+    <h3 class="sec">The game channel's send path gets counters (PR #275)</h3>
+    <ul>
+      <li><code>run/status.json</code> gains five counters for the game channel: frames and bytes sent, slow sends, and how many of those were slow in the queue or in the socket write.</li>
+      <li>No change to what is sent or when.</li>
+    </ul>
+    <h3 class="sec">Locking.md: how long a world lock hold may be (PR #271)</h3>
+    <ul>
+      <li>A new section says that waiting on a contended lock grows with the square of each hold's length, so on the world lock a long hold costs more than a frequent one.</li>
+    </ul>
+    <h3 class="sec">Two flaky tests fixed (PRs #272, #277)</h3>
+    <ul>
+      <li>Tests: the login drain check measures when the writer finishes, not when the test wakes, so a starved thread pool no longer fails it.</li>
+      <li>Tests: a test that shuts the log down now keeps other tests' log captures out until it restarts it. This fixes a master failure on run 35895702560.</li>
+    </ul>
+  </article>
+
   <article id="server-2026-09-22">
     <h2>Server: the status document counts the viewers the tick swept, and four holds measure what the tick sweep skip does under load</h2>
     <p class="meta">2026-09-22 · Essorcal · Server PR <a href="https://github.com/project1998/Project1998/pull/270">#270</a></p>
