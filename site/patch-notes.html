@@ -99,6 +99,60 @@
     content-only changes hot-reload with no restart.</p>
   </header>
 
+  <article id="server-2026-09-29">
+    <h2>Server: failed logins no longer hang on the loading screen, group kills and parcel claims save safely during a re-login, PvP and divination read a consistent target, and quest state goes through one type</h2>
+    <p class="meta">2026-09-29 · Essorcal · Server PRs <a href="https://github.com/project1998/Project1998/pull/306">#306</a>, <a href="https://github.com/project1998/Project1998/pull/310">#310</a>, <a href="https://github.com/project1998/Project1998/pull/311">#311</a>, <a href="https://github.com/project1998/Project1998/pull/312">#312</a>, <a href="https://github.com/project1998/Project1998/pull/314">#314</a></p>
+    <h3 class="sec">A login that fails before you reach the world no longer leaves you on the loading screen (PR #311)</h3>
+    <ul>
+      <li>If your login hits an error after the server has reserved your account's slot but before you enter the world, you are now disconnected instead of waiting on the loading screen. Log in again and it works.</li>
+      <li>An error earlier than that, before the slot is reserved, still leaves the connection open, as before.</li>
+      <li>If your old session's final save fails while you log in again elsewhere, you get in with your last good save, and an older autosave can no longer land on top of it afterwards. The lost save is logged.</li>
+      <li>The three login refusals give the account's slot back through one helper.</li>
+      <li>Eight new tests, each shown to fail without its fix.</li>
+    </ul>
+    <h3 class="sec">Group kill credit and parcel claims save safely during a re-login (PR #312)</h3>
+    <ul>
+      <li>A group kill's quest credit and exp now save together for each member, even if the same account logs in elsewhere at that moment. Before, a member could keep the kill credit and lose the exp.</li>
+      <li>Collecting a parcel or opening a letter with an item can no longer be undone by an autosave that was already on its way.</li>
+      <li>Parcel and mail claims follow the same rule as every other save when an account logs in elsewhere.</li>
+      <li>Fourteen new tests, each shown to fail without its fix.</li>
+      <li>Found, not fixed: a parcel claim retries without pause while the database refuses the character's row.</li>
+    </ul>
+    <h3 class="sec">PvP, armor-reading spells and divination see a consistent target (PR #314)</h3>
+    <ul>
+      <li>A swing, an armor-reading spell or a divination on a player who is changing gear or buffs at that moment no longer mixes two states, and can no longer fail with an error.</li>
+      <li>The numbers you see are unchanged.</li>
+      <li>Cost measured: about 128 bytes and under a microsecond per gear or buff change.</li>
+      <li>Found, not fixed: three target-spell helpers still change the target without its lock.</li>
+    </ul>
+    <h3 class="sec">Quest state goes through one <code>QuestState</code> type (PR #310, issue #51)</h3>
+    <ul>
+      <li>Each quest's saved values are named by quest and slot (flag, kills, timer, count) through <code>QuestState</code>.</li>
+      <li>One alias table maps every slot to the key characters were already saved under. No character data is migrated.</li>
+      <li>A character with all 75 saved quest keys loads and saves byte for byte the same.</li>
+      <li>NPC scripts reach quest state through one accessor, <code>ctx.Quest(name)</code>. Stage, SetStage, Counter, Reg, SetReg, LuaReg and LuaSetReg are gone.</li>
+      <li>The Lua quest verbs and the spell verbs' reg and setReg are unchanged.</li>
+      <li>A quest slot missing from the alias table now throws instead of reading 0.</li>
+      <li>Tests pin every slot to its saved key and fail on any direct use of the quest map.</li>
+      <li><code>docs/common/Quest-Registry.md</code> lists every slot and its saved key.</li>
+      <li>Follow-ups: #307, #308, #309.</li>
+    </ul>
+    <h3 class="sec">Review follow-ups from #301, #302 and #304 (PR #306)</h3>
+    <ul>
+      <li>The name-length comment says the 11-letter cap comes from the handoff field.</li>
+      <li>Two comments now say the checked name is the one creation uses, not a fallback.</li>
+      <li>The character-creation check also fails on a second ungated create or a reassignment.</li>
+      <li>"Nine" MageTrainerNpc corrected to twelve.</li>
+      <li><code>dagger_uniform</code> is limited in <code>NpcAbilities.csv</code> to Maro, Maso and Dagger. Nothing changes in game: the other rogue trainers never offered it.</li>
+    </ul>
+    <h3 class="sec">Tooling</h3>
+    <ul>
+      <li>The Codex sandbox build failure is solved: build outputs the sandbox created before a clone was granted to it could not be overwritten. The fix is to clear bin and obj before a Codex build.</li>
+      <li><code>merge-ready --cleanup</code> now deletes a merged PR set's ci/ branch.</li>
+      <li>New retail test sheet and a passive Frida probe for the four damage rulings (#77, #78, #82, #200).</li>
+    </ul>
+  </article>
+
   <article id="server-2026-09-27">
     <h2>Server: new names stop at 11 letters, faces 1 to 4 create, errors at logout or re-login no longer leave you stuck, NPC abilities can be limited to particular NPCs, and Serve.ps1 stops cleanly from PowerShell 7</h2>
     <p class="meta">2026-09-27 · Essorcal · Server PRs <a href="https://github.com/project1998/Project1998/pull/300">#300</a>, <a href="https://github.com/project1998/Project1998/pull/301">#301</a>, <a href="https://github.com/project1998/Project1998/pull/302">#302</a>, <a href="https://github.com/project1998/Project1998/pull/303">#303</a>, <a href="https://github.com/project1998/Project1998/pull/304">#304</a>, <a href="https://github.com/project1998/Project1998/pull/305">#305</a></p>
