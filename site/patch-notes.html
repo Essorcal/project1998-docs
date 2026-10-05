@@ -99,6 +99,69 @@
     content-only changes hot-reload with no restart.</p>
   </header>
 
+  <article id="server-2026-10-05">
+    <h2>Server: Spirit Blade works, the Inferno spells take all your mana and wait 70 seconds, Wind dancer and the Champions recast every 8 minutes for no mana, and entering a map no longer puts a trap or a group creature on your tile</h2>
+    <p class="meta">2026-10-05 · Essorcal · Server PRs <a href="https://github.com/project1998/Project1998/pull/316">#316</a>, <a href="https://github.com/project1998/Project1998/pull/317">#317</a>, <a href="https://github.com/project1998/Project1998/pull/318">#318</a>, <a href="https://github.com/project1998/Project1998/pull/319">#319</a>, <a href="https://github.com/project1998/Project1998/pull/321">#321</a>, <a href="https://github.com/project1998/Project1998/pull/322">#322</a>, <a href="https://github.com/project1998/Project1998/pull/323">#323</a>, <a href="https://github.com/project1998/Project1998/pull/324">#324</a></p>
+    <h3 class="sec">Spirit Blade works, the Inferno spells take all your mana and wait, and six Rogue spells get their cast delay (PR #322)</h3>
+    <ul>
+      <li>Spirit Blade works: 10,000 mana for x9 on the weapon part of your swings, until the weapon comes off. Casting it again while it is up is refused and costs nothing. Before, it cost 5 mana and did nothing.</li>
+      <li>Inferno, Death's Door, Nature's Denial and Steel Storm take all your mana and then wait 70 seconds, even when the cast hits nobody. A cast refused for lack of mana costs nothing. Damage is unchanged.</li>
+      <li>Afterlife's Embrace, Ming-Ken's Judgement and Calculating Blow now have Lethal Strike's 1-second cast delay. The Void's Measure, Beastly Frenzy and Tilting the Balance now have Desperate Attack's. Before, they had none.</li>
+      <li>Fissure, Lava Surge, Volcanic Blast and the Earthquake spells keep their flat cost and no wait. Nothing else changes.</li>
+      <li>Twenty-four new tests, each shown to fail without its fix, and eleven that check what did not change.</li>
+      <li>Found, not fixed: the six Warrior reskins of Berserk and Whirlwind have the same missing cast delay. That needs a decision.</li>
+    </ul>
+    <h3 class="sec">Wind dancer and the Champions recast every 8 minutes and cost no mana (PR #317)</h3>
+    <ul>
+      <li>Wind dancer and the Kwi-Sin, Ming-Ken and Ohaeng Champions can be summoned once every 8 minutes. Before, there was no wait. Summoning again too soon is refused with "&lt;spell&gt; isn't ready yet."</li>
+      <li>They cost no mana. Before, they cost 10.</li>
+      <li>Wind warrior, the Avatars and every other summon are unchanged.</li>
+      <li>Found, not fixed: Wind master has no creature to summon. A cast spends 10 mana and summons nothing.</li>
+    </ul>
+    <h3 class="sec">Entering a map no longer puts a trap or a group creature on your tile (PR #319, issue #122)</h3>
+    <ul>
+      <li>Entering a map no longer puts a creature from a timed spawn group, a hidden ambush trap or one of Sute's Cave's cold tiles on the tile you arrive on.</li>
+      <li>Tests: four new tests. Three of them, one for each placement, are shown to fail without the fix.</li>
+      <li>Found, not fixed: a spawn point can still place its creature on a player's tile, when a map is first entered or when the creature respawns.</li>
+      <li>Found, not fixed: a broken spawn row still fails the whole map entry, a follow-up from PR #292.</li>
+    </ul>
+    <h3 class="sec">Collecting a parcel while the database is failing answers at once (PR #318)</h3>
+    <ul>
+      <li>While the database is failing, collecting a parcel now says "try me again in a moment" at once and keeps the parcel. Before, the claim repeated until the database recovered.</li>
+      <li>This fixes the parcel retry found under PR #312. Every other parcel claim works as before, and so does mail.</li>
+      <li>Operators: the log gets one <code>[db]</code> warning per failed claim instead of one per repeat, and a "parcel claim FAILED ... parcel kept" line once the player clicks past the box.</li>
+      <li>Tests: a new test with three cases of a refused or failed claim, each shown to fail without its fix.</li>
+    </ul>
+    <h3 class="sec">@reload says when a Lua edit is rejected (PR #323, issue #113)</h3>
+    <ul>
+      <li><code>@reload</code> now starts its reply with "*** REJECTED (still running the previous version, see log): &lt;file&gt; ***" when a Lua script edit does not take: a compile error, a missing global table or a missing file. The old script keeps running, as before.</li>
+      <li>The content load log counts that script as not kept (1/0), and adds a REJECTED warning line for a compile error or a missing global table.</li>
+      <li>Players see no change: the same scripts run.</li>
+      <li>Tests: twelve new reload cases, one for each of the four scripts and three kinds of failure, each shown to fail without its fix.</li>
+    </ul>
+    <h3 class="sec">The @class and @align help rows fit the status pane (PR #316)</h3>
+    <ul>
+      <li>GMs and testers see the class and alignment lists in <code>@help</code>, and in bare <code>@class</code>'s usage line, with spaces around the bars. They wrap between names instead of splitting mid-word.</li>
+      <li>What the commands accept is unchanged. Players never see these rows.</li>
+      <li>Tests: PR #290 had left both rows as exceptions in the pane-width test. No row is exempt now, so a new row too wide for the pane fails the test.</li>
+    </ul>
+    <h3 class="sec">Both quest maps go through <code>QuestState</code>, and the login close is widened as a guard (PR #321, issues #307, #308, #309)</h3>
+    <ul>
+      <li><code>QuestStage</code>, <code>SetQuestStage</code>, <code>QuestCounter</code>, <code>QuestStr</code> and <code>SetQuestStr</code> are gone. Code names quest state through <code>Quest(name)</code>, or <code>Quest(QuestState.Registry)</code> for a flat registry key.</li>
+      <li>The quest string registry is now text slots under the same rules, saved under the same keys, such as <code>minor_quest</code> and <code>mentor</code>. A text slot read as a number, or a number slot read as text, throws.</li>
+      <li><code>SetNation</code> clears the bound home through <code>QuestState</code> too, with the same single save.</li>
+      <li><code>@quest</code> and <code>@questreset</code> still show and clear both maps. No character data is migrated: every saved key stays byte for byte what it was.</li>
+      <li>Tests: the check that fails on any direct use of the quest map now covers the text map too, and no longer exempts <code>SetNation</code>. A new test walks every armor-quest step and every MinorQuests.csv mob through <code>QuestState</code>, so a data row it cannot resolve fails the test run.</li>
+      <li>PR #311 closed the connection when a login hit an error after the account's slot was reserved. An unexpected error before the slot is reserved now closes it too. This is a guard with no trigger today: no step before the slot is reserved throws, so nothing a player sees changes.</li>
+    </ul>
+    <h3 class="sec">Review follow-ups from #311 and #314 (PR #324)</h3>
+    <ul>
+      <li>Tests: four save-race tests no longer check a value that could never be false. Each still fails on its saved row when its guard is removed.</li>
+      <li>Comments, two test summaries and Protocol.md now describe the one published totals snapshot from PR #314, not the old gear cache.</li>
+      <li>Nothing changes in game.</li>
+    </ul>
+  </article>
+
   <article id="server-2026-09-29">
     <h2>Server: failed logins no longer hang on the loading screen, group kills and parcel claims save safely during a re-login, PvP and divination read a consistent target, and quest state goes through one type</h2>
     <p class="meta">2026-09-29 · Essorcal · Server PRs <a href="https://github.com/project1998/Project1998/pull/306">#306</a>, <a href="https://github.com/project1998/Project1998/pull/310">#310</a>, <a href="https://github.com/project1998/Project1998/pull/311">#311</a>, <a href="https://github.com/project1998/Project1998/pull/312">#312</a>, <a href="https://github.com/project1998/Project1998/pull/314">#314</a></p>
