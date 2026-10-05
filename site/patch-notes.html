@@ -101,7 +101,7 @@
 
   <article id="server-2026-10-05">
     <h2>Server: the Inferno spells take all your mana and wait 70 seconds, six Rogue spells get their cast delay, Wind dancer and the Champions recast every 8 minutes for no mana, and entering a map no longer puts a trap or a group creature on your tile</h2>
-    <p class="meta">2026-10-05 · Essorcal · Server PRs <a href="https://github.com/project1998/Project1998/pull/316">#316</a>, <a href="https://github.com/project1998/Project1998/pull/317">#317</a>, <a href="https://github.com/project1998/Project1998/pull/318">#318</a>, <a href="https://github.com/project1998/Project1998/pull/319">#319</a>, <a href="https://github.com/project1998/Project1998/pull/321">#321</a>, <a href="https://github.com/project1998/Project1998/pull/322">#322</a>, <a href="https://github.com/project1998/Project1998/pull/323">#323</a>, <a href="https://github.com/project1998/Project1998/pull/324">#324</a></p>
+    <p class="meta">2026-10-05 · Essorcal · Server PRs <a href="https://github.com/project1998/Project1998/pull/316">#316</a>, <a href="https://github.com/project1998/Project1998/pull/317">#317</a>, <a href="https://github.com/project1998/Project1998/pull/318">#318</a>, <a href="https://github.com/project1998/Project1998/pull/319">#319</a>, <a href="https://github.com/project1998/Project1998/pull/321">#321</a>, <a href="https://github.com/project1998/Project1998/pull/322">#322</a>, <a href="https://github.com/project1998/Project1998/pull/323">#323</a>, <a href="https://github.com/project1998/Project1998/pull/324">#324</a>, <a href="https://github.com/project1998/Project1998/pull/326">#326</a>, <a href="https://github.com/project1998/Project1998/pull/327">#327</a></p>
     <h3 class="sec">The Inferno spells take all your mana and wait, six Rogue spells get their cast delay, and a granted Spirit Blade works (PR #322)</h3>
     <ul>
       <li>Spirit Blade works: 10,000 mana for x9 on the weapon part of your swings, until the weapon comes off or you log out or die. Casting it again while it is up is refused and costs nothing. Before, it cost 5 mana and did nothing. Only a GM grant reaches this spell today.</li>
@@ -153,6 +153,22 @@
       <li><code>@quest</code> and <code>@questreset</code> still show and clear both maps. No character data is migrated: every saved key stays byte for byte what it was.</li>
       <li>Tests: the check that fails on any direct use of the quest map now covers the text map too, and no longer exempts <code>SetNation</code>. A new test walks every armor-quest step and every MinorQuests.csv mob through <code>QuestState</code>, so a data row it cannot resolve fails the test run.</li>
       <li>PR #311 closed the connection when a login hit an error after the account's slot was reserved. An unexpected error before the slot is reserved now closes it too. This is a guard with no trigger today: no step before the slot is reserved throws, so nothing a player sees changes.</li>
+    </ul>
+    <h3 class="sec">Tooling: <code>Serve.ps1 -Stop</code> says why a stop signal failed, and tries PowerShell 7 (PR #327)</h3>
+    <ul>
+      <li>When <code>Serve.ps1 -Stop</code> cannot send a server its stop signal, it now prints the reason instead of only "helper exit 1".</li>
+      <li>If Windows PowerShell cannot run the signal helper, PowerShell 7 runs it before anything is terminated. A helper that may already have signalled is never followed by a second one.</li>
+      <li>The forced stops seen in reviews on 2026-09-28 and 09-29 came from an older copy of <code>Serve.ps1</code>; the current one stops a pair in about a second.</li>
+      <li>A test pins the <code>restart_at</code> fallback's timing against the server's poll, tick and grace.</li>
+      <li>Nothing players see changes.</li>
+    </ul>
+    <h3 class="sec">Tests: anything that changes the whole test process runs on its own (PR #326)</h3>
+    <ul>
+      <li>Tests that change something every test shares (the log, the console, content tables, settings) now run on their own, after the rest.</li>
+      <li>A new check fails the test run, naming the class and the line, when a test touches one of those from anywhere else.</li>
+      <li>The Lua-gate deadlock test stays fast however full the suite gets, and no deadlock test reads a paused machine as a hang.</li>
+      <li>A full Debug test run takes about 55 s, down from about 70 s.</li>
+      <li>Nothing in the game changes.</li>
     </ul>
     <h3 class="sec">Review follow-ups from #311 and #314 (PR #324)</h3>
     <ul>
