@@ -99,6 +99,20 @@
     content-only changes hot-reload with no restart.</p>
   </header>
 
+  <article id="server-2026-10-06">
+    <h2>Server: @kill keeps townsfolk, and the spawn points it empties refill</h2>
+    <p class="meta">2026-10-06 · Essorcal · Server PRs <a href="https://github.com/project1998/Project1998/pull/320">#320</a></p>
+    <h3 class="sec">@kill keeps townsfolk, and the spawn points it empties refill (PR #320)</h3>
+    <ul>
+      <li>After a GM's <code>@kill</code>, spawn-point creatures, rare bosses included, come back on their usual respawn timers. Before, they stayed gone until <code>@reload</code> or a restart.</li>
+      <li><code>@kill</code> no longer removes NPCs, so townsfolk no longer vanish when a GM clears a map in town. Its reply no longer counts them: on a map with only NPCs it says "no mobs to clear".</li>
+      <li><code>@kill</code> does not count as a kill, so it does not start a rare boss's death cooldown. Citelam and Maletic can come back on their point's first refill, 3 to 4.5 minutes after <code>@kill</code>, 1 time in 10 per refill. After a real kill they still wait at least 30 minutes.</li>
+      <li>Ambush and frigid traps are not creatures and are untouched.</li>
+      <li>Tests: four new tests. Three of them are shown to fail without the fix.</li>
+      <li>Found, not fixed: the <code>@kill</code> help row still says "every mob", and <code>@mob</code> accepts 0 or negative HP.</li>
+    </ul>
+  </article>
+
   <article id="server-2026-10-05">
     <h2>Server: the Inferno spells take all your mana and wait 70 seconds, six Rogue spells get their cast delay, Wind dancer and the Champions recast every 8 minutes for no mana, and entering a map no longer puts a trap or a group creature on your tile</h2>
     <p class="meta">2026-10-05 · Essorcal · Server PRs <a href="https://github.com/project1998/Project1998/pull/316">#316</a>, <a href="https://github.com/project1998/Project1998/pull/317">#317</a>, <a href="https://github.com/project1998/Project1998/pull/318">#318</a>, <a href="https://github.com/project1998/Project1998/pull/319">#319</a>, <a href="https://github.com/project1998/Project1998/pull/321">#321</a>, <a href="https://github.com/project1998/Project1998/pull/322">#322</a>, <a href="https://github.com/project1998/Project1998/pull/323">#323</a>, <a href="https://github.com/project1998/Project1998/pull/324">#324</a>, <a href="https://github.com/project1998/Project1998/pull/326">#326</a>, <a href="https://github.com/project1998/Project1998/pull/327">#327</a></p>
