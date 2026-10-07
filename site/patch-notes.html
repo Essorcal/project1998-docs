@@ -100,8 +100,16 @@
   </header>
 
   <article id="server-2026-10-06">
-    <h2>Server: @kill keeps townsfolk, and the spawn points it empties refill</h2>
-    <p class="meta">2026-10-06 · Essorcal · Server PRs <a href="https://github.com/project1998/Project1998/pull/320">#320</a></p>
+    <h2>Server: 10- and 11-letter account names log in every time, and @kill keeps townsfolk and lets the spawn points it empties refill</h2>
+    <p class="meta">2026-10-06 to 2026-10-07 · Essorcal · Server PRs <a href="https://github.com/project1998/Project1998/pull/320">#320</a>, <a href="https://github.com/project1998/Project1998/pull/315">#315</a></p>
+    <h3 class="sec">10- and 11-letter account names log in every time (PR #315)</h3>
+    <ul>
+      <li>Accounts with 10- or 11-letter names log in every time again. Before, the second 11-letter login on the server was refused at the game door, and 10-letter logins began failing after a few dozen.</li>
+      <li>If an 11-letter account logs in again before its first login reaches the world, the account enters once and the other attempt is refused. Before, both were refused.</li>
+      <li>Used login tickets are now deleted at every login, so the table stays small.</li>
+      <li>Operators: a login ticket that cannot be saved now writes a Warn line. The database moves to schema 4, and a server build from before this change will not start on it. Roll forward, not back.</li>
+      <li>Tests: new tests for both name lengths, two logins in flight, the deploy window in both directions and the migration. Every guard is shown to fail without its fix.</li>
+    </ul>
     <h3 class="sec">@kill keeps townsfolk, and the spawn points it empties refill (PR #320)</h3>
     <ul>
       <li>After a GM's <code>@kill</code>, spawn-point creatures, rare bosses included, come back on their usual respawn timers. Before, they stayed gone until <code>@reload</code> or a restart.</li>
