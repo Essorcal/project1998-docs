@@ -101,7 +101,7 @@
 
   <article id="server-2026-10-06">
     <h2>Server: Approach and Summon work, 10- and 11-letter account names log in every time, and @kill keeps townsfolk and lets the spawn points it empties refill</h2>
-    <p class="meta">2026-10-06 to 2026-10-07 · Essorcal · Server PRs <a href="https://github.com/project1998/Project1998/pull/320">#320</a>, <a href="https://github.com/project1998/Project1998/pull/315">#315</a>, <a href="https://github.com/project1998/Project1998/pull/325">#325</a></p>
+    <p class="meta">2026-10-06 to 2026-10-07 · Essorcal · Server PRs <a href="https://github.com/project1998/Project1998/pull/320">#320</a>, <a href="https://github.com/project1998/Project1998/pull/315">#315</a>, <a href="https://github.com/project1998/Project1998/pull/325">#325</a>, <a href="https://github.com/project1998/Project1998/pull/335">#335</a></p>
     <h3 class="sec">Approach and Summon work (PR #325, issue #313)</h3>
     <ul>
       <li>Mages, Rogues and Poets can use Approach and Summon. Type the name of someone in your group: Approach takes you to them, and Summon brings them to you. Each costs 30 mana. Before, they cost 5 mana and did nothing.</li>
@@ -129,6 +129,14 @@
       <li>Ambush and frigid traps are not creatures and are untouched.</li>
       <li>Tests: four new tests. Three of them are shown to fail without the fix.</li>
       <li>Found, not fixed: the <code>@kill</code> help row still says "every mob", and <code>@mob</code> accepts 0 or negative HP.</li>
+    </ul>
+    <h3 class="sec">Review follow-ups from 2026-10-05 (PR #335)</h3>
+    <ul>
+      <li>Nothing players, GMs or operators see changes.</li>
+      <li>Tests: the torn-tile test walks until it has really watched the mover, two test classes no longer share map ids, and a new test reads <code>Sources.csv</code> as strict CSV after its row 21 is fixed.</li>
+      <li>The check from PR #326 now judges Debug-only code in the Release run too.</li>
+      <li>Tooling: <code>Serve.ps1 -Stop</code> no longer skips PowerShell 7 when a Windows PowerShell error quotes its marker line.</li>
+      <li>One server comment and three test summaries now say what the code does.</li>
     </ul>
   </article>
 
