@@ -100,8 +100,19 @@
   </header>
 
   <article id="server-2026-10-06">
-    <h2>Server: 10- and 11-letter account names log in every time, and @kill keeps townsfolk and lets the spawn points it empties refill</h2>
-    <p class="meta">2026-10-06 to 2026-10-07 · Essorcal · Server PRs <a href="https://github.com/project1998/Project1998/pull/320">#320</a>, <a href="https://github.com/project1998/Project1998/pull/315">#315</a></p>
+    <h2>Server: Approach and Summon work, 10- and 11-letter account names log in every time, and @kill keeps townsfolk and lets the spawn points it empties refill</h2>
+    <p class="meta">2026-10-06 to 2026-10-07 · Essorcal · Server PRs <a href="https://github.com/project1998/Project1998/pull/320">#320</a>, <a href="https://github.com/project1998/Project1998/pull/315">#315</a>, <a href="https://github.com/project1998/Project1998/pull/325">#325</a></p>
+    <h3 class="sec">Approach and Summon work (PR #325, issue #313)</h3>
+    <ul>
+      <li>Mages, Rogues and Poets can use Approach and Summon. Type the name of someone in your group: Approach takes you to them, and Summon brings them to you. Each costs 30 mana. Before, they cost 5 mana and did nothing.</li>
+      <li>They work only on an online member of your group from your own kingdom. Two Neutral characters may use them on each other; a Neutral and a citizen of a kingdom cannot.</li>
+      <li>"Fizzle." at no cost for a wrong name, yourself, someone outside your group or kingdom, an indoor destination, a PvP map on either side, the destination's level, vita or mana limits, staff, or (Summon) a dead player.</li>
+      <li>"That does not work here." when the person being moved stands where warping out is blocked, and "You do not have enough mana." under 30 mana.</li>
+      <li>If the person logs out before they are moved, Summon fizzles and costs nothing. Summoning someone in the middle of a trade cancels the trade for both traders.</li>
+      <li>You arrive on the first free tile north, east, south or west of the person, or on their tile if all four are taken.</li>
+      <li>Not yet: the original game's areas that do not allow approaching. Until they are added, which is next, the spells can reach places such as the newbie tutorial fields, Guol and Tiger's Steps.</li>
+      <li>Tests: 37 cases for the two spells and six race tests, each guard shown to fail without its fix.</li>
+    </ul>
     <h3 class="sec">10- and 11-letter account names log in every time (PR #315)</h3>
     <ul>
       <li>Accounts with 10- or 11-letter names log in every time again. Before, the second 11-letter login on the server was refused at the game door, and 10-letter logins began failing after a few dozen.</li>
