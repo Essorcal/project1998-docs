@@ -99,6 +99,20 @@
     content-only changes hot-reload with no restart.</p>
   </header>
 
+  <article id="server-2026-10-08">
+    <h2>Server: Approach and Summon fizzle in areas that do not allow approaching</h2>
+    <p class="meta">2026-10-08 · Essorcal · Server PRs <a href="https://github.com/project1998/Project1998/pull/336">#336</a></p>
+    <h3 class="sec">Approach and Summon fizzle in areas that do not allow approaching (PR #336)</h3>
+    <ul>
+      <li>Approach to someone who stands in an area that does not allow approaching now says "Fizzle." and costs nothing. Before, it took you there.</li>
+      <li>Summon says "Fizzle." at no cost when you stand in such an area, or when the person you summon does.</li>
+      <li>The areas players will notice are the newbie tutorial fields, Guol and Tiger's Steps. Others include The Old Man, the Nagnang Dark Forest and palace areas, and the Buya Library Caverns. No town is affected.</li>
+      <li>Approach out of such an area still works where warping out is allowed, as on Tiger's Steps.</li>
+      <li>In some casts where a map is also one you cannot warp out of, the refusal now reads "Fizzle." instead of "That does not work here.": for example, summoning someone who stands in Guol, the tutorial or a Mythic zodiac room.</li>
+      <li>Tests: twelve new cases, each shown to fail without its fix, including the line a player reads where both refusals apply.</li>
+    </ul>
+  </article>
+
   <article id="server-2026-10-06">
     <h2>Server: Approach and Summon work, 10- and 11-letter account names log in every time, and @kill keeps townsfolk and lets the spawn points it empties refill</h2>
     <p class="meta">2026-10-06 to 2026-10-07 · Essorcal · Server PRs <a href="https://github.com/project1998/Project1998/pull/320">#320</a>, <a href="https://github.com/project1998/Project1998/pull/315">#315</a>, <a href="https://github.com/project1998/Project1998/pull/325">#325</a>, <a href="https://github.com/project1998/Project1998/pull/335">#335</a></p>
