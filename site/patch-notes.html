@@ -99,6 +99,22 @@
     content-only changes hot-reload with no restart.</p>
   </header>
 
+  <article id="server-2026-10-09">
+    <h2>Server: the aligned furies, Serpent's and Spirit Fury, Second Sight, Barrier and Human Barrier work</h2>
+    <p class="meta">2026-10-09 · Essorcal · Server PRs <a href="https://github.com/project1998/Project1998/pull/338">#338</a></p>
+    <h3 class="sec">Twenty-nine self-buffs that took their mana and did nothing now work (PR #338, issue #334)</h3>
+    <ul>
+      <li>Aligned Warriors' and Rogues' furies work. Soul's Rage, Spirit of the Forest and Augmentation arm x2; Filling the Soul, Spirit of the Wild and Ohaeng's Grace arm x3; Strength of Ancestors, Spirit of the Dragon and Ohaeng's Anger arm x4. Each lasts 625 s.</li>
+      <li>Serpent's Fury arms x4 and Spirit Fury x5, for 375 s each. Only one fury runs at a time: a second is refused at no cost.</li>
+      <li>Second Sight costs 140 mana, not 240, and runs 325 s. When cast, and every 15 s after, the Poet reads "&lt;name&gt; is Hidden in the Area" for each invisible player within 9 tiles.</li>
+      <li>Barrier costs 300 mana and lasts 22 s. Creatures on the four tiles beside the Poet are frozen until it ends, and no creature can step onto those tiles. This includes the Poet's own pets and bosses.</li>
+      <li>Human Barrier lasts 22 s, with an 86 s wait before it can be cast again. Every living player on the four tiles is paralysed until it ends, in towns too: no walking, turning, attacking or casting. No other player can walk onto the tiles.</li>
+      <li>A Human Barrier hold ends after 22 s, at death, or when another player's Dispell, Remove Magic, Return Natural or Restore Balance wins its roll. Being hit and Cure Paralysis do not free you. A ghost is not held.</li>
+      <li>Casting any of these again while it runs is refused at no cost. Before, every recast took the mana again.</li>
+      <li>Tests: 56 new cases, each shown to fail without its fix, including a race of two Poets casting Human Barrier at each other.</li>
+    </ul>
+  </article>
+
   <article id="server-2026-10-08">
     <h2>Server: a changed kingdom, face, gender or totem stays after you log out, and Approach and Summon fizzle in areas that do not allow approaching</h2>
     <p class="meta">2026-10-08 to 2026-10-09 · Essorcal · Server PRs <a href="https://github.com/project1998/Project1998/pull/336">#336</a>, <a href="https://github.com/project1998/Project1998/pull/337">#337</a></p>
