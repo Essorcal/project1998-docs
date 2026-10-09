@@ -100,8 +100,18 @@
   </header>
 
   <article id="server-2026-10-08">
-    <h2>Server: Approach and Summon fizzle in areas that do not allow approaching</h2>
-    <p class="meta">2026-10-08 · Essorcal · Server PRs <a href="https://github.com/project1998/Project1998/pull/336">#336</a></p>
+    <h2>Server: a changed kingdom, face, gender or totem stays after you log out, and Approach and Summon fizzle in areas that do not allow approaching</h2>
+    <p class="meta">2026-10-08 to 2026-10-09 · Essorcal · Server PRs <a href="https://github.com/project1998/Project1998/pull/336">#336</a>, <a href="https://github.com/project1998/Project1998/pull/337">#337</a></p>
+    <h3 class="sec">A changed kingdom, face, gender or totem stays after you log out (PR #337)</h3>
+    <ul>
+      <li>Every login used to put back the kingdom, face, gender and totem picked when the character was made. Changes now stay.</li>
+      <li>Kingdom: joining one at a town crier (and the 20 gold acorns it costs), becoming Neutral at Rotah, and <code>@nation</code>. The HUD crest, Return, the revive point and the Approach/Summon kingdom check all follow the kept kingdom.</li>
+      <li>Face and gender bought from the rogue-guild shaman.</li>
+      <li>Totem: worship at a totem shrine, and <code>@totem</code>. Totem time and its experience bonus follow the kept totem.</li>
+      <li><code>@nation</code> past 7 now sets 7 and says so, as <code>@totem</code> past 3 sets 3.</li>
+      <li>New characters: no change.</li>
+      <li>Tests: 38 new cases through a real login and logout, each shown to fail without its fix.</li>
+    </ul>
     <h3 class="sec">Approach and Summon fizzle in areas that do not allow approaching (PR #336)</h3>
     <ul>
       <li>Approach to someone who stands in an area that does not allow approaching now says "Fizzle." and costs nothing. Before, it took you there.</li>
