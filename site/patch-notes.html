@@ -99,6 +99,18 @@
     content-only changes hot-reload with no restart.</p>
   </header>
 
+  <article id="server-2026-10-11">
+    <h2>Server: a Dispell cast at another player clears their spells safely</h2>
+    <p class="meta">2026-10-11 · Essorcal · Server PRs <a href="https://github.com/project1998/Project1998/pull/339">#339</a></p>
+    <h3 class="sec">A Dispell on another player clears their spells safely (PR #339)</h3>
+    <ul>
+      <li>Dispell, Remove Magic, Return Natural and Restore Balance cast at another player now clear that player's spells while their state is locked, the way other spells that act on a player already do.</li>
+      <li>On the live server, a Dispell could race with the target's own actions. On a development (Debug) server it crashed the game process. Both are fixed.</li>
+      <li>What a won or lost Dispell does, says and costs is unchanged.</li>
+      <li>Tests: nine new cases, including two players dispelling each other 300 times while buffing themselves.</li>
+    </ul>
+  </article>
+
   <article id="server-2026-10-09">
     <h2>Server: the aligned furies, Serpent's and Spirit Fury, Second Sight, Barrier and Human Barrier work</h2>
     <p class="meta">2026-10-09 · Essorcal · Server PRs <a href="https://github.com/project1998/Project1998/pull/338">#338</a></p>
