@@ -101,7 +101,13 @@
 
   <article id="server-2026-10-11">
     <h2>Server: a Dispell at another player wakes and cures them, fails free and spares GMs, and clears their spells safely</h2>
-    <p class="meta">2026-10-11 · Essorcal · Server PRs <a href="https://github.com/project1998/Project1998/pull/339">#339</a>, <a href="https://github.com/project1998/Project1998/pull/340">#340</a>, <a href="https://github.com/project1998/Project1998/pull/342">#342</a></p>
+    <p class="meta">2026-10-11 · Essorcal · Server PRs <a href="https://github.com/project1998/Project1998/pull/339">#339</a>, <a href="https://github.com/project1998/Project1998/pull/340">#340</a>, <a href="https://github.com/project1998/Project1998/pull/341">#341</a>, <a href="https://github.com/project1998/Project1998/pull/342">#342</a></p>
+    <h3 class="sec">Five more actions on another player change their state safely (PR #341)</h3>
+    <ul>
+      <li>Valor and its family, Sanctuary and its family, Mana Gift and Mana Steal cast at another player, breaking off an engagement or divorcing at the Chapel while your partner is online, and a GM's <code>@mute</code> now change the other player's state while it is locked.</li>
+      <li>On the live server these could race with the other player's own actions. On a development (Debug) server a Valor at another player, or a Chapel break-off or divorce with the partner online, crashed the game process. Both are fixed.</li>
+      <li>What each action does, says and costs is unchanged.</li>
+    </ul>
     <h3 class="sec">A Dispell on yourself follows the same rules, and a spell aimed at a player stays on your map (PR #342)</h3>
     <ul>
       <li>A Dispell on yourself now works like one at another player: a lost roll shows only "Something went wrong." and costs nothing, and a won cast also ends your poison.</li>
