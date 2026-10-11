@@ -100,8 +100,16 @@
   </header>
 
   <article id="server-2026-10-11">
-    <h2>Server: a Dispell cast at another player clears their spells safely</h2>
-    <p class="meta">2026-10-11 · Essorcal · Server PRs <a href="https://github.com/project1998/Project1998/pull/339">#339</a></p>
+    <h2>Server: a Dispell at another player wakes and cures them, fails free and spares GMs, and clears their spells safely</h2>
+    <p class="meta">2026-10-11 · Essorcal · Server PRs <a href="https://github.com/project1998/Project1998/pull/339">#339</a>, <a href="https://github.com/project1998/Project1998/pull/340">#340</a></p>
+    <h3 class="sec">A Dispell at another player wakes and cures them, fails free, and spares GMs (PR #340)</h3>
+    <ul>
+      <li>A won Dispell, Remove Magic, Return Natural or Restore Balance cast at another player now also wakes them from a Doze or Sleep and ends their poison. They read "You wake up." and "The poison passes.". Before, their status box cleared but they stayed asleep and poisoned.</li>
+      <li>A Dispell at another player that loses its roll now shows only "Something went wrong." and costs no mana. Before, it also said "You cast Dispell." and cost 200.</li>
+      <li>A Dispell cast at a GM fizzles and costs nothing.</li>
+      <li>A Dispell on yourself is unchanged for now.</li>
+      <li>These follow the era spell pages, which say Dispell removes all spells cast on the target, and RTK for the failed roll.</li>
+    </ul>
     <h3 class="sec">A Dispell on another player clears their spells safely (PR #339)</h3>
     <ul>
       <li>Dispell, Remove Magic, Return Natural and Restore Balance cast at another player now clear that player's spells while their state is locked, the way other spells that act on a player already do.</li>
