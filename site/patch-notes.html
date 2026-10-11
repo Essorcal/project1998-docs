@@ -101,7 +101,13 @@
 
   <article id="server-2026-10-11">
     <h2>Server: a Dispell at another player wakes and cures them, fails free and spares GMs, and clears their spells safely</h2>
-    <p class="meta">2026-10-11 · Essorcal · Server PRs <a href="https://github.com/project1998/Project1998/pull/339">#339</a>, <a href="https://github.com/project1998/Project1998/pull/340">#340</a></p>
+    <p class="meta">2026-10-11 · Essorcal · Server PRs <a href="https://github.com/project1998/Project1998/pull/339">#339</a>, <a href="https://github.com/project1998/Project1998/pull/340">#340</a>, <a href="https://github.com/project1998/Project1998/pull/342">#342</a></p>
+    <h3 class="sec">A Dispell on yourself follows the same rules, and a spell aimed at a player stays on your map (PR #342)</h3>
+    <ul>
+      <li>A Dispell on yourself now works like one at another player: a lost roll shows only "Something went wrong." and costs nothing, and a won cast also ends your poison.</li>
+      <li>A Dispell, Mana Steal, Mana Gift, Resurrect or Divination aimed at a player by id can no longer reach someone on another map. It falls back to the player you face, as an unknown target does.</li>
+      <li>The stock 4.95 client aims by facing, not by id, so players on it see no change.</li>
+    </ul>
     <h3 class="sec">A Dispell at another player wakes and cures them, fails free, and spares GMs (PR #340)</h3>
     <ul>
       <li>A won Dispell, Remove Magic, Return Natural or Restore Balance cast at another player now also wakes them from a Doze or Sleep and ends their poison. They read "You wake up." and "The poison passes.". Before, their status box cleared but they stayed asleep and poisoned.</li>
