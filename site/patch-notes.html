@@ -99,6 +99,20 @@
     content-only changes hot-reload with no restart.</p>
   </header>
 
+  <article id="server-2026-10-14">
+    <h2>Server: a map with one broken spawn entry can still be entered</h2>
+    <p class="meta">2026-10-14 · Essorcal · Server PR <a href="https://github.com/project1998/Project1998/pull/346">#346</a></p>
+    <h3 class="sec">A broken spawn entry costs only its own creature, not the whole map entry (PR #346)</h3>
+    <ul>
+      <li>Entering a map with one broken spawn entry now works. The rest of its monsters appear, and only the broken entry's creature is missing. Before, the entry failed: with a broken group entry, nobody could get onto that map at all.</li>
+      <li>While a spawn group has a broken member, its other members refill about once a second whenever anyone is on the map, instead of on the group's timer. No map has a broken spawn entry today, so nothing changes in play now.</li>
+      <li>Operators: each broken entry writes an Error line when someone enters the map, with its full stack once an hour and again after <code>@reload</code>.</li>
+      <li><code>@reload</code> behaves as before.</li>
+      <li>Two new tests, each shown to fail without the fix.</li>
+      <li>Found, not fixed: <code>@reload</code>'s rebuild is not guarded the same way, and whether a group with a broken member should keep its timer is still open.</li>
+    </ul>
+  </article>
+
   <article id="server-2026-10-11">
     <h2>Server: a Dispell at another player wakes and cures them, fails free and spares GMs, and clears their spells safely</h2>
     <p class="meta">2026-10-11 · Essorcal · Server PRs <a href="https://github.com/project1998/Project1998/pull/339">#339</a>, <a href="https://github.com/project1998/Project1998/pull/340">#340</a>, <a href="https://github.com/project1998/Project1998/pull/341">#341</a>, <a href="https://github.com/project1998/Project1998/pull/342">#342</a></p>
