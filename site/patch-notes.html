@@ -99,6 +99,21 @@
     content-only changes hot-reload with no restart.</p>
   </header>
 
+  <article id="server-2026-10-22-5">
+    <h2>Server: a "yes" to a proposal engages nobody if the proposer, or the player answering, is going away</h2>
+    <p class="meta">2026-10-22 · Essorcal · Server PR <a href="https://github.com/project1998/Project1998/pull/368">#368</a></p>
+    <h3 class="sec">A "yes" to a proposal engages nobody if the proposer, or the player answering, is going away (PR #368)</h3>
+    <ul>
+      <li>This changes only a proposal whose "yes" comes while one of the two players is going away: the proposer logging out while the other player's box is still open, or the server closing either player's connection (a GM kick, a login from somewhere else, or a client dropped for being too slow). At a "yes", before anything changes, both players are now checked for this first, ahead of the check for a player who is already committed. A "yes" refused this way engages nobody and takes nothing.</li>
+      <li>If you propose and then log out before the other player answers, their "yes" now engages nobody: they keep their ring and read the cast's own line for a player who is not online, "Player is not valid or not online.", and you keep Propose, which you can cast again once the 20-minute wait from your cast has run, as after a "no". This holds whether you stay out, come straight back in (your new login reads nothing), or the server has closed your connection.</li>
+      <li>Before, if you had come straight back in, the other player was engaged to you and their ring was taken, while you were left unengaged and still holding Propose. This fixes the item PR #358 (below) listed as found, not fixed. If you had stayed out, or the server had closed your connection, the "yes" engaged you both: you were engaged while away, told nothing, and lost Propose. For a proposer who stays out, this is a deliberate change from how PR #358 handled them, and matches the wedding, which since PR #365 (below) marries nobody when a partner has left.</li>
+      <li>If the server closes the other player's connection while their "yes" is being handled, nobody is engaged, nothing is taken, and you read "Player is not valid or not online.". Before, you were both engaged.</li>
+      <li>Unchanged: with both players there, "yes" engages you both exactly as before, after the same check for a player who is already committed, and "I must decline." reads as before.</li>
+      <li>Tests: new cases for each way one of the two can be going away at the "yes", including a logout or a server close that lands while the "yes" waits, each shown to fail without the change. Two of PR #358's <code>@bring</code> tests looked for the GM's "Brought" line where it never appears, so they could not fail; they now look where it does.</li>
+      <li>Found, not fixed: if the server closes either player's connection just after the "yes" has checked that both are still there, while the engagement is being written, it still engages you both, and the one whose connection closed is engaged without being told. Not fixed yet.</li>
+    </ul>
+  </article>
+
   <article id="server-2026-10-22-4">
     <h2>Server: the Spirit dragon's room on Jeweled Dragon 3 is a corridor tile players can reach, and a wedding is refused for free if the engagement has ended, or a partner has left, by the fiancé's "I do"</h2>
     <p class="meta">2026-10-22 · Essorcal · Server PRs <a href="https://github.com/project1998/Project1998/pull/365">#365</a>, <a href="https://github.com/project1998/Project1998/pull/366">#366</a> (a developer tool; no change in play), <a href="https://github.com/project1998/Project1998/pull/367">#367</a></p>
