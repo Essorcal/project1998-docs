@@ -99,6 +99,57 @@
     content-only changes hot-reload with no restart.</p>
   </header>
 
+  <article id="server-2026-10-23-1">
+    <h2>Server: a weapon proc is not cast at a player you can't attack, emotes need an ordinary player and ghosts and riders pick nothing up, the Mage's Bolt hits like Spark, Dooms Fire needs 15,275 mana, and the gap in the Buya Marketplace stall counter draws as floor</h2>
+    <p class="meta">2026-10-23 · Essorcal · Server PRs <a href="https://github.com/project1998/Project1998/pull/369">#369</a>, <a href="https://github.com/project1998/Project1998/pull/370">#370</a>, <a href="https://github.com/project1998/Project1998/pull/373">#373</a>, <a href="https://github.com/project1998/Project1998/pull/374">#374</a>, <a href="https://github.com/project1998/Project1998/pull/375">#375</a>, <a href="https://github.com/project1998/Project1998/pull/376">#376</a>, and, as internal fixes, <a href="https://github.com/project1998/Project1998/pull/372">#372</a> (two rare races in Approach and Mana Steal), <a href="https://github.com/project1998/Project1998/pull/377">#377</a> (a protocol document) and <a href="https://github.com/project1998/Project1998/pull/379">#379</a> (a developer tool and an operator log line)</p>
+    <h3 class="sec">A weapon proc is not cast at a player you can't attack (PR #373)</h3>
+    <ul>
+      <li>Every player who swings one of these weapons at another player where PvP is off, in a town or anywhere else that is not a PvP map, meets this. A proc that rolls while you face such a player is now not cast at all, as in the server we port from, so it costs nothing and says nothing. Before, the proc reached its spell, and the spell then refused it out loud.</li>
+      <li>The Poet whip, the six Blood weapons, Flamefang, the Frost sabre, and the Cursed, Corrupted, Tainted and Forsaken blades no longer say "You can't attack that target." on about one swing in 25 at such a player, and the Forsaken staff no longer says "It doesn't work." there. This fixes the Poet whip item PR #356 (below) listed as found, not fixed.</li>
+      <li>The Giasomo stick, swung at a player you can't attack, no longer summons a Giasomo bird: it no longer spends the bird's 10 mana, and at the pet limit it no longer says "You cannot summon any more creatures right now.". Swung at a creature, or at a player you can fight, it summons as before.</li>
+      <li>A wielder short of the proc spell's mana no longer reads that spell's mana line from a proc at a player they can't attack. This holds for every one of these weapons, the Charm weapons and the Ilbon knife included. The lines were "Not enough mana to cast Freeze." (the Poet whip), "You do not have enough mana." (most of them, with "Your will is too weak." from the Charm weapons) and "Not enough mana." (the Giasomo stick). With enough mana, the Charm weapons and the Ilbon knife said nothing at such a player before, and still say nothing.</li>
+      <li>Unchanged: proc chances; every proc at a creature, including a creature that shares its tile with a player; every proc at a player on a PvP map, which is cast as before; and the GM-only Chaos armour and Shot gun, and the Viper stick.</li>
+      <li>Tests: all 22 weapon rows are swung at a faced player in a town and in the Forsaken Arena, a PvP map, until each proc has rolled three times. In the town nothing is cast, spent or shown; in the arena every roll is cast as before, and the Giasomo stick summons its bird. Two more cases keep a creature that shares a town player's tile procced, and the Chaos armour casting. The town cases fail without the change.</li>
+      <li>Found, not fixed: with Backstab or Flank, your swing also reaches a creature behind or beside you, but a weapon proc still fires only at what you face. In the server we port from, it can fire at a creature behind you (Backstab) or beside you (Flank). This was so before this change too. Not fixed yet.</li>
+    </ul>
+    <h3 class="sec">Emotes need an ordinary player, and ghosts and riders pick nothing up (PR #374)</h3>
+    <ul>
+      <li>Every player who emotes or picks things up while dead, invisible, on a horse or transformed meets this. These are the checks of the server we port from, in full, and like them they say nothing.</li>
+      <li>Emotes now do nothing for a ghost, an invisible player, a player on a horse, or a player in a transformed shape (Feral, Gangrel, Rodent and Beast, the cloaks, disguises, masks and chameleons, the uniforms and the guises). Neither they nor anyone near them sees an animation, and no message appears; an invisible player stays invisible. Before, these emotes went ahead.</li>
+      <li>A ghost, or a player on a horse, who tries to pick something up (the <kbd>,</kbd> or <kbd>&lt;</kbd> key) now gets nothing: they do not bend down, no sound plays, nothing leaves the floor, and no message appears. A rider who is also invisible stays invisible. Before, they picked things up as anyone does.</li>
+      <li>Unchanged: everyone else emotes and picks up as before; an invisible player on foot still picks up, and trying still makes them visible; a transformed player still picks up; and dropping, using, equipping, throwing and casting on horseback still read "You can't do that while riding a mount.".</li>
+      <li>Tests: 11 new cases, each sending the real emote or pick-up with another player standing by. The seven refusals fail without the change; the four ordinary cases (an emote, a pick-up, an invisible pick-up on foot and a transformed pick-up) pass before and after.</li>
+      <li>Found, not fixed: when an invisible player on foot picks something up, players outside their group see them appear but not bend down, because the bend is sent before the reveal; the server we port from reveals them first, then shows the bend. This was so before this change too. Not fixed yet.</li>
+    </ul>
+    <h3 class="sec">The Mage's Bolt hits like Spark: 50 + half your level, for 20 mana (PR #370, issue #200)</h3>
+    <ul>
+      <li>Every Ming-Ken Mage who casts Bolt, Spark's Ming-Ken version, meets this. It is the ruling PR #361 (below) said was still to come for the Mage's Bolt.</li>
+      <li>Bolt now lands 50 + half your level before armour, for 20 mana, as the other seven Spark spells have since PR #361. Before, it landed 2 + 1.5x your Will for 4 mana, so a high-Will Mage's Bolt hit far harder than Spark for a fifth of the mana, and a low-Will Mage's far softer. Against a creature at AC 0: at level 9 with Will 9 it lands 54, where it landed 15; at level 50 with Will 30 it lands 75, where it landed 47; at level 99 with Will 99 it lands 99, where it landed 150. Will gear no longer raises it.</li>
+      <li>Every source has Bolt at Spark's 20 mana: the 2002 Nexus Atlas mage page, the live one, and the server we port from. None gives the old figures.</li>
+      <li>Unchanged: armour still scales the hit, as it does every spell's; the same animation and sound, no wait between casts, and the same targets; and the same refusals and lines. Bolt at nothing or at an NPC is still free and silent, whatever your mana; at a player off a PvP map it is still refused for free with "You can't attack that target."; and short of mana at a real target it still reads "Not enough mana to cast Bolt.".</li>
+      <li>Tests: the Mage's Bolt now runs through the Spark family's tests with the other seven, the live readings included, and Will 10 and Will 50 land the same 65 at level 30. 16 of these tests fail without the change.</li>
+    </ul>
+    <h3 class="sec">Dooms Fire needs 15,275 mana and waits 65 s, and Siege and Focused Blow cost what the live pages say to learn (PR #375)</h3>
+    <ul>
+      <li>Only testers meet this today: all three are Sam san (rank 3) spells, which no ordinary player can reach yet. It fixes two of the three items PR #354 (below) listed as found, not fixed.</li>
+      <li>Dooms Fire below 15,275 mana is now refused for free with "You do not have enough mana.": nothing is spent or struck, and no wait starts. From 15,275 up it still takes all your mana and hits for 2.5 times it, and its wait is now 65 s. Before, it needed only 5 mana: it took the whole pool, hit for 2.5 times it (13 on 5 mana) and started a 70 s wait. The figures are the live Nexus Atlas mage page's, the only source that lists the spell.</li>
+      <li>Learning Siege, or any of its three names (Soul's Freedom, Life's End and Winter Chill), now costs 600,000 coins, a Blood and a Spike, as the live Warrior page says. Before, it cost 600,000 coins and a Sam san spike. Learning Focused Blow now costs 750,000 coins and no item, as the live Rogue page says. Before, it cost 300,000 coins and a Sam san blood. The Blood and the Spike are the plain weapons, not their ranked versions.</li>
+      <li>Unchanged: Dooms Fire's learn cost, 750,000 coins and no item, which already matched the live page.</li>
+      <li>Tests: Dooms Fire on 15,274 mana is refused, with the creature, your mana and the wait untouched; on exactly 15,275 it hits for 38,188 at AC 0, leaves you 0 mana and starts a 65 s wait. The case fails without the change.</li>
+      <li>Not in this change: the live pages also name three alignment versions each of Focused Blow and Dooms Fire, which the game does not have yet. They wait for later.</li>
+    </ul>
+    <h3 class="sec">The gap in the Buya Marketplace stall counter draws as floor (PR #376)</h3>
+    <ul>
+      <li>Every player who visits the Buya Marketplace (map 4601) sees this, on the 4.95 and the 5.33 client. The one-tile gap through the stall counter now shows the same brown stall floor as the row above it, running down to the open ground below. Before, ever since the gap was opened, it showed an unrelated patch of grass and dirt in the middle of the counter.</li>
+      <li>Unchanged: walking through the gap works as before, and the warps, the counter, every object and every other tile are untouched.</li>
+      <li>Tests: one case checks the gap on the real map: walkable, drawn as the stall floor, and sent to each client as that floor. It fails without the change.</li>
+    </ul>
+    <h3 class="sec">A race between a wedding and a logout is closed (PR #369)</h3>
+    <ul>
+      <li>When your fiancé answers "I do" just as you log out, your "I now pronounce you (married)" line is now handed to your connection before your logout can close it, which closes a race. No player sees a difference: in practice your game has already disconnected by then. Nobody is married or engaged differently, and no line is added or reworded.</li>
+    </ul>
+  </article>
+
   <article id="server-2026-10-22-5">
     <h2>Server: a "yes" to a proposal engages nobody if the proposer, or the player answering, is going away</h2>
     <p class="meta">2026-10-22 · Essorcal · Server PR <a href="https://github.com/project1998/Project1998/pull/368">#368</a></p>
