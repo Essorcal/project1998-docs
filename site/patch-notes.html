@@ -99,6 +99,30 @@
     content-only changes hot-reload with no restart.</p>
   </header>
 
+  <article id="server-2026-10-24-2">
+    <h2>Server: long mail subjects and buff boxes no longer break their windows, experience stops at its cap instead of wrapping, Bon-Hwa offers the Il San trials, and testers get rank learn prices and eight subpath damage spells</h2>
+    <p class="meta">2026-10-24 · Essorcal · Server PRs <a href="https://github.com/project1998/Project1998/pull/387">#387</a>, <a href="https://github.com/project1998/Project1998/pull/388">#388</a>, <a href="https://github.com/project1998/Project1998/pull/389">#389</a>, <a href="https://github.com/project1998/Project1998/pull/390">#390</a>, <a href="https://github.com/project1998/Project1998/pull/391">#391</a></p>
+    <h3 class="sec">For players: long mail subjects, buff boxes and legend lists no longer break, and experience stops at its cap (PRs #388, #391)</h3>
+    <ul>
+      <li>Mail: a letter whose subject is 254 or 255 bytes long no longer breaks the recipient's mailbox. Before, until the letter was read, its row showed broken, and so did every row below it. The row now shows the subject cut short. The same goes for the copy a sender keeps of a letter with a long subject.</li>
+      <li>Profile: with enough long buffs active at once, the buff box in the profile window used to come out garbled, and it took the legend list with it. The box is now cut short, and the legends read correctly.</li>
+      <li>Legends: a character with more than 255 legends now shows the first 255. Only a GM can give that many today.</li>
+      <li>Experience: only a player holding about 4.29 billion experience meets this. Experience now stops at its cap, 4,294,967,295, instead of wrapping round to a small number. An award that reaches the cap, including one that lands exactly on it, reads "You cannot gain any more experience until you sell some." instead of the amount gained, as in the server we port from. Selling means the shadow-stat vendors, which spend banked experience.</li>
+      <li>Unchanged: every mail subject, buff box and legend list within those limits goes out exactly as before, and below the cap every award, level-up and line is as before. No other line is added or reworded.</li>
+      <li>Tests: each of these fixes comes with new cases that fail without it.</li>
+    </ul>
+    <h3 class="sec">For testers: the Il San trials at Bon-Hwa, rank learn prices and eight subpath damage spells (PRs #389, #387, #390)</h3>
+    <ul>
+      <li>Il San: a level-99 player with no rank and 160,000 base vita or 80,000 base mana now sees a third choice at Bon-Hwa, "Il San", with three trials: knowledge (give up 1,200,000,000 experience), strength (have killed the Spirit Rat at any time) and wealth (600,000 coins and 5 Well Crafted White Ambers). With all three passed, choosing Il San promotes to the first mark.</li>
+      <li>Nothing in the game sells, drops or makes those ambers yet, so nobody can finish the wealth trial, or reach Il san in play, until crafting exists.</li>
+      <li>A promotion sets the first mark and adds no stats: level, vita, mana, Might, Grace, Will, AC, gold, experience and the spellbook stay as they were. The GM <code>@mark</code> command no longer adds stats for a rank either, so testers see what players get.</li>
+      <li>Rank learn prices: trainers now ask the prices the live spell pages print, as the tutor tables do where they list the spell, for six Sam san spells (Dragon's harness, Blade's charm, Explorer's remedy, Power stream, Energy flow and Suppress); for Race and its three other names (Spiritual Jump, Leap of Faith and Transport), which were taught free; and for Dagger's remedy and its Kwi-Sin, Mingken and Ohaeng names, which no trainer offered. Ee san rogues can now learn Dagger's remedy in Nagnang. No ordinary player holds a rank yet, so only testers meet these prices today.</li>
+      <li>Subpath damage spells: eight damage spells of the Spy, Do, Geomancer, Shaman and Druid subpaths (Assassinate, Ki strike, Hailstorm, Ice bombardment, Phoenix flames, Earth strike, Nature's smite and Lightning storm) now cast with their own damage and mana cost, some with a wait, instead of the one 5-mana hit they all shared. Nobody holds one of these subpaths yet, so only testers reach them, by teaching them with <code>@spell</code>.</li>
+      <li>Assassinate and Phoenix flames can't be deflected. A deflected spell still costs its mana, as every spell does here. Ki strike, Hailstorm and Ice bombardment reach at most 10 tiles.</li>
+      <li>Tests: each of these changes comes with new cases that fail without it.</li>
+    </ul>
+  </article>
+
   <article id="server-2026-10-24-1">
     <h2>Server: a GM's mass clear of more than 255 dummies clears them all, and an over-long message-box text is cut short instead of garbled</h2>
     <p class="meta">2026-10-24 · Essorcal · Server PR <a href="https://github.com/project1998/Project1998/pull/384">#384</a>, and, for operators, <a href="https://github.com/project1998/Project1998/pull/380">#380</a></p>
