@@ -99,6 +99,19 @@
     content-only changes hot-reload with no restart.</p>
   </header>
 
+  <article id="server-2026-10-24-1">
+    <h2>Server: a GM's mass clear of more than 255 dummies clears them all, and an over-long message-box text is cut short instead of garbled</h2>
+    <p class="meta">2026-10-24 · Essorcal · Server PR <a href="https://github.com/project1998/Project1998/pull/384">#384</a>, and, for operators, <a href="https://github.com/project1998/Project1998/pull/380">#380</a></p>
+    <h3 class="sec">A GM's mass clear of more than 255 dummies clears them all, and an over-long message-box text is cut short instead of garbled (PR #384)</h3>
+    <ul>
+      <li>Only a GM meets the first change: a mass clear of more than 255 of their own dummies at once now clears them all. Before, the ones past the 255th stayed drawn until a map reload.</li>
+      <li>An over-long text in the message box is now cut short instead of shown garbled. That covers a ban or IP-ban notice with a long reason, on the login screen or in the game; a kick notice with a long reason; and a script message line over 255 bytes.</li>
+      <li>Unchanged: every clear of 255 or fewer, and every text that already fits, which go out exactly as before; no message is added or reworded.</li>
+      <li>Tests: the cases for clears of 256, 300, 510 and 511, a 300-byte ban notice and a 300-byte script message fail without the change, and every clear of up to 255 and every text of up to 255 bytes is checked to go out exactly as before.</li>
+      <li>Operators (PR #380): the map search's fallback to the Windows client install folders can now be turned off with <code>P1998_MAPS_INSTALL_FALLBACK=0</code>. The default is unchanged, and players see nothing.</li>
+    </ul>
+  </article>
+
   <article id="server-2026-10-23-2">
     <h2>Server: the first hit on a sleeping or dozing creature rounds down once, like every other hit</h2>
     <p class="meta">2026-10-23 · Essorcal · Server PR <a href="https://github.com/project1998/Project1998/pull/378">#378</a>, and, as an internal fix, <a href="https://github.com/project1998/Project1998/pull/371">#371</a> (how the mentorship's lines reach the mentor; nothing players see changes)</p>
