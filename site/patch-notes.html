@@ -99,6 +99,35 @@
     content-only changes hot-reload with no restart.</p>
   </header>
 
+  <article id="server-2026-10-24-3">
+    <h2>Server: boards and the mailbox show 20 entries at a time and load older ones as you scroll, the twelve PC subpaths can be joined, and base classes and NPC subpaths can no longer use the subpath channel</h2>
+    <p class="meta">2026-10-24 · Essorcal · Server PRs <a href="https://github.com/project1998/Project1998/pull/393">#393</a>, <a href="https://github.com/project1998/Project1998/pull/395">#395</a></p>
+    <h3 class="sec">Boards and the mailbox open on their newest 20 entries and load 20 older ones as you scroll (PR #395)</h3>
+    <ul>
+      <li>Every player who opens a board or the mailbox holding more than 20 posts or letters meets this. The list opens with its newest 20. Scrolling to the bottom of the list, or moving the selection onto its last row, loads the next 20 older ones, and so on down to the first entry, as in the server we port from.</li>
+      <li>Opening a board or the mailbox, walking up to a board sign, and the list's refresh after a pop-up (after posting, for one) always start at the newest 20.</li>
+      <li>On the 4.95 client, a board or mailbox of 128 or more entries used to open empty or show only some of them (one of 300 showed 44). These lists now open normally.</li>
+      <li>Unchanged: a board or mailbox of 20 or fewer entries comes out exactly as before. No text is new or reworded.</li>
+      <li>Tests: a board and a mailbox of 300 entries are paged through to their first entry, each entry once, newest first, and those cases fail without the change; every list of 20 or fewer is checked to come out exactly as before.</li>
+      <li>Not checked: this has not been tried on a live client yet. How the 4.95 board and mail windows ask for older entries was worked out by reading the client, so which mouse actions load the next 20 (the scroll wheel at least) rests on that reading, and so do the empty lists of 128 or more, which were not seen live. The 5.33 client's request for the next 20 has never been read, so on 5.33 a longer list may show only its newest 20.</li>
+    </ul>
+    <h3 class="sec">The twelve PC subpaths can be joined, and only their members can use the subpath channel (PR #393)</h3>
+    <ul>
+      <li>Every Warrior, Rogue, Mage and Poet, and every Chung ryong, Baekho, Ju jak and Hyun moo, meets this: <b>base classes and the NPC subpaths can no longer use the subpath channel</b> (<code>/sp</code>), as in the server we port from. A line sent there now gets "You cannot do that." and nobody hears it. Until now every class could use the channel to talk to its own class.</li>
+      <li>The subpath channel now carries lines only between members of the same PC subpath; any other player is refused the same way. Whispering to the name "@" now reaches the channel too, as in the server we port from, under the same rule. F2 still turns subpath chat on and off for everyone, but for anyone outside the twelve PC subpaths it never carries a line.</li>
+      <li>The twelve PC subpaths can now be joined. A GM, or an elder the GM appoints for that subpath, admits a player of its base class at level 50 or higher: a Warrior to Barbarian, Chongun or Do; a Rogue to Merchant, Ranger or Spy; a Mage to Diviner, Geomancer or Shaman; a Poet to Druid, Monk or Muse. The player keeps their rank, takes the subpath's title, badge and chat label, can wear its gear, and can use its channel.</li>
+      <li>Admission is refused below level 50, to the wrong base class, to someone already in a subpath, and to anyone still holding the Dog's secrets, which no PC subpath may keep; the Dog must take them back first.</li>
+      <li>A member can leave, and a GM or the subpath's elder can expel a member. Either way the player goes back to their base class with their rank, and loses the subpath's own spells from their spellbook.</li>
+      <li>All of this goes through the new <code>@subpath</code> command, now in every player's <code>@commands</code> and <code>@help</code> list. On its own it shows your standing; <code>@subpath leave</code> leaves your subpath; GMs and elders admit and expel with it.</li>
+      <li>Members keep learning their base class's spells at its trainer (a Barbarian at the Warrior trainer), so a member admitted at 50 can still learn those from 51 to 99. They can also still enter their base class's guild hall.</li>
+      <li>Members fight in melee as their base class: a Barbarian hits like a Warrior of the same level in the same gear, a Diviner like a Mage (with the Mage's reduced weapon damage), and so on. Members of the NPC subpaths now swing as their base class too (a Chung ryong as a Warrior); before, every subpath swung with a Peasant's class bonus. The base classes' own swings do not change.</li>
+      <li>The NPC subpaths keep their trainer menu and guild-hall door as they were; for them only the channel and the melee swing change.</li>
+      <li>Not yet: nobody teaches a PC subpath's own spells. No trainer offers them; the subpath teachers come later. Testers can still teach them with <code>@spell</code>.</li>
+      <li>Not checked: whether, in 2001, a subpath member also had the Warrior's extra 2 damage with a weapon, or the Mage's reduced weapon damage, has not been measured; here both follow the base class.</li>
+      <li>Tests: new cases cover joining, leaving, the channel, F2, the trainer, the guild-hall door and the melee swing; breaking each part of the change turns one of them red.</li>
+    </ul>
+  </article>
+
   <article id="server-2026-10-24-2">
     <h2>Server: long mail subjects and buff boxes no longer break their windows, experience stops at its cap instead of wrapping, Bon-Hwa offers the Il San trials, and testers get rank learn prices and eight subpath damage spells</h2>
     <p class="meta">2026-10-24 · Essorcal · Server PRs <a href="https://github.com/project1998/Project1998/pull/387">#387</a>, <a href="https://github.com/project1998/Project1998/pull/388">#388</a>, <a href="https://github.com/project1998/Project1998/pull/389">#389</a>, <a href="https://github.com/project1998/Project1998/pull/390">#390</a>, <a href="https://github.com/project1998/Project1998/pull/391">#391</a></p>
