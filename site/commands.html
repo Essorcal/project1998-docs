@@ -332,7 +332,7 @@
       <div class="sec-head"><h2>Character</h2><span class="count"></span></div>
       <div class="cmd" data-tier="T"><span class="chip">T</span><span class="cmd-name"><b>@lvl</b> <span class="args">[1-99]</span></span><span class="cmd-help">rebuild as level n: accurate stats + the matching spellbook (bare @lvl rebuilds at the level you are)</span></div>
       <div class="cmd" data-tier="T"><span class="chip">T</span><span class="cmd-name"><b>@exp</b> <span class="args">&lt;n&gt; [kill]</span></span><span class="cmd-help">gain experience through the real leveling path (kill = as a kill would: split across your group in range, group totem rule; no quest credit)</span></div>
-      <div class="cmd" data-tier="T"><span class="chip">T</span><span class="cmd-name"><b>@mark</b> <span class="args">&lt;0-3&gt;</span></span><span class="cmd-help">subpath rank on top of 99 (Il san…Sam san): its stats + spells</span></div>
+      <div class="cmd" data-tier="T"><span class="chip">T</span><span class="cmd-name"><b>@mark</b> <span class="args">&lt;0-3&gt;</span></span><span class="cmd-help">subpath rank at level 99 (Il san…Sam san): its spells; a rank adds no stats</span></div>
       <div class="cmd" data-tier="T"><span class="chip">T</span><span class="cmd-name"><b>@class</b> <span class="args">&lt;Warrior | Rogue | Mage | Poet | Peasant&gt;</span></span><span class="cmd-help">set the class/path and rebuild for it</span></div>
       <div class="cmd" data-tier="T"><span class="chip">T</span><span class="cmd-name"><b>@dog</b> <span class="args">[0|1]</span></span><span class="cmd-help">the Dog-quest flag: unlocks Dog spells for a base class or NPC subpath</span></div>
       <div class="cmd" data-tier="T"><span class="chip">T</span><span class="cmd-name"><b>@sage</b> <span class="args">[0-5]</span></span><span class="cmd-help">Share Wisdom rung: sets the spell AND clears the 90-day upgrade wait (bare @sage reports)</span></div>
@@ -354,6 +354,11 @@
       <div class="cmd" data-tier="T"><span class="chip">T</span><span class="cmd-name"><b>@killtrack</b> <span class="args">[clear]</span></span><span class="cmd-help">the 8-slot kill track the mythic alliances count (clear = what accepting one does)</span></div>
       <div class="cmd" data-tier="T"><span class="chip">T</span><span class="cmd-name"><b>@coins</b> / <b>@gold</b> <span class="args">[n]</span></span><span class="cmd-help">add coins to the purse (bare = +10,000; a negative n removes, floored at 0)</span></div>
       <div class="cmd" data-tier="T"><span class="chip">T</span><span class="cmd-name"><b>@ride</b> / <b>@mount</b> <span class="args">[0|1]</span></span><span class="cmd-help">get on/off the horse</span></div>
+    </section>
+
+    <section>
+      <div class="sec-head"><h2>PC subpaths</h2><span class="count"></span></div>
+      <div class="cmd" data-tier="P"><span class="chip">P</span><span class="cmd-name"><b>@subpath</b> <span class="args">admit &lt;name&gt; [subpath] | leave | expel &lt;name&gt; | elder &lt;name&gt; [0|1]</span></span><span class="cmd-help">PC subpaths (bare = your standing): a GM or one of the subpath&#x27;s elders admits a level-50 character or expels a member; leave your own; a GM appoints an elder (0 removes one)</span></div>
     </section>
 
     <section>
@@ -458,7 +463,7 @@
   <p class="empty" id="empty">No command matches — the same answer the server would give.</p>
 
   <footer>Generated from <code>Server/Commands.cs</code> on <code>master</code>. The table in
-  the source is the authority; this sheet is its readable shadow. 109 commands: 3 Player · 41 Tester · 65 GM.
+  the source is the authority; this sheet is its readable shadow. 110 commands: 4 Player · 41 Tester · 65 GM.
   Quest keys and legend marks have their own sheet: <a href="quest-registry.html">The Quest Registry</a>.</footer>
 </div>
 
