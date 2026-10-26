@@ -91,7 +91,7 @@
   </header>
 <p>Catalogued during the docs items-page build (branch docs/items-pass in project1998-docs). These are</p>
 <p>GAME-repo (C:/Repo/NexusTK) issues - none are fixed by the docs pass; they ride the pr/* flow and</p>
-<p>need Caleb&#x27;s approval. Source data: tools/data/atlas_items.csv (NexusAtlas snapshot, 1,600 items,</p>
+<p>need the project owner&#x27;s approval. Source data: tools/data/atlas_items.csv (NexusAtlas snapshot, 1,600 items,</p>
 <p>scraped 2026-08-30) + game-data/Items.csv, matched by display name (677/2,251 matched).</p>
 <h2>1. Era items INVISIBLE in the 4.95 client (ItmIcon &gt;= 1310) - 92 items</h2>
 <p>The 4.95 Item.epf has 1,310 frames; these Atlas-confirmed (i.e. real-NexusTK) items carry later-client</p>
@@ -194,7 +194,7 @@
 </ul>
 <h2>2. Worn-look problems (client-side render when equipped)</h2>
 <ul>
-<li><code>green_cloak</code> (#517): Caleb reports the armor does not render when equipped on 4.95, on top of the</li>
+<li><code>green_cloak</code> (#517): the project owner reports the armor does not render when equipped on 4.95, on top of the</li>
 </ul>
 <p>  bad icon (4985). ItmLook is 14 / LookColor 0 - needs a valid 4.95 armor look. The Atlas page</p>
 <p>  (armor/peasantarmor.php) has the worn gif for reference (photo/armor60/greencloak.gif).</p>
@@ -203,9 +203,9 @@
 </ul>
 <h2>3. Atlas items with NO registry row at all (era candidates worth adding)</h2>
 <p>The Atlas lists 936 items the registry lacks. Most are post-4.95 (Ancient/Antique boss drops,</p>
-<p>anniversary swords, Woodlands crafts, vortex gear). The one Caleb already hit:</p>
+<p>anniversary swords, Woodlands crafts, vortex gear). The one the project owner already hit:</p>
 <ul>
-<li><b>Wedding cloak</b> - on armor/peasantarmor.php (&quot;works as armor in game&quot; per Caleb, but there is NO</li>
+<li><b>Wedding cloak</b> - on armor/peasantarmor.php (&quot;works as armor in game&quot; per the project owner, but there is NO</li>
 </ul>
 <p>  wedding_cloak row in Items.csv; only wedding_dress #512 and wedding_band #25008 exist). If it works</p>
 <p>  in HIS game, the row may live under another key - worth a look before adding one.</p>
