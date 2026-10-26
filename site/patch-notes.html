@@ -99,6 +99,42 @@
     content-only changes hot-reload with no restart.</p>
   </header>
 
+  <article id="server-2026-10-26-1">
+    <h2>Server: the Dog ignores a PC-subpath member's cleanse, the Chapel's divorce and engagement costs stop wrapping, Ki strike and Ice bombardment can be deflected, closing an NPC's page takes nothing, and two settings for operators</h2>
+    <p class="meta">2026-10-26 · Essorcal · Server PRs <a href="https://github.com/project1998/Project1998/pull/396">#396</a>, <a href="https://github.com/project1998/Project1998/pull/397">#397</a>, <a href="https://github.com/project1998/Project1998/pull/399">#399</a>, <a href="https://github.com/project1998/Project1998/pull/400">#400</a>, <a href="https://github.com/project1998/Project1998/pull/401">#401</a>, and, for operators, <a href="https://github.com/project1998/Project1998/pull/382">#382</a>, <a href="https://github.com/project1998/Project1998/pull/383">#383</a></p>
+    <h3 class="sec">For players: the Dog's cleanse and PC subpaths (PR #401)</h3>
+    <ul>
+      <li>A PC-subpath member (Barbarian, Chongun, Do, Merchant, Ranger, Spy, Diviner, Geomancer, Shaman, Druid, Monk or Muse) who says "cleanse" to a Dog now gets no question and loses no karma, as in the server we port from. Their path, rank and spells stay as they were. Until now the Dog of their base class asked, took 4 karma and changed nothing.</li>
+      <li><code>@subpath leave</code> is still how a PC-subpath member leaves.</li>
+      <li>Base classes and NPC subpaths (Chung ryong, Baekho, Ju jak, Hyun moo) at their own Dog: unchanged.</li>
+    </ul>
+    <h3 class="sec">For players: the Chapel's costs for very large pools (PR #400)</h3>
+    <ul>
+      <li>A divorce costs 2,550 experience for each point of base vita. Above 1,684,300 base vita that sum used to wrap round and charge only a few hundred experience. It now asks the full amount, as in the server we port from. That is more experience than anyone can hold, so "Yes" leads to the usual sacrifice offer (8,000 vita or 4,000 mana).</li>
+      <li>Breaking an engagement costs 1,000 experience for each point of base mana. Above 4,294,967 base mana it used to wrap the same way; it now takes all banked experience, as in the server we port from.</li>
+      <li>Below those pools, nothing changes.</li>
+    </ul>
+    <h3 class="sec">For testers: Ki strike and Ice bombardment can be deflected (PR #397)</h3>
+    <ul>
+      <li>PC-subpath spells reach testers only today (with <code>@spell</code>); members will learn them from their subpath's teacher once that lands.</li>
+      <li>Ki strike (Do) and Ice bombardment (Geomancer) can now be deflected, as in the server we port from: by a creature, through its protection and its Will over the caster's, as every other deflectable spell here; and by a player on a PvP map, through their Will over the caster's. A caster whose Will is at least the target's is never deflected by a player.</li>
+      <li>A deflected cast still costs its mana, as every deflected spell here does, and a deflected Ki strike still starts its 7-second wait. Nothing is struck, neither the target nor anything beside it. The caster reads "Your magic has been deflected." and then "You cast Ki strike." (or "Ice bombardment").</li>
+      <li>Beyond the spells' 10-tile reach the deflect roll now comes first. A creature 11 or more tiles away can answer "Your magic has been deflected." where it used to say "Ki strike cannot reach that far.". Both cost the same.</li>
+      <li>A cast that is not deflected is unchanged. Hailstorm, which works the same way, is still never deflected, as in the server we port from.</li>
+    </ul>
+    <h3 class="sec">Checked: closing an NPC's page takes nothing</h3>
+    <ul>
+      <li>The 10-24 notes said closing an NPC's dialog page might count as going on to the next page, which could cost a player who backs out of Baek's offer. A read of the 4.95 game client settles it: closing a page (the close button, Esc, walking away) sends nothing to the server. Only the next and previous arrows, a menu pick and a typed answer reply. So closing Baek's offer, or any page that comes before a price, takes nothing, as in the server we port from.</li>
+      <li>Found in the same check, not fixed yet: after a page is closed that way, the server keeps waiting for an answer that never comes. Until the player changes map or finishes another NPC conversation, the event cave and Forever Tree entrances refuse the step, and the fox, the mage-stone spirit, the crow, the Watcher and the gauntlet altar don't appear. A fix is in review.</li>
+    </ul>
+    <h3 class="sec">For operators: where new characters start, a synthetic test profile, and two earlier fixes (PRs #396, #399; #382, #383)</h3>
+    <ul>
+      <li>Start point: a new setting, <code>P1998_START_POINT=map,x,y</code>, puts every new character on that map and tile instead of the usual start. It is empty by default, and empty changes nothing. The login server checks it at start-up against <code>map_index.csv</code> and refuses to start on a value it cannot use (not three numbers, an unknown map, a tile off the map). It reads the map's size once, at start-up, so give both servers the same content folder. It is meant for test content sets that have no starting town of their own.</li>
+      <li>Synthetic profile: <code>test-content/synthetic/</code> is a small invented content set for client testing: two maps, walls and objects of every kind, warps both ways and one standing NPC, with a manifest. It is generated by <code>dotnet run --project Tools -- synthetic-profile</code> and never used unless a server is pointed at it.</li>
+      <li>Earlier fixes: behind a trusted proxy, the game port's re-login limit and IP bans now use the player's own address (PR #382), and an oversized map request is clamped to one frame (PR #383). Players on a direct connection see no change from either.</li>
+    </ul>
+  </article>
+
   <article id="server-2026-10-24-4">
     <h2>Server: the four NPC subpaths can be joined at Baek, the Watcher's rabbit appears to unblessed players of any level in Buya's north-west field, the NPC-subpath spells have a price, and testers get aligned versions of ten Sam san spells</h2>
     <p class="meta">2026-10-24 · Essorcal · Server PRs <a href="https://github.com/project1998/Project1998/pull/392">#392</a>, <a href="https://github.com/project1998/Project1998/pull/394">#394</a></p>
