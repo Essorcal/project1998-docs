@@ -99,6 +99,52 @@
     content-only changes hot-reload with no restart.</p>
   </header>
 
+  <article id="server-2026-10-26-2">
+    <h2>Server: closing an NPC's box no longer blocks anything, teachers on the twelve PC-subpath Circles, and a one-time key for the login hand-off</h2>
+    <p class="meta">2026-10-26 · Essorcal · Server PRs <a href="https://github.com/project1998/Project1998/pull/402">#402</a>, <a href="https://github.com/project1998/Project1998/pull/404">#404</a>, and, for operators, <a href="https://github.com/project1998/Project1998/pull/403">#403</a></p>
+    <h3 class="sec">For players: a closed NPC box no longer leaves anything waiting (PR #402)</h3>
+    <ul>
+      <li>The last notes said that after closing an NPC's box, the event cave and Forever Tree entrances and a few step encounters stayed blocked until a map change. That is fixed. After closing a box, the next NPC click, NPC speech or step works at once:
+        <ul>
+          <li>the Buya Library caverns doorway and the Forever Tree crevasse let the player through;</li>
+          <li>the fox spirit, the crypt spirit, the crow, the Watcher's rabbit and the Gauntlet statue appear as they should.</li>
+        </ul>
+      </li>
+      <li>The old conversation is dropped first, so it never continues and takes or gives nothing. Before this, a late reply could still resume it: a late pick in a shop window left open still bought.</li>
+      <li>One case goes beyond the server we port from. There, the seven step-triggered places stay silent after a closed box until the player clicks or speaks to an NPC. Here a step on one of them also drops the waiting conversation. If a box is still open on screen when the player steps on one, that box's conversation ends.</li>
+      <li>A conversation the player answers (next, a pick, a typed answer) is unchanged.</li>
+    </ul>
+    <h3 class="sec">For players: PC-subpath teachers (PR #404)</h3>
+    <ul>
+      <li>Each of the twelve PC-subpath Circles now has a teacher, "&lt;Subpath&gt; Teacher". A member of that subpath can learn and forget secrets there, with the trainers' usual lines and fees. Anyone else is told "You are not a &lt;Subpath&gt;, I can not help you."</li>
+      <li>The nine PC-subpath spells that work today are on sale, each at the price its spell script asks in the server we port from:
+        <ul>
+          <li>Do: Ki strike, Spirit blade.</li>
+          <li>Spy: Assassinate.</li>
+          <li>Geomancer: Hailstorm, Ice bombardment.</li>
+          <li>Shaman: Phoenix flames.</li>
+          <li>Druid: Lightning storm, Earth strike, Nature's smite.</li>
+        </ul>
+      </li>
+      <li>The other seven teachers say "I have no secrets to teach you yet." More spells go on sale as each subpath's spells are finished.</li>
+      <li>A full spellbook (52) pays a teacher's fee and is then refused, the same as at every class trainer and in the server we port from.</li>
+      <li>A member's Qui hyang now asks "Where do you wish to go?":
+        <ul>
+          <li>"Subpath Circle" goes to their Circle, near the teacher;</li>
+          <li>"Main Inn" goes to the same tavern as before.</li>
+        </ul>
+        Either uses one scroll; closing the box uses none. Everyone else's Qui hyang and every Yellow scroll are unchanged.
+      </li>
+      <li>Devoting at an alignment shrine, or renouncing at the Tiger Palace summit, keeps a member's subpath spells. A spell they choose to forget stays forgotten, and changing path drops them.</li>
+    </ul>
+    <h3 class="sec">For operators: the login hand-off and the database (PR #403)</h3>
+    <ul>
+      <li>Players see nothing. The hand-off from the login server to the 4.95 game port now carries a one-time key, so a replayed or stolen hand-off no longer gets in on the player's address alone. Before, an 11-letter name had nothing else behind it.</li>
+      <li>The database moves from version 4 to 5 when the new build first starts. This is one-way: a build from before this change refuses to start on the migrated database ("Database schema 5 is newer than this server supports (4)"), so going back across it needs the database restored too. Logins keep working through the deploy itself.</li>
+      <li>One edge case changes: with two logins of one 11-letter account in flight from one address, the newer one now enters instead of whichever arrived first. Exactly one enters, as before.</li>
+    </ul>
+  </article>
+
   <article id="server-2026-10-26-1">
     <h2>Server: the Dog ignores a PC-subpath member's cleanse, the Chapel's divorce and engagement costs stop wrapping, Ki strike and Ice bombardment can be deflected, closing an NPC's page takes nothing, and two settings for operators</h2>
     <p class="meta">2026-10-26 · Essorcal · Server PRs <a href="https://github.com/project1998/Project1998/pull/396">#396</a>, <a href="https://github.com/project1998/Project1998/pull/397">#397</a>, <a href="https://github.com/project1998/Project1998/pull/399">#399</a>, <a href="https://github.com/project1998/Project1998/pull/400">#400</a>, <a href="https://github.com/project1998/Project1998/pull/401">#401</a>, and, for operators, <a href="https://github.com/project1998/Project1998/pull/382">#382</a>, <a href="https://github.com/project1998/Project1998/pull/383">#383</a></p>
