@@ -1921,7 +1921,7 @@
     </ul>
     <h3 class="sec">Issues filed</h3>
     <ul>
-      <li><a href="https://github.com/project1998/Project1998/issues/187">#187</a> TileTranslationTests can fail a Release run on a healthy tree · <a href="https://github.com/project1998/Project1998/issues/188">#188</a> RecordingOutbound is not thread-safe · <a href="https://github.com/project1998/Project1998/issues/194">#194</a> the autosave sweep is silent on success · <a href="https://github.com/project1998/Project1998/issues/195">#195</a> the thread-wiring source pin's blind spots · <a href="https://github.com/project1998/Project1998/issues/196">#196</a> revive paths only mark dirty, the death row stays in the store until the next autosave · <a href="https://github.com/project1998/Project1998/issues/197">#197</a> ResyncPeers orphans a peer loitering in the drawn band · <a href="https://github.com/project1998/Project1998/issues/198">#198</a> the party kick pre-check and removal read another session's party outside its monitor · <a href="https://github.com/project1998/Project1998/issues/199">#199</a> 25 hand-prefixed diagnostic lines to route onto Warn and Error · <a href="https://github.com/project1998/Project1998/issues/200">#200</a> Spark-family damage formula matches neither the RTK Lua nor the live probe · <a href="https://github.com/project1998/Project1998/issues/201">#201</a> CI actions on the deprecated Node 20 runtime · test client <a href="https://github.com/Essorcal/project1998-testclient/issues/54">#54</a> no suite script forms a party · <a href="https://github.com/Essorcal/project1998-testclient/issues/55">#55</a> hunt-death.txt's <code>@clearinv</code> leaves worn gear on · <a href="https://github.com/Essorcal/project1998-testclient/issues/56">#56</a> hunt-level.txt's route is severed when Buya's roster materializes.</li>
+      <li><a href="https://github.com/project1998/Project1998/issues/187">#187</a> TileTranslationTests can fail a Release run on a healthy tree · <a href="https://github.com/project1998/Project1998/issues/188">#188</a> RecordingOutbound is not thread-safe · <a href="https://github.com/project1998/Project1998/issues/194">#194</a> the autosave sweep is silent on success · <a href="https://github.com/project1998/Project1998/issues/195">#195</a> the thread-wiring source pin's blind spots · <a href="https://github.com/project1998/Project1998/issues/196">#196</a> revive paths only mark dirty, the death row stays in the store until the next autosave · <a href="https://github.com/project1998/Project1998/issues/197">#197</a> ResyncPeers orphans a peer loitering in the drawn band · <a href="https://github.com/project1998/Project1998/issues/198">#198</a> the party kick pre-check and removal read another session's party outside its monitor · <a href="https://github.com/project1998/Project1998/issues/199">#199</a> 25 hand-prefixed diagnostic lines to route onto Warn and Error · <a href="https://github.com/project1998/Project1998/issues/200">#200</a> Spark-family damage formula matches neither the RTK Lua nor the live probe · <a href="https://github.com/project1998/Project1998/issues/201">#201</a> CI actions on the deprecated Node 20 runtime · test client #54 no suite script forms a party · test client #55 hunt-death.txt's <code>@clearinv</code> leaves worn gear on · test client #56 hunt-level.txt's route is severed when Buya's roster materializes.</li>
     </ul>
   </article>
   <article id="server-2026-09-08">
@@ -2010,7 +2010,7 @@
   </article>
   <article id="testclient-2026-09-07">
     <h2>Test client: bug batch, console commands and run control, persisted-state headers, task layer part 2</h2>
-    <p class="meta">2026-09-07 · Essorcal · test client PRs <a href="https://github.com/Essorcal/project1998-testclient/pull/26">#26</a>, <a href="https://github.com/Essorcal/project1998-testclient/pull/29">#29</a>, <a href="https://github.com/Essorcal/project1998-testclient/pull/33">#33</a>, <a href="https://github.com/Essorcal/project1998-testclient/pull/39">#39</a>, <a href="https://github.com/Essorcal/project1998-testclient/pull/37">#37</a>, <a href="https://github.com/Essorcal/project1998-testclient/pull/36">#36</a></p>
+    <p class="meta">2026-09-07 · Essorcal · test client PRs #26, #29, #33, #39, #37, #36</p>
     <h3 class="sec">Console builds against current server master, clone-layout fallback, peers labelled by nameplate (test client PR #26)</h3>
     <ul>
       <li>The console project references <code>Shared</code> from the server checkout, so it builds against a server master where <code>MapEditor/Assets.cs</code> reads its CSV through <code>Shared.Csv</code>; the output lands in the test client's own <code>build\external\</code>, never in the server checkout.</li>
@@ -2121,7 +2121,7 @@
       <li>Four observations added: <code>LevelChanged</code>, <code>Died</code>, <code>Respawned</code>, <code>MoveBlocked</code>; a transition is emitted before the state write that reveals it, because the reverse order is a race a script cannot recover from.</li>
       <li>Conditions are snapshots and <code>expect</code> still waits; both come from one implementation, so every existing expect count is unchanged.</li>
       <li>A missing loop bound, a block inside <code>sync</code>, and an out-of-range <code>goto</code> tile are parse errors naming the line.</li>
-      <li><code>TestClient/Tasks/</code> holds the map reader, the warp graph, the pathfinder and the navigator, with provenance; <code>ObjectFlagOverrides.csv</code> is read positionally, as the server does, and the note says how many overrides applied.</li>
+      <li>The test client's task layer holds the map reader, the warp graph, the pathfinder and the navigator, with provenance; <code>ObjectFlagOverrides.csv</code> is read positionally, as the server does, and the note says how many overrides applied.</li>
       <li>Six new scripts, including two pathfinder falsifications against the real map and a one-way ledge no ground flag can express.</li>
       <li>Acceptance is now run in both plain and <code>--json</code> modes: a race was invisible in plain text and reproduced 8 of 8 under <code>--json</code>.</li>
       <li>Issue #24 filed (the no-route message blames the warp rule for an occupant on the approach).</li>
@@ -2182,7 +2182,7 @@
       <li>Startup load time and heap unchanged (about 205 versus 215 ms medians, 18 MB either way).</li>
       <li><code>docs/common/Locking.md</code>: the content publisher now holds the Lua gate; <code>@reload</code> from a GM session takes the gate's slow path.</li>
     </ul>
-    <h3 class="sec">Test client: a real two-sender <code>sync</code> (Essorcal/project1998-testclient PR #9, issue #7)</h3>
+    <h3 class="sec">Test client: a real two-sender <code>sync</code> (test client PR #9, issue #7)</h3>
     <ul>
       <li><code>sync … end</code> and <code>all:</code> build and encrypt every bot's first frame, park it, and release the socket writes together on a barrier from one thread per bot.</li>
       <li>A block reports the gap it achieved between the writes: <code>sync: released 2 sends on a barrier, gap 3.0 us [two +0.0, main +3.0]</code>.</li>
@@ -2266,13 +2266,13 @@
       <li><code>-Bots</code> grants tester and GM tier to every named account (default <code>botone,bottwo</code>).</li>
       <li><code>Scripts\Serve.ps1</code> fix: its start path returned exit 0 after a failed build; it now returns the build's failure.</li>
     </ul>
-    <h3 class="sec">Test client PR 4: two bots in one script, melee, and the exchange window (Essorcal/project1998-testclient #4)</h3>
+    <h3 class="sec">Test client PR 4: two bots in one script, melee, and the exchange window</h3>
     <ul>
       <li><code>bot &lt;alias&gt; &lt;user&gt; &lt;pass&gt;</code>, <code>&lt;alias&gt;:</code> prefixes, <code>all:</code>, <code>sync … end</code>; peers tracked through the move packet; <code>attack</code>, <code>trade</code>, <code>offer</code>, <code>confirm</code>, <code>cancel</code>; <code>expect peer</code>, <code>expect hit</code>, <code>expect dead</code>, <code>expect trade</code>, <code>expect exp</code>.</li>
       <li>Four new scripts pass; <code>pending/trade-walkaway.txt</code> fails on purpose as the acceptance test for #57.</li>
       <li><code>sync</code> starts lines in declaration order about 0.7 to 4 ms apart; it is not simultaneity, and the docs say so. A real two-sender race is test client #7.</li>
     </ul>
-    <h3 class="sec">Test client PR 8: script guards (Essorcal/project1998-testclient #8, issues #5, #6)</h3>
+    <h3 class="sec">Test client PR 8: script guards (issues #5, #6)</h3>
     <ul>
       <li>Every literal the runner narrows to a wire type is range-checked when the script is read: map and position, slots, hit percent, offer amount and gold, menu reply, HP, price.</li>
       <li><code># requires bots: botone bottwo</code> lets a script name the accounts it needs; a harness reads it before starting the server.</li>
