@@ -99,6 +99,30 @@
     content-only changes hot-reload with no restart.</p>
   </header>
 
+  <article id="server-2026-10-31-2">
+    <h2>Server: Barbarian's spells cast and go on sale</h2>
+    <p class="meta">2026-10-31 · Essorcal · Server PR <a href="https://github.com/project1998/Project1998/pull/414">#414</a></p>
+    <h3 class="sec">For players: Barbarian's spells (PR #414)</h3>
+    <ul>
+      <li>Barbarian members can buy fifteen spells at the Barbarian Teacher, at the price each spell's script asks in the server we port from; Wilderness weapon from rank 1 and Nomadic blade from rank 2. Each casts as that script:
+        <ul>
+          <li><strong>Sonhi rage:</strong> a six-tier climbing rage (x6 to x50, for 3,000 to 150,000 mana). From tier 2 each tier makes the caster's armour 5 worse; a run lasts 938 seconds, with a 115-second wait, and a climb that lapses keeps 80% down to 10% of vita by tier.</li>
+          <li><strong>Dash:</strong> up to 3 tiles ahead (250 mana needed, none taken; a 150-second wait).</li>
+          <li><strong>Barbarian cry:</strong> the faced creature, or the faced player on a map where players may attack each other, takes 3 times the caster's vita, and the caster keeps a third of theirs; 3,100 mana; a 1,200-second wait.</li>
+          <li><strong>Rend:</strong> the first thing faced takes twice the caster's vita plus twice their mana, and the caster is left at 5% vita and no mana; an 87-second wait.</li>
+          <li><strong>Mount:</strong> a horse appears in front of the caster, ready to ride (600 mana needed, none taken; a 187-second wait).</li>
+          <li><strong>Wilderness guise:</strong> pick Wolf, Rabbit, Deer, Sheep or Thirsty ogre and take that form for 5 minutes.</li>
+          <li><strong>Push:</strong> the faced player is moved one tile on, or two if the first is taken, on any map; 600 mana. If there is nowhere to push them, nothing happens to them.</li>
+          <li><strong>Break jaw:</strong> the faced player's speech comes out garbled for a minute, on any map; a 150-second wait.</li>
+          <li><strong>Insult</strong> and <strong>Dishonor:</strong> every creature around the caster, and every player there on a map where players may attack each other, takes 30 or 50 worse armour for 425 seconds; 200 mana.</li>
+          <li><strong>Envigorate</strong> heals the caster 5,000 (1,000 mana, a 500-second wait); <strong>Tiger's might</strong> gives +3 Might for 625 seconds; <strong>Barbarian rage</strong> triples swings for 625 seconds; <strong>Wilderness weapon</strong> (x4) and <strong>Nomadic blade</strong> (x8) enchant the weapon.</li>
+        </ul>
+      </li>
+      <li>One difference from the server we port from: Insult's and Dishonor's scripts stop with an error at the first creature there; here they curse everyone around, as the scripts plainly mean. Their scripts name a 150-second wait but never start it, so there is none.</li>
+      <li>Survival challenge is unchanged and not on sale (it has no script of its own).</li>
+    </ul>
+  </article>
+
   <article id="server-2026-10-31-1">
     <h2>Server: Diviner's and Muse's spells cast and go on sale, and Shaman's torment runs as long as intended</h2>
     <p class="meta">2026-10-31 · Essorcal · Server PRs <a href="https://github.com/project1998/Project1998/pull/410">#410</a>, <a href="https://github.com/project1998/Project1998/pull/411">#411</a>, <a href="https://github.com/project1998/Project1998/pull/413">#413</a>, and, for operators, <a href="https://github.com/project1998/Project1998/pull/412">#412</a></p>
