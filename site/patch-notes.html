@@ -99,6 +99,40 @@
     content-only changes hot-reload with no restart.</p>
   </header>
 
+  <article id="server-2026-10-31-3">
+    <h2>Server: Druid's spells cast and go on sale, and a rebuilt spellbook keeps your subpath spells</h2>
+    <p class="meta">2026-10-31 · Essorcal · Server PR <a href="https://github.com/project1998/Project1998/pull/417">#417</a></p>
+    <h3 class="sec">For players: Druid's spells (PR #417)</h3>
+    <ul>
+      <li>Druid members can buy nine Druid spells at the Druid Teacher, at the price each spell's script asks in the server we port from; Energy bloom from rank 1. Six of them now cast as their scripts (Lightning storm, Earth strike and Nature's smite already did):
+        <ul>
+          <li><strong>Control flames:</strong> 1,000 mana opens a 62-second window. Each acorn you drop in it is used up, and one time in four flames hit every creature beside you for 1,200 (800 more mana). Any other item drops as usual.</li>
+          <li><strong>Nature's bloom:</strong> 200 mana opens a 625-second window. A flower you drop in it is used up and scatters that flower over the open ground within 4 tiles.</li>
+          <li><strong>Druid's rodent:</strong> answer "rabbit" or "rat" to become one for 155 seconds. Cast it again while in a form to end the form.</li>
+          <li><strong>Steed:</strong> Arawn's stag appears in front of you, ready to ride (a 110-second wait). Getting off sets the stag down again, after a relog too. On the 4.95 client a rider is always drawn on a horse.</li>
+          <li><strong>Sea breeze:</strong> heals every player and creature within 10 tiles, you included, for 600; 1,500 mana; a 75-second wait.</li>
+          <li><strong>Energy bloom:</strong> Earth strike under its own name (600 mana, a target within 10 tiles).</li>
+        </ul>
+      </li>
+      <li>Differences from the server we port from:
+        <ul>
+          <li>When two spells' drop windows are open, the first to take a drop keeps it.</li>
+          <li>Sea breeze never doubles a heal, and healing a creature does not make it attack you.</li>
+          <li>Nature's bloom's flowers lie as separate items rather than one pile per tile.</li>
+          <li>A relog ends a drop window, as it ends every wait here.</li>
+        </ul>
+      </li>
+    </ul>
+    <h3 class="sec">For players: a rebuilt spellbook keeps your subpath spells (PR #417)</h3>
+    <ul>
+      <li>When your spellbook is rebuilt (devoting at a shrine, or renouncing at the Tiger Palace summit) and you are owed more than the book's 52 slots, every subpath spell you hold and every spell already in your book stays, in your new alignment's version. Only base spells you had forgotten give way, and they come back only into slots left free.</li>
+    </ul>
+    <h3 class="sec">For operators (PR #417)</h3>
+    <ul>
+      <li>Saved characters gain one field, the creature being ridden. A server build older than this one will refuse to load a character saved after it (nothing is lost; this build or a newer one loads it). Keep that in mind before rolling back.</li>
+    </ul>
+  </article>
+
   <article id="server-2026-10-31-2">
     <h2>Server: Barbarian's spells cast and go on sale</h2>
     <p class="meta">2026-10-31 · Essorcal · Server PR <a href="https://github.com/project1998/Project1998/pull/414">#414</a></p>
