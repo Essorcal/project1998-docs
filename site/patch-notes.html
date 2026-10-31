@@ -99,6 +99,48 @@
     content-only changes hot-reload with no restart.</p>
   </header>
 
+  <article id="server-2026-10-31-1">
+    <h2>Server: Diviner's and Muse's spells cast and go on sale, and Shaman's torment runs as long as intended</h2>
+    <p class="meta">2026-10-31 · Essorcal · Server PRs <a href="https://github.com/project1998/Project1998/pull/410">#410</a>, <a href="https://github.com/project1998/Project1998/pull/411">#411</a>, <a href="https://github.com/project1998/Project1998/pull/413">#413</a>, and, for operators, <a href="https://github.com/project1998/Project1998/pull/412">#412</a></p>
+    <h3 class="sec">For players: Shaman's torment (PR #410)</h3>
+    <ul>
+      <li>Shaman's torment now lasts 7.5 to 30 seconds (it was 5 to 20), as the server we port from times it, and strikes more often: a fresh cast strikes 4 to 20 times, once every 1.5 seconds. The blow, its scaling and its floor of 1,000 are unchanged.</li>
+      <li>One difference remains: recasting on a torment that is still running gives it one more blow than the server we port from would, two times in three.</li>
+    </ul>
+    <h3 class="sec">For players: Diviner's spells (PR #411)</h3>
+    <ul>
+      <li>Diviner members can buy and cast four spells at the Diviner Teacher, each as in the server we port from except where noted:
+        <ul>
+          <li><strong>Read karma</strong> (from level 60; 70 Acorn, 20 Light fox fur, 50 coins): type a name and see that player's karma, for 250 mana and an 88-second wait. The player read is shown it too, and any NPC conversation they had open is closed.</li>
+          <li><strong>Hear footstep</strong> (level 99): for 32 seconds, every 5 seconds, names each hidden player within 4 tiles.</li>
+          <li><strong>Divine time</strong> (level 99): tells the game's year, day and hour, for 5 mana.</li>
+          <li><strong>Vanish</strong> (level 99): invisible for 1,000 seconds, for no mana; the next landed swing does x9 and ends it.</li>
+          <li>Hear footstep, Divine time and Vanish each cost 1 Fox tail and 1 Topaz.</li>
+        </ul>
+      </li>
+      <li>One difference: casting another spell while Read karma's box is waiting does not cancel it.</li>
+      <li>Darken fate, Seal fate, Void's vengeance, Augury, Reveal fortune, Witness of ritual and Reveal alignment are unchanged: the server we port from has no working script for them.</li>
+    </ul>
+    <h3 class="sec">For players: Muse's spells (PR #413)</h3>
+    <ul>
+      <li>Muse members can buy and cast four spells at the Muse Teacher:
+        <ul>
+          <li><strong>Sacred verse</strong> (from rank 1) and <strong>Tranquil symphony</strong> (from rank 2), each level 30, 1 Scroll and 1 Ink, 60 mana: everyone on the map who is not already in a sanctuary takes half damage, for 120 or 300 seconds (60 or 185 seconds on a map where players may attack each other).</li>
+          <li><strong>Costume</strong> (free): for 1,600 mana, take the look of the creature or player you face for 150 seconds; a 225-second wait.</li>
+          <li><strong>Song of the Goddess</strong> (free; ported from the server we port from's unfinished testing script): heals a player 5,000 vita every second for 24 seconds (10,000 at rank 1, 20,000 at rank 2), for 1,000 mana (3,000 / 6,000).</li>
+        </ul>
+      </li>
+      <li>One difference: a Tranquil symphony holder counts as already in a sanctuary. The server we port from lists a spell that doesn't exist there, so a second song could cancel the first's protection.</li>
+      <li>WarMusic is unchanged.</li>
+      <li>With Baekho's Cunning: while a song runs, it replaces a Cunning reduction, as in the server we port from. Because our Cunning is stronger than theirs, a song makes a Cunning 4 or 5 player take more damage (half, where Cunning alone gives 0.45 or 0.15).</li>
+    </ul>
+    <h3 class="sec">For operators: the login hand-off log (PR #412)</h3>
+    <ul>
+      <li>Players see nothing. A refused or unreadable 4.95 login arrival no longer writes the hand-off's key, nonce or token bytes into the server log; the line still names the connection and why it was refused. The wire log (<code>P1998_LOG_WIRE=1</code>, off by default) still writes every byte, as before.</li>
+      <li><code>docs/4.x/Protocol.md</code> catches up with the code (the hand-off, dialog release, deflect at a player, map titles, the inbound opcode summary, and how a layer's transparent pixels are drawn).</li>
+    </ul>
+  </article>
+
   <article id="server-2026-10-26-3">
     <h2>Server: Shaman's and Do's spells cast and go on sale</h2>
     <p class="meta">2026-10-26 · Essorcal · Server PRs <a href="https://github.com/project1998/Project1998/pull/406">#406</a>, <a href="https://github.com/project1998/Project1998/pull/407">#407</a></p>
