@@ -99,6 +99,29 @@
     content-only changes hot-reload with no restart.</p>
   </header>
 
+  <article id="server-2026-11-09-1">
+    <h2>Server: Chongun's spells cast and go on sale</h2>
+    <p class="meta">2026-11-09 · Essorcal · Server PR <a href="https://github.com/project1998/Project1998/pull/420">#420</a></p>
+    <h3 class="sec">For players: Chongun's spells (PR #420)</h3>
+    <ul>
+      <li>Chongun members can buy eleven spells at the Chongun Teacher, at the price each spell's script asks in the server we port from; Harden weapon from rank 1 and Charge weapon from rank 2. Each now casts as its script:
+        <ul>
+          <li><strong>Evaluate opponent</strong> (200 mana, not spent): a creature shows its maximum vita; a player shows their title and name, vita and mana.</li>
+          <li><strong>Inspire valor</strong> (1,000 mana, a 25-second wait): every other player within 10 tiles gets +3 Might for 112 seconds, replacing their other Might buffs.</li>
+          <li><strong>Art of war</strong> (80 mana): facing a creature, shows "&lt;name&gt; Max Health: N". Facing anything else, nothing happens and nothing is spent.</li>
+          <li><strong>Invincibility</strong> (1,500 mana): when it lands, 3 seconds in which swings do not land (spells still do); when it ends, "Your skin turns back to flesh." It lands more often the better your armour; when it fails, the mana is still spent.</li>
+          <li><strong>Protectors fury</strong> (1,000 mana): rage x3 for 250 seconds.</li>
+          <li><strong>Harden weapon, Charge weapon, Sharpen weapon</strong> (60 mana): your weapon shines and hits x6, x8 or x4 until it leaves your hand. Without a weapon in hand, nothing happens and nothing is spent.</li>
+          <li><strong>Enhanced drink:</strong> answer "water jug" with a Water jug in your bag and red fog spreads around it. Nothing else happens.</li>
+          <li><strong>Chongun uniform</strong> (25 mana): the Chongun uniform look for 162 seconds; cast it again to take it off. Not while invisible.</li>
+          <li><strong>Spirit of war:</strong> climbs its own copy of Chung Ryong's rage, x6 to x50.</li>
+        </ul>
+      </li>
+      <li>Employ troop and Title of nobility now work but are not sold yet: their price asks for an item that no item list has. Recognize honorable act is unchanged.</li>
+      <li>One difference from the server we port from: a relog during Invincibility's 3 seconds keeps the ward but skips its end line.</li>
+    </ul>
+  </article>
+
   <article id="server-2026-10-31-3">
     <h2>Server: Druid's spells cast and go on sale, and a rebuilt spellbook keeps your subpath spells</h2>
     <p class="meta">2026-10-31 · Essorcal · Server PR <a href="https://github.com/project1998/Project1998/pull/417">#417</a></p>
