@@ -99,6 +99,35 @@
     content-only changes hot-reload with no restart.</p>
   </header>
 
+  <article id="server-2026-11-09-2">
+    <h2>Server: Monk's spells cast and go on sale</h2>
+    <p class="meta">2026-11-09 · Essorcal · Server PR <a href="https://github.com/project1998/Project1998/pull/421">#421</a></p>
+    <h3 class="sec">For players: Monk's spells (PR #421)</h3>
+    <ul>
+      <li>Monk members can buy eight spells at the Monk Teacher, at the price each spell's script asks in the server we port from: Read karma and Forgive from level 60, Awe from 62, Second life at any level for free, and the other four from 99. Each now casts as its script:
+        <ul>
+          <li><strong>Read karma</strong> (250 mana, an 88-second wait): as the Diviner's; name a player to see their karma.</li>
+          <li><strong>Forgive</strong> (needs Dragon karma or better): restores a player at Snake karma or worse to the Cat for 1 to 2 of your own karma, and their legend notes it ("Has been forgiven", then "Has been forgiven N times").</li>
+          <li><strong>Second life</strong> (6,000 mana, a 1,250-second wait): a dead player comes back where they lie with 600 vita. The mana and the wait are spent whatever it is aimed at.</li>
+          <li><strong>Bless food</strong> (a 150-second wait): answer "mountain ginseng" with a Mountain ginseng in your bag and red fog spreads around it. Nothing else happens.</li>
+          <li><strong>Awe</strong> (2,000 mana, a 125-second wait): every creature within 10 tiles is paralyzed for 15 seconds.</li>
+          <li><strong>Son-Kal</strong> (1,000 mana, a 10-second wait): give up a tenth of your vita to strike what is in front of you for 1,250 plus that tenth.</li>
+          <li><strong>Faiths call:</strong> 700 plus half your level plus about a quarter of your Will to a target within 10 tiles; it needs 150 mana and does not spend it.</li>
+          <li><strong>Mass resurrect</strong> (15,000 mana, a 900-second wait): every dead player on your map comes back with full vita and mana; not on a map where players may attack each other.</li>
+        </ul>
+      </li>
+      <li>Cast with no target picked, Forgive and Second life take whoever you face; Second life takes a ghost there first.</li>
+      <li>Bless drink is unchanged and not sold. A rank-3 Monk holding every Monk spell is owed more than the book's 52 slots; a rebuilt spellbook keeps every Monk spell they hold, as it does for every subpath.</li>
+      <li>Differences from the server we port from:
+        <ul>
+          <li>Forgive's message boxes show no portrait (the original's cannot draw one).</li>
+          <li>Forgive costs you nothing if the other player has logged out by the time you answer.</li>
+          <li>Awe's paralysis always lasts 15 seconds (there, 13.5 to 15).</li>
+        </ul>
+      </li>
+    </ul>
+  </article>
+
   <article id="server-2026-11-09-1">
     <h2>Server: Chongun's spells cast and go on sale</h2>
     <p class="meta">2026-11-09 · Essorcal · Server PR <a href="https://github.com/project1998/Project1998/pull/420">#420</a></p>
