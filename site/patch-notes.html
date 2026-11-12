@@ -99,6 +99,39 @@
     content-only changes hot-reload with no restart.</p>
   </header>
 
+  <article id="server-2026-11-09-3">
+    <h2>Server: Spy's spells cast and go on sale, with Spy kit's three traps</h2>
+    <p class="meta">2026-11-12 · Essorcal · Server PR <a href="https://github.com/project1998/Project1998/pull/422">#422</a></p>
+    <h3 class="sec">For players: Spy's spells (PR #422)</h3>
+    <ul>
+      <li>Spy members can buy seven new spells at the Spy Teacher, at the price each spell's script asks in the server we port from (Assassinate was already on sale); Skill up, Spy kit and Mimic at any level for free, the rest from 99. Each now casts as its script:
+        <ul>
+          <li><strong>Skill up:</strong> a climbing fury, x6 up to x14, for 3,000 up to 269,420 mana, with a 150-second wait between casts. When the run ends you keep all your vita.</li>
+          <li><strong>Incognito:</strong> invisible for 1,000 seconds, and your next landed swing hits x9. No mana, no wait.</li>
+          <li><strong>Hear footstep</strong> and <strong>Assess opponent:</strong> as the Do's.</li>
+          <li><strong>Spy kit</strong> (a 10-second wait): pick Toxic spray, Tripwire or Smoke screen and an unseen trap sits on your tile for 20 seconds. A creature that steps on it springs it; a player only on a map where players may attack each other.
+            <ul>
+              <li>Toxic spray poisons: 1% of base vita a beat, for 40 seconds on a player and 277.5 seconds on a creature.</li>
+              <li>Tripwire curses: armour 30 worse for 37 seconds on a player, 55.5 seconds on a creature.</li>
+              <li>Smoke screen blinds a creature for 37.5 seconds. A player reads "You cannot see anything." for 25 seconds, though the 4.95 client does not darken their view.</li>
+            </ul>
+          </li>
+          <li><strong>Mimic</strong> (1,600 mana, a 225-second wait): take the look of what you face for 150 seconds.</li>
+          <li><strong>Dagger to throat</strong> (5,000 mana, a 1,000-second wait): the player you face, on any map, cannot Say or Shout for 20 seconds.</li>
+        </ul>
+      </li>
+      <li>Apply stealth now does nothing when cast, as its script does nothing, and is not sold.</li>
+      <li>A rank-3 Spy holding every Spy spell fits the 52-slot spellbook.</li>
+      <li>Differences from the server we port from:
+        <ul>
+          <li>Smoke screen does not darken a player's view (the 4.95 client cannot).</li>
+          <li>Toxic spray keeps ticking for its whole time even after the poisoned player casts a spell; the original's stopped.</li>
+          <li>A poison beat lands on the server's heartbeat, so a few fewer beats land than in the original.</li>
+        </ul>
+      </li>
+    </ul>
+  </article>
+
   <article id="server-2026-11-09-2">
     <h2>Server: Monk's spells cast and go on sale</h2>
     <p class="meta">2026-11-09 · Essorcal · Server PR <a href="https://github.com/project1998/Project1998/pull/421">#421</a></p>
