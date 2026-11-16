@@ -99,6 +99,34 @@
     content-only changes hot-reload with no restart.</p>
   </header>
 
+  <article id="server-2026-11-12-1">
+    <h2>Server: Ranger's spells cast and go on sale</h2>
+    <p class="meta">2026-11-16 · Essorcal · Server PR <a href="https://github.com/project1998/Project1998/pull/423">#423</a></p>
+    <h3 class="sec">For players: Ranger's spells (PR #423)</h3>
+    <ul>
+      <li>Ranger members can buy six spells at the Ranger Teacher, at the price each spell's script asks in the server we port from: Skill up, Forest cover and Carve arrow at any level for free; Tree bark, Pit trap and Scouting trip from 99. Each now casts as its script:
+        <ul>
+          <li><strong>Skill up:</strong> a climbing fury, x6 up to x14, for 3,000 up to 269,420 mana, with a 150-second wait between casts. When the run ends you keep all your vita.</li>
+          <li><strong>Forest cover</strong> (750 mana, a 200-second wait): take the look of what you face for 150 seconds.</li>
+          <li><strong>Tree bark</strong> (1,500 mana, a 300-second wait; it can fail, more often in weaker armour): for 12 seconds no swing lands on you, a creature's or a player's, though spells still do.</li>
+          <li><strong>Pit trap</strong> (1,000 mana, no wait): an unseen pit sits on your tile for 20 seconds. A creature that steps on it springs it; a player only on a map where players may attack each other. It strikes for half your max vita plus half your max mana, through the victim's armour; a strike bigger than the vita they have left leaves them at 1.</li>
+          <li><strong>Carve arrow</strong> (a 10,000-second wait): pick an arrow and turn 3 Ginko wood and its reagent into a bundle, again and again until you stop or run short. Basic wooden, Split head, Cursed head, Flame head and Steel tip for all; Sleep, Explosive, Dark and Deamon arrows open with the Ranger marks.</li>
+          <li><strong>Scouting trip</strong> (2,000 mana, a 25,000-second wait): mark a player within 10 tiles, or take the mark away. Their legend reads "Scouted with Rangers N times, marked by &lt;you&gt;".</li>
+        </ul>
+      </li>
+      <li>Call companion casts as its script too (pick one of seven creatures to fight beside you for 600 seconds), but is not sold yet: its price names an item that doesn't exist.</li>
+      <li>The Scroll of Immortality is now refused, and not used up, while Tree bark, Invincibility or Harden Body is on you ("You already cast that spell."), as in the server we port from.</li>
+      <li>A rank-3 Ranger holding every Ranger spell fits the 52-slot spellbook.</li>
+      <li>Differences from the server we port from:
+        <ul>
+          <li>Scouting trip's message boxes are plain (the original's could not show).</li>
+          <li>A Scouting trip mark keeps the marker's name as it was when they marked.</li>
+          <li>A Pit trap's setter who logs out and back in within its 20 seconds counts as gone, and the pit then does nothing.</li>
+        </ul>
+      </li>
+    </ul>
+  </article>
+
   <article id="server-2026-11-09-3">
     <h2>Server: Spy's spells cast and go on sale, with Spy kit's three traps</h2>
     <p class="meta">2026-11-12 · Essorcal · Server PR <a href="https://github.com/project1998/Project1998/pull/422">#422</a></p>
