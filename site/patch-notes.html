@@ -99,6 +99,33 @@
     content-only changes hot-reload with no restart.</p>
   </header>
 
+  <article id="server-2026-11-16-1">
+    <h2>Server: Merchant's spells cast and go on sale</h2>
+    <p class="meta">2026-11-16 · Essorcal · Server PR <a href="https://github.com/project1998/Project1998/pull/425">#425</a></p>
+    <h3 class="sec">For players: Merchant's spells (PR #425)</h3>
+    <ul>
+      <li>Merchant members can buy six spells at the Merchant Teacher, at the price each spell's script asks in the server we port from: Skill up and Engrave at any level for free, Marketer guise from 33, Pilfer, Gambling and Golden fist from 99. Each now casts as its script:
+        <ul>
+          <li><strong>Skill up:</strong> a climbing fury, x6 up to x14, for 3,000 up to 269,420 mana, with a 150-second wait between casts. When the run ends you keep all your vita.</li>
+          <li><strong>Engrave:</strong> aim at a player and name a fee. They choose whether to pay, pick one of their weapons, armour and the like, and type a name of up to 18 letters. Once you confirm the name, the fee moves to you and the item is named "** name **". You can engrave once every 24 hours.</li>
+          <li><strong>Marketer guise:</strong> a merchant's look for 60 seconds; cast it in a creature's form and that form ends instead.</li>
+          <li><strong>Pilfer</strong> (60 mana): pick up everything lying on the two tiles ahead of you, except where someone stands or what belongs to someone else.</li>
+          <li><strong>Gambling</strong> (a 30-second wait): name two players within 6 tiles and a wager of 1,000, 10,000 or 100,000 gold. Each agrees in their own box; two rolls decide, and the winner takes the wager from the loser. A tie moves nothing.</li>
+          <li><strong>Golden fist</strong> (90 mana): fury x4 for 625 seconds.</li>
+        </ul>
+      </li>
+      <li>BekyunArrow casts as its script too (Bekyun's spear becomes five Bekyun's set), but is not sold yet: its price names an item that doesn't exist.</li>
+      <li>A rank-3 Merchant holding every Merchant spell fits the 52-slot spellbook.</li>
+      <li>Differences from the server we port from:
+        <ul>
+          <li>Engrave and Gambling work here; in the original both stopped at their first offer.</li>
+          <li>Engrave's item list opens without a shopkeeper behind it, a window new to this server.</li>
+          <li>BekyunArrow's heal stays within your maximum vita and mana.</li>
+        </ul>
+      </li>
+    </ul>
+  </article>
+
   <article id="server-2026-11-12-1">
     <h2>Server: Ranger's spells cast and go on sale</h2>
     <p class="meta">2026-11-16 · Essorcal · Server PR <a href="https://github.com/project1998/Project1998/pull/423">#423</a></p>
