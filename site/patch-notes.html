@@ -99,6 +99,34 @@
     content-only changes hot-reload with no restart.</p>
   </header>
 
+  <article id="server-2026-11-16-2">
+    <h2>Server: Geomancer's spells cast and go on sale</h2>
+    <p class="meta">2026-11-16 · Essorcal · Server PR <a href="https://github.com/project1998/Project1998/pull/426">#426</a></p>
+    <h3 class="sec">For players: Geomancer's spells (PR #426)</h3>
+    <ul>
+      <li>Geomancer members can buy twelve more spells at the Geomancer Teacher, at the price each spell's script asks in the server we port from: Read karma from level 60, the rest from 99 (Earths Spite needs the first mark). Hailstorm and Ice bombardment were already on sale. Each now casts as its script:
+        <ul>
+          <li><strong>Exhume</strong> (needs 200 mana, then takes 200 a second for its 100 seconds; a 1,250-second wait): drop one of sixteen items, such as fox fur, rat meat, beef, bone or a dragon's tooth, and a matching creature appears beside you. It gives no experience and drops nothing.</li>
+          <li><strong>Read karma</strong> (250 mana, an 88-second wait): as the Monk's; name a player to see their karma.</li>
+          <li><strong>GreenPotion</strong> (a 3,120-second wait): limestone and fine snake meat make a lime potion.</li>
+          <li><strong>Elemental mastery:</strong> take one of five elemental looks for 120 seconds.</li>
+          <li><strong>Honor of the Three Sects, Balance recognition, Inner sect recognition, Neutrality recognition, Elementalist's mark</strong> (100 mana, a 5-second wait): mark a named player's legend with a recognition, or take one away.</li>
+          <li><strong>Goodearth</strong> (100 mana, then 100 every 1.5 seconds for its first 35 seconds; a 125-second wait): peaceful ground around you for 20 seconds. A player who steps on it gets Sanctuary, Harden Armor and Valor.</li>
+          <li><strong>Soften skin</strong> and <strong>Earths Spite</strong> (500 mana): the target's armour 35 or 45 worse for 425 seconds on a player and 637.5 seconds on a creature.</li>
+        </ul>
+      </li>
+      <li>Reveal fate stays as it is today: it casts nothing and is not sold.</li>
+      <li>A rank-3 Geomancer holding every Geomancer spell has more than the 52-slot spellbook holds; when the book is rebuilt, every subpath spell they hold is kept.</li>
+      <li>Differences from the server we port from:
+        <ul>
+          <li>Five of Exhume's creatures (the horse, bull, pig, skeleton and dragon) did not exist in the original; here they are no-reward copies of a Horse, Large bull, Stubborn pig, Lesser skeleton and Dragon hatchling.</li>
+          <li>Removing a recognition takes it off the named player; the original took it off the caster.</li>
+          <li>A spell's wait here ends when you log out, as every spell wait on this server does.</li>
+        </ul>
+      </li>
+    </ul>
+  </article>
+
   <article id="server-2026-11-16-1">
     <h2>Server: Merchant's spells cast and go on sale</h2>
     <p class="meta">2026-11-16 · Essorcal · Server PR <a href="https://github.com/project1998/Project1998/pull/425">#425</a></p>
